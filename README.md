@@ -3,30 +3,30 @@ Team 6 of course group project for Digital Humans, ETH Zürich FS2025.
 
 ## Notes
 - <details>
-    <summary> Download file structure </summary>
-    ```
-    .
-    ├── config_files
-    ├── control
-    ├── data             *new
-    ├── data_loaders
-    ├── data_scripts
-    ├── demos
-    ├── diffusion
-    ├── environment.yml
-    ├── evaluation
-    ├── misc
-    ├── mld
-    ├── mld_denoiser    *new
-    ├── model
-    ├── mvae            *new
-    ├── policy_train    *new
-    ├── README.md
-    ├── scenes
-    ├── utils
-    └── visualize
-    ...
-    ```
+  <summary> Download file structure </summary>
+  ```
+  .
+  ├── config_files
+  ├── control
+  ├── data             *new
+  ├── data_loaders
+  ├── data_scripts
+  ├── demos
+  ├── diffusion
+  ├── environment.yml
+  ├── evaluation
+  ├── misc
+  ├── mld
+  ├── mld_denoiser    *new
+  ├── model
+  ├── mvae            *new
+  ├── policy_train    *new
+  ├── README.md
+  ├── scenes
+  ├── utils
+  └── visualize
+  ...
+  ```
     ```
     data
     ├── action_statistics.json
