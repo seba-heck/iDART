@@ -84,4 +84,4 @@ data/smplx_lockedhead_20230207/
         └── SMPLX_NEUTRAL.npz
 ```
 
-<details>
+</details>
