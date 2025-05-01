@@ -85,6 +85,7 @@ class DenoiserTransformer(nn.Module):
                 print('Loading CLIP...')
                 self.clip_version = clip_version
                 self.clip_model = self.load_and_freeze_clip(clip_version)
+                self.clip_model = self.clip_model.float()
             if 'action' in self.cond_mode:
                 self.embed_action = EmbedAction(self.num_actions, self.latent_dim)
                 print('EMBED ACTION')
@@ -101,6 +102,7 @@ class DenoiserTransformer(nn.Module):
     def load_and_freeze_clip(self, clip_version):
         clip_model, clip_preprocess = clip.load(clip_version, device='cpu',
                                                 jit=False)  # Must set jit=False for training
+        self.clip_model = self.clip_model.float()
         clip.model.convert_weights(
             clip_model)  # Actually this line is unnecessary since clip by default already on float16
 

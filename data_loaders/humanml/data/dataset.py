@@ -1520,6 +1520,7 @@ class WeightedPrimitiveSequenceDataset:
 
         # load clip model, get train text embeddings
         self.clip_model = load_and_freeze_clip(clip_version='ViT-B/32', device=self.device)
+        self.clip_model = self.clip_model.float()
         self.embedding_path = embedding_path = Path(dataset_path, f'{split}_text_embedding_dict.pkl')
         if embedding_path.exists():
             print(f'loading text embeddings from {embedding_path}')
@@ -2088,6 +2089,7 @@ class WeightedPrimitiveSequenceDatasetV2(WeightedPrimitiveSequenceDataset):
 
         # load clip model, get train text embeddings
         self.clip_model = load_and_freeze_clip(clip_version='ViT-B/32', device=self.device)
+        self.clip_model = self.clip_model.float()
         self.embedding_path = embedding_path = Path(dataset_path, f'{split}_text_embedding_dict.pkl')
         if embedding_path.exists():
             print(f'loading text embeddings from {embedding_path}')
@@ -2368,6 +2370,7 @@ class SinglePrimitiveDataset(WeightedPrimitiveSequenceDataset):
                 exit()
         # load clip model
         self.clip_model = load_and_freeze_clip(clip_version='ViT-B/32', device=self.device)
+        self.clip_model = self.clip_model.float()
         self.update_seq(sequence_path)
 
 
