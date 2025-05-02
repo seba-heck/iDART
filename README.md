@@ -4,7 +4,7 @@ Team 6 of course group project for Digital Humans, ETH Zürich FS2025.
 
 
 ## Notes
-- <details>
+<details>
   <summary> Download file structure </summary>
 
   ```
@@ -83,4 +83,9 @@ Team 6 of course group project for Digital Humans, ETH Zürich FS2025.
             ├── SMPLX_MALE.npz
             └── SMPLX_NEUTRAL.npz
     ```
-    </details>
+</details>
+
+## Fragen
+- Ordner 'FlowMDM'?
+- cluster team6 ordner?
+- 
