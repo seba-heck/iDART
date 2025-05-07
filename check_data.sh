@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # List of required files/directories
-required_paths=(
+default_required_paths=(
   "./mld_denoiser"
   "./policy_train"
   "./mvae"
@@ -10,6 +10,8 @@ required_paths=(
   "./data/smplx_lockedhead_20230207/models_lockedhead/smplh"
   "./data/smplx_lockedhead_20230207/models_lockedhead/smplx"
 )
+
+required_paths=("${default_required_paths[@]}" "$@")
 
 echo "Checking required files and directories with permissions..."
 
