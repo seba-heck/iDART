@@ -11,22 +11,38 @@ required_paths=(
   "./data/smplx_lockedhead_20230207/models_lockedhead/smplx"
 )
 
-echo "Checking required files and directories..."
+echo "Checking required files and directories with permissions..."
 
 all_exist=true
 for path in "${required_paths[@]}"; do
   if [ -e "$path" ]; then
     echo "[OK] Found: $path"
+
+    # Check read permission
+    if [ -r "$path" ]; then
+      echo "    [READ]  ✅ You have read access."
+    else
+      echo "    [READ]  ❌ No read access!"
+      all_exist=false
+    fi
+
+    # Check write permission
+    if [ -w "$path" ]; then
+      echo "    [WRITE] ✅ You have write/overwrite access."
+    else
+      echo "    [WRITE] ❌ No write access!"
+      all_exist=false
+    fi
+
   else
-    echo "[MISSING] Not found: $path"
+    echo "[MISSING] ❌ Not found: $path"
     all_exist=false
   fi
 done
 
 if [ "$all_exist" = true ]; then
-  echo "✅ All required files and directories are present."
+  echo -e "\n✅ All required files/directories are present and accessible."
 else
-  echo "❌ Some required files or directories are missing."
+  echo -e "\n❌ Some required paths are missing or lack sufficient permissions."
   exit 1
 fi
-
