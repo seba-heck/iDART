@@ -47,6 +47,7 @@ def visualize(model=None, smpl_output=None, scene_mesh=None, query_samples=None,
     ax.set_zlabel('Z')
     ax.legend()
     plt.savefig(f"imgs/visualization_{idx}.png")
+    plt.close()
 
 def load_smpl_data(pkl_path):
     """

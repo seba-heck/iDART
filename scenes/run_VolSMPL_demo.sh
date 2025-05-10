@@ -2,7 +2,6 @@
 
 # Define variables
 CONDA_ENV="DART"
-PYTHON_SCRIPT="scene_matplotlib.py"
 OUTPUT_DIR="../bin"
 OUTPUT_VIDEO="visualization.mp4"
 IMAGE_DIR="../bin/imgs"
@@ -17,8 +16,8 @@ echo "Checking and installing necessary Python packages..."
 pip install numpy torch matplotlib trimesh smplx ffmpeg-python VolumetricSMPL
 
 # Run the Python script
-echo "Running the Python script: $PYTHON_SCRIPT"
-python3 $PYTHON_SCRIPT --bm_dir_path ../../iDART/data/smplx_lockedhead_20230207/models_lockedhead/ --model_type smplx --VISUALIZE
+echo "RUN Python script ..."
+python3 test_VolSMPL.py --bm_dir_path ../../iDART/data/smplx_lockedhead_20230207/models_lockedhead/ --model_type smplx --VISUALIZE
 
 # Check if images were generated
 if [ ! -d "$IMAGE_DIR" ]; then
