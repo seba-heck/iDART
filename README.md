@@ -99,7 +99,7 @@ Team 6 of course group project for Digital Humans, ETH Zürich FS2025.
 </details>
 
 ## Fragen
-- Ordner 'FlowMDM'?
+- Ordner 'FlowMDM'? -> nicht notwendig, wurde zum vergleichen / evaluieren verwendet 
 - cluster team6 ordner? -> gefunden /work/courses/digital_human/6/
 - permission denied
 - 
