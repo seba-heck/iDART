@@ -25,22 +25,22 @@ def visualize(model=None, smpl_output=None, scene_mesh=None, query_samples=None,
     ax = fig.add_subplot(111, projection='3d')
 
     # Plot the scene mesh
-    ax.scatter(scene_mesh.vertices[:, 0], scene_mesh.vertices[:, 2], scene_mesh.vertices[:, 1], s=0.1, c='gray', alpha=0.5, label='Scene Mesh')
+    ax.scatter(scene_mesh.vertices[:, 0], scene_mesh.vertices[:, 2], -scene_mesh.vertices[:, 1], s=0.1, c='gray', alpha=0.25, label='Scene Mesh')
 
     # Plot the SMPL body mesh
     if smpl_output is not None:
         smpl_vertices = smpl_output.vertices[0].detach().cpu().numpy()
-        ax.scatter(smpl_vertices[:, 0], smpl_vertices[:, 2], smpl_vertices[:, 1], s=0.1, c='blue', label='SMPL Body')
+        ax.scatter(smpl_vertices[:, 0], smpl_vertices[:, 2], -smpl_vertices[:, 1], s=0.1, c='blue', label='SMPL Body')
 
     # Plot query samples
     if query_samples is not None:
         query_samples_np = query_samples.cpu().numpy()
-        ax.scatter(query_samples_np[:, 0], query_samples_np[:, 2], query_samples_np[:, 1], s=1, c='green', label='Query Samples')
+        ax.scatter(query_samples_np[:, 0], query_samples_np[:, 2], -query_samples_np[:, 1], s=1, c='green', label='Query Samples')
 
     # Plot collision samples
     if collision_samples is not None:
         collision_samples_np = collision_samples.cpu().numpy()
-        ax.scatter(collision_samples_np[:, 0], collision_samples_np[:, 2], collision_samples_np[:, 1], s=1, c='red', label='Collision Samples')
+        ax.scatter(collision_samples_np[:, 0], collision_samples_np[:, 2], -collision_samples_np[:, 1], s=1, c='red', label='Collision Samples')
 
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
@@ -91,6 +91,14 @@ def main():
     model = smplx.create(model_path=args.bm_dir_path, model_type=args.model_type, gender='neutral', use_pca=True, num_pca_comps=12, num_betas=10)
     model = attach_volume(model, pretrained=True, device=args.device)
     
+    # Rotate the scene mesh by 180 degrees around the X-axis
+    rotation_matrix = np.array([
+        [1,  0,  0],
+        [0, -1,  0],
+        [0,  0, -1]
+    ])
+    scene_mesh.vertices = np.dot(scene_mesh.vertices, rotation_matrix.T)
+
     scene_vertices = torch.from_numpy(scene_mesh.vertices).to(device=args.device, dtype=torch.float)
     scene_normals = torch.from_numpy(np.asarray(scene_mesh.vertex_normals).copy()).to(device=args.device, dtype=torch.float)
 
@@ -150,8 +158,8 @@ if __name__ == '__main__':
     parser.add_argument('--VISUALIZE', action='store_true', help='Use winding numbers to sample points.')
     
     # data samples
-    parser.add_argument('--scan_path', type=str, default='../data/scenes/cab_g_benches/cab_g_benches.obj', help='Raw scan location.')
-    parser.add_argument('--sample_body', type=str, default='../data/stand.pkl', help='SMPL parameters.')
+    parser.add_argument('--scan_path', type=str, default='../data/scenes/seminar_h53_0218/seminar_h53_0218.obj', help='Raw scan location.')
+    parser.add_argument('--sample_body', type=str, default='../data/VolSMPL_frame.pkl', help='SMPL parameters.')
 
     # optimization related
     parser.add_argument('--max_iters', default=200, type=int, help='The maximum number of optimization steps.')
