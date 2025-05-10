@@ -143,14 +143,14 @@ if __name__ == '__main__':
     parser.add_argument('--device', type=str, choices=['cuda', 'cpu'], default='cuda', help='Device (cuda or cpu).')
     
     # SMPL specification
-    parser.add_argument('--bm_dir_path', type=str, required=False, default='../COAP_DATA/body_models', help='Directory with SMPL bodies.')
+    parser.add_argument('--bm_dir_path', type=str, required=False, default='../data/smplx_lockedhead_20230207/models_lockedhead/', help='Directory with SMPL bodies.')
     parser.add_argument('--model_type', type=str, choices=['smpl', 'smplx'], default='smplx', help='SMPL-based body type.')
     parser.add_argument('--gender', type=str, choices=['male', 'female', 'neutral'], default='neutral', help='SMPL gender.')
     parser.add_argument('--VISUALIZE', action='store_true', help='Use winding numbers to sample points.')
     
     # data samples
-    parser.add_argument('--scan_path', type=str, default='./samples/scene_collision/raw_kinect_scan/scan.obj', help='Raw scan location.')
-    parser.add_argument('--sample_body', type=str, default='./samples/scene_collision/sample_bodies/frame_01743.pkl', help='SMPL parameters.')
+    parser.add_argument('--scan_path', type=str, default='../data/scenes/cab_g_benches/cab_g_benches.obj', help='Raw scan location.')
+    parser.add_argument('--sample_body', type=str, default='../data/stand.pkl', help='SMPL parameters.')
 
     # optimization related
     parser.add_argument('--max_iters', default=200, type=int, help='The maximum number of optimization steps.')
