@@ -92,6 +92,40 @@ def calc_point_sdf(scene_assets, points):
     sdf_values = sdf_values / sdf_scale.squeeze(-1)  # [B, P], scale back to the original scene size
     return sdf_values
 
+def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl):
+    B, T, _, _ = motion_sequences['joints'].shape
+
+    # get scene points
+    scene_points = ...
+
+    # get body pose parameters
+    body_param_dict = primitive_utility.tensor_to_dict(motion_sequences)
+    body_param_dict.update(
+        {
+            'transf_rotmat': transf_rotmat,
+            'transf_transl': transf_transl,
+            'gender': gender
+        }
+    )
+    body_param_dict = primitive_utility.feature_dict_to_smpl_dict(body_param_dict)
+    body_param_dict = primitive_utility.transform_primitive_to_world(body_param_dict)
+
+    # get smplx model
+    body_model = primitive_utility.get_smpl_model(gender)
+
+    # get "current" smpl body model
+    smpl_output = body_model(betas=body_param_dict['betas'].reshape(B * T, 10),
+                             global_orient=body_param_dict['global_orient'].reshape(B * T, 3, 3),
+                             body_pose=body_param_dict['body_pose'].reshape(B * T, 21, 3, 3),
+                             transl=body_param_dict['transl'].reshape(B * T, 3),
+                             return_verts=True, return_full_pose=True)
+
+    # query sampled points for sdf values
+    # selfpen_loss, _collision_mask = body_model.volume.collision_loss(scene_points, smpl_output, ret_collision_mask=True)
+    sdf_values = body_model.volume.query(scene_points)
+
+    return sdf_values
+
 def calc_jerk(joints):
     vel = joints[:, 1:] - joints[:, :-1]  # --> B x T-1 x 22 x 3
     acc = vel[:, 1:] - vel[:, :-1]  # --> B x T-2 x 22 x 3
@@ -215,7 +249,11 @@ def optimize(history_motion_tensor, transf_rotmat, transf_transl, text_prompt, g
                                                                                                     transf_transl)
         global_joints = motion_sequences['joints']  # [B, T, 22, 3]
         B, T, _, _ = global_joints.shape
+        
+        sdf_values = calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl)
+
         joints_sdf = calc_point_sdf(scene_assets, global_joints.reshape(1, -1, 3)).reshape(B, T, 22)
+
         foot_joints_sdf = joints_sdf[:, :, FOOT_JOINTS_IDX]  # [B, T, 2]
         loss_floor_contact = (foot_joints_sdf.amin(dim=-1) - optim_args.contact_thresh).clamp(min=0).mean()
         negative_sdf_per_frame = (joints_sdf - joint_skin_dist.reshape(1, 1, 22)).clamp(max=0).sum(
@@ -277,6 +315,13 @@ if __name__ == '__main__':
     primitive_length = history_length + future_length
     primitive_utility = dataset.primitive_utility
     batch_size = optim_args.batch_size
+
+    # # ADD VOLUME SDF
+    # print(primitive_utility.body_type)
+    # print(type(primitive_utility.bm_male))
+    # attach_volume(primitive_utility.bm_male)
+    # attach_volume(primitive_utility.bm_fem)
+    # print('> attach volume sdf to smpl model')
 
     with open('./data/joint_skin_dist.json', 'r') as f:
         joint_skin_dist = json.load(f)

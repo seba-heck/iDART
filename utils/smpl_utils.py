@@ -7,14 +7,20 @@ from typing import Union
 
 from config_files.data_paths import *
 
+from VolumetricSMPL import attach_volume
+
+fm_male = smplx.create(body_model_dir, model_type='smplx', gender='male', ext='npz',num_pca_comps=12)
+fm_female = smplx.create(body_model_dir, model_type='smplx', gender='female', ext='npz', num_pca_comps=12)
+
+attach_volume(fm_male)
+attach_volume(fm_male)
+
+lm_male = fm_male.model
+lm_female = fm_female.model
+
 body_model_dict = {
-    'male': smplx.build_layer(body_model_dir, model_type='smplx',
-                              gender='male', ext='npz',
-                              num_pca_comps=12),
-    'female': smplx.build_layer(body_model_dir, model_type='smplx',
-                                gender='female', ext='npz',
-                                num_pca_comps=12
-                                )
+    'male': lm_male,
+    'female': lm_female,
 }
 
 def tensor_dict_to_device(tensor_dict, device, dtype=torch.float32):
