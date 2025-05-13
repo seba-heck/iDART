@@ -6,6 +6,7 @@ import random
 import time
 from typing import Literal
 from dataclasses import dataclass, asdict, make_dataclass
+#sys.path.append(os.path.abspath(os.path.join(os.pa)))
 
 import numpy as np
 import torch
@@ -28,6 +29,7 @@ from data_loaders.humanml.data.dataset import WeightedPrimitiveSequenceDataset, 
 from utils.smpl_utils import *
 from utils.misc_util import encode_text, compose_texts_with_and
 from pytorch3d import transforms
+from pytorch3d.transforms import axis_angle_to_matrix, matrix_to_axis_angle
 from diffusion import gaussian_diffusion as gd
 from diffusion.respace import SpacedDiffusion, space_timesteps
 from diffusion.resample import create_named_schedule_sampler
@@ -93,14 +95,14 @@ def calc_point_sdf(scene_assets, points):
     sdf_center = torch.tensor(sdf_center, dtype=torch.float32, device=device).reshape(1, 1, 3)  # [1, 1, 3]
     batch_size, num_points, _ = points.shape
     # convert to [-1, 1], here scale is (1.6/extent) proportional to the inverse of scene size, https://github.com/wang-ps/mesh2sdf/blob/1b54d1f5458d8622c444f78d4477f600a6fe50e1/example/test.py#L22
-    points = (points - sdf_center) * sdf_scale  # [B, num_points, 3]
-    sdf_values = F.grid_sample(scene_sdf_grid.unsqueeze(0),  # [B, 1, size, size, size]
+    points = (points - sdf_center) * sdf_scale  # [> B, num_points, 3]
+    sdf_values = F.grid_sample(scene_sdf_grid.unsqueeze(0),  # [> B, 1, size, size, size]
                                points[:, :, [2, 1, 0]].view(batch_size, num_points, 1, 1, 3),
                                padding_mode='border',
                                align_corners=True
                                ).reshape(batch_size, num_points)
     # print('sdf_values', sdf_values.shape)
-    sdf_values = sdf_values / sdf_scale.squeeze(-1)  # [B, P], scale back to the original scene size
+    sdf_values = sdf_values / sdf_scale.squeeze(-1)  # [> B, P], scale back to the original scene size
     return sdf_values
 
 def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl):
@@ -109,11 +111,38 @@ def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl):
     # get scene points
     scene_points = ...
 
-    # get body pose parameters
-    betas = motion_sequences['betas']
-    global_orient = motion_sequences['global_orient']
-    body_pose = motion_sequences['body_pose'] @ transf_rotmat
-    transl = motion_sequences['transl']
+    # get body pose parameterscon
+    betas = motion_sequences['betas'] #body shape coeffs, don't rotate! 
+    print("betas shape", betas.shape())
+
+    # > (B, T, 3, 3) -> (B, 3)
+    global_orient = motion_sequences['global_orient'] #global rotation of root joint
+
+    #  (B, T, 21, 3, 3)-> (B, (J*3))
+    body_pose = motion_sequences['body_pose'] @ transf_rotmat #relative rotations of other joints
+
+    # (B, T, 3) -> (B, 3)
+    transl = motion_sequences['transl'] #global translation of the root
+
+    #Rotation Transformations
+    # convert input axis angle to rot matrices
+    global_orient_mat = axis_angle_to_matrix(global_orient)  
+    body_pose_mat = axis_angle_to_matrix(body_pose) 
+
+    #transform (multiply with transf_rotmat)
+    global_orient_rot_mat = torch.matmul(transf_rotmat, global_orient_mat)      
+    body_pose_rot_mat = torch.matmul(transf_rotmat.unsqueeze(0).unsqueeze(0), body_pose_mat) 
+
+    #convert back to axis-angle
+    global_orient_rot = matrix_to_axis_angle(global_orient_rot_mat) 
+    body_pose_rot = matrix_to_axis_angle(body_pose_rot_mat.view(B, T * 21, 3, 3)).view(B, T, 21, 3) 
+    transl_rot =  (transf_rotmat @ transl.transpose(-1, -2)).transpose(-1, -2)  # (B, T, 3)
+
+    #reshape for required input size for SMPL-X
+    global_orient_input = global_orient_rot.reshape(B * T, 3)
+    body_pose_input = body_pose_rot.reshape(B * T, 21 * 3)
+    transl_input = transl_rot.reshape(B * T, 3)
+
 
     # get smplx model
     # body_model = primitive_utility.get_smpl_model(gender)
@@ -121,9 +150,9 @@ def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl):
 
     # get "current" smpl body model
     smpl_output = body_model(betas=betas.reshape(B * T, 10),
-                             global_orient=global_orient.reshape(B * T, 3, 3),
-                             body_pose=body_pose.reshape(B * T, 21, 3, 3),
-                             transl=transl.reshape(B * T, 3),
+                             global_orient=global_orient_input,
+                             body_pose=body_pose_input,
+                             transl=transl_input,
                              return_verts=True, return_full_pose=True)
 
     # query sampled points for sdf values
@@ -133,11 +162,11 @@ def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl):
     return sdf_values
 
 def calc_jerk(joints):
-    vel = joints[:, 1:] - joints[:, :-1]  # --> B x T-1 x 22 x 3
-    acc = vel[:, 1:] - vel[:, :-1]  # --> B x T-2 x 22 x 3
-    jerk = acc[:, 1:] - acc[:, :-1]  # --> B x T-3 x 22 x 3
-    jerk = torch.sqrt((jerk ** 2).sum(dim=-1))  # --> B x T-3 x 22, compute L1 norm of jerk
-    jerk = jerk.amax(dim=[1, 2])  # --> B, Get the max of the jerk across all joints and frames
+    vel = joints[:, 1:] - joints[:, :-1]  # --> > B x T-1 x 22 x 3
+    acc = vel[:, 1:] - vel[:, :-1]  # --> > B x T-2 x 22 x 3
+    jerk = acc[:, 1:] - acc[:, :-1]  # --> > B x T-3 x 22 x 3
+    jerk = torch.sqrt((jerk ** 2).sum(dim=-1))  # --> > B x T-3 x 22, compute L1 norm of jerk
+    jerk = jerk.amax(dim=[1, 2])  # --> > B, Get the max of the jerk across all joints and frames
 
     return jerk.mean()
 
@@ -163,7 +192,7 @@ def optimize(history_motion_tensor, transf_rotmat, transf_transl, text_prompt, g
         motion_sequences = None
         history_motion = history_motion_tensor
         for segment_id in range(num_rollout):
-            text_embedding = all_text_embedding[segment_id].expand(batch_size, -1)  # [B, 512]
+            text_embedding = all_text_embedding[segment_id].expand(batch_size, -1)  # [> B, 512]
             guidance_param = torch.ones(batch_size, *denoiser_args.model_args.noise_shape).to(device=device) * optim_args.guidance_param
             y = {
                 'text_embedding': text_embedding,
@@ -180,12 +209,12 @@ def optimize(history_motion_tensor, transf_rotmat, transf_transl, text_prompt, g
                 init_image=None,
                 progress=False,
                 noise=noise[segment_id],
-            )  # [B, T=1, D]
+            )  # [> B, T=1, D]
             # x_start_pred = x_start_pred.clamp(min=-3, max=3)
             # print('x_start_pred:', x_start_pred.mean(), x_start_pred.std(), x_start_pred.min(), x_start_pred.max())
-            latent_pred = x_start_pred.permute(1, 0, 2)  # [T=1, B, D]
+            latent_pred = x_start_pred.permute(1, 0, 2)  # [T=1, > B, D]
             future_motion_pred = vae_model.decode(latent_pred, history_motion, nfuture=future_length,
-                                                       scale_latent=denoiser_args.rescale_latent)  # [B, F, D], normalized
+                                                       scale_latent=denoiser_args.rescale_latent)  # [> B, F, D], normalized
 
             future_frames = dataset.denormalize(future_motion_pred)
             new_history_frames = future_frames[:, -history_length:, :]
@@ -209,7 +238,7 @@ def optimize(history_motion_tensor, transf_rotmat, transf_transl, text_prompt, g
                 motion_sequences = future_primitive_dict
             else:
                 for key in ['transl', 'global_orient', 'body_pose', 'betas', 'joints']:
-                    motion_sequences[key] = torch.cat([motion_sequences[key], future_primitive_dict[key]], dim=1)  # [B, T, ...]
+                    motion_sequences[key] = torch.cat([motion_sequences[key], future_primitive_dict[key]], dim=1)  # [> B, T, ...]
 
             """update history motion seed, update global transform"""
             history_feature_dict = primitive_utility.tensor_to_dict(new_history_frames)
@@ -227,7 +256,7 @@ def optimize(history_motion_tensor, transf_rotmat, transf_transl, text_prompt, g
             transf_rotmat, transf_transl = canonicalized_history_primitive_dict['transf_rotmat'], \
             canonicalized_history_primitive_dict['transf_transl']
             history_motion = primitive_utility.dict_to_tensor(blended_feature_dict)
-            history_motion = dataset.normalize(history_motion)  # [B, T, D]
+            history_motion = dataset.normalize(history_motion)  # [> B, T, D]
 
         return motion_sequences, history_motion, transf_rotmat, transf_transl
 
@@ -253,18 +282,19 @@ def optimize(history_motion_tensor, transf_rotmat, transf_transl, text_prompt, g
                                                                                                     history_motion_tensor,
                                                                                                     transf_rotmat,
                                                                                                     transf_transl)
-        global_joints = motion_sequences['joints']  # [B, T, 22, 3]
+        global_joints = motion_sequences['joints']  # [> B, T, 22, 3]
         B, T, _, _ = global_joints.shape
         
         print("##################################")
         sdf_values = calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl)
 
-        joints_sdf = calc_point_sdf(scene_assets, global_joints.reshape(1, -1, 3)).reshape(B, T, 22)
 
-        foot_joints_sdf = joints_sdf[:, :, FOOT_JOINTS_IDX]  # [B, T, 2]
+        joints_sdf = calc_point_sdf(scene_assets, global_joints.reshape(1, -1, 3)).reshape( B, T, 22)
+
+        foot_joints_sdf = joints_sdf[:, :, FOOT_JOINTS_IDX]  # [> B, T, 2]
         loss_floor_contact = (foot_joints_sdf.amin(dim=-1) - optim_args.contact_thresh).clamp(min=0).mean()
         negative_sdf_per_frame = (joints_sdf - joint_skin_dist.reshape(1, 1, 22)).clamp(max=0).sum(
-            dim=-1)  # [B, T], clip negative sdf, sum over joints
+            dim=-1)  # [> B, T], clip negative sdf, sum over joints
         negative_sdf_mean = negative_sdf_per_frame.mean()
         loss_collision = -negative_sdf_mean
         loss_joints = criterion(motion_sequences['joints'][:, -1, joints_mask], goal_joints[:, joints_mask])
@@ -374,15 +404,15 @@ if __name__ == '__main__':
     input_motions, model_kwargs = batch[0]['motion_tensor_normalized'], {'y': batch[0]}
     del model_kwargs['y']['motion_tensor_normalized']
     gender = model_kwargs['y']['gender'][0]
-    betas = model_kwargs['y']['betas'][:, :primitive_length, :].to(device)  # [B, H+F, 10]
+    betas = model_kwargs['y']['betas'][:, :primitive_length, :].to(device)  # [> B, H+F, 10]
     pelvis_delta = primitive_utility.calc_calibrate_offset({
         'betas': betas[:, 0, :],
         'gender': gender,
     })
     # print(input_motions, model_kwargs)
-    input_motions = input_motions.to(device)  # [B, D, 1, T]
-    motion_tensor = input_motions.squeeze(2).permute(0, 2, 1)  # [B, T, D]
-    init_history_motion = motion_tensor[:, :history_length, :]  # [B, H, D]
+    input_motions = input_motions.to(device)  # [> B, D, 1, T]
+    motion_tensor = input_motions.squeeze(2).permute(0, 2, 1)  # [> B, T, D]
+    init_history_motion = motion_tensor[:, :history_length, :]  # [> B, H, D]
 
     all_motion_sequences = None
     for interaction_idx, interaction in enumerate(interaction_cfg['interactions']):
