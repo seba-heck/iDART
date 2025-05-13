@@ -9,14 +9,16 @@ from config_files.data_paths import *
 
 from VolumetricSMPL import attach_volume
 
-fm_male = smplx.create(body_model_dir, model_type='smplx', gender='male', ext='npz',num_pca_comps=12)
-fm_female = smplx.create(body_model_dir, model_type='smplx', gender='female', ext='npz', num_pca_comps=12)
+# Testing SMPLX class with smplx.create and SMPLXLayer with smplx.build_layer
+# fm_male = smplx.create(model_path=body_model_dir, model_type='smplx', gender='male', ext='npz',num_pca_comps=12)
+lm_male = smplx.build_layer(model_path=body_model_dir, model_type='smplx', gender='male', ext='npz',num_pca_comps=12)
+lm_female = smplx.build_layer(model_path=body_model_dir, model_type='smplx', gender='female', ext='npz', num_pca_comps=12)
 
-attach_volume(fm_male)
-attach_volume(fm_male)
+# attach_volume(fm_male)    ! ONLY WORKS FOR SMPLX CLASS FROM SMPLX.CREATE
+# attach_volume(fm_male)
 
-lm_male = fm_male.model
-lm_female = fm_female.model
+# lm_male = fm_male.model   ! DOES NOT WORK (ChatGPT answer)
+# lm_female = fm_female.model
 
 body_model_dict = {
     'male': lm_male,

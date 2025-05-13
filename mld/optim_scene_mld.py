@@ -37,6 +37,17 @@ from mld.train_mvae import DataArgs, TrainArgs
 from mld.train_mld import DenoiserArgs, MLDArgs, create_gaussian_diffusion, DenoiserMLPArgs, DenoiserTransformerArgs
 from mld.rollout_mld import load_mld, ClassifierFreeWrapper
 
+from VolumetricSMPL import attach_volume
+
+# Testing SMPLX class with smplx.create and SMPLXLayer with smplx.build_layer
+vol_body_model_dict = {
+    'male':   smplx.create(model_path=body_model_dir, model_type='smplx', gender='male', ext='npz',num_pca_comps=12),
+    'female': smplx.create(model_path=body_model_dir, model_type='smplx', gender='female', ext='npz', num_pca_comps=12)
+}
+
+attach_volume(vol_body_model_dict['male'])
+attach_volume(vol_body_model_dict['female'])
+
 debug = 0
 
 @dataclass
@@ -111,7 +122,8 @@ def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl):
     body_param_dict = primitive_utility.transform_primitive_to_world(body_param_dict)
 
     # get smplx model
-    body_model = primitive_utility.get_smpl_model(gender)
+    # body_model = primitive_utility.get_smpl_model(gender)
+    body_model = vol_body_model_dict[gender]
 
     # get "current" smpl body model
     smpl_output = body_model(betas=body_param_dict['betas'].reshape(B * T, 10),
@@ -250,6 +262,7 @@ def optimize(history_motion_tensor, transf_rotmat, transf_transl, text_prompt, g
         global_joints = motion_sequences['joints']  # [B, T, 22, 3]
         B, T, _, _ = global_joints.shape
         
+        print("##################################")
         sdf_values = calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl)
 
         joints_sdf = calc_point_sdf(scene_assets, global_joints.reshape(1, -1, 3)).reshape(B, T, 22)
