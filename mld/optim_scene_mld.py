@@ -110,26 +110,20 @@ def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl):
     scene_points = ...
 
     # get body pose parameters
-    body_param_dict = primitive_utility.tensor_to_dict(motion_sequences)
-    body_param_dict.update(
-        {
-            'transf_rotmat': transf_rotmat,
-            'transf_transl': transf_transl,
-            'gender': gender
-        }
-    )
-    body_param_dict = primitive_utility.feature_dict_to_smpl_dict(body_param_dict)
-    body_param_dict = primitive_utility.transform_primitive_to_world(body_param_dict)
+    betas = motion_sequences['betas']
+    global_orient = motion_sequences['global_orient']
+    body_pose = motion_sequences['body_pose'] @ transf_rotmat
+    transl = motion_sequences['transl']
 
     # get smplx model
     # body_model = primitive_utility.get_smpl_model(gender)
     body_model = vol_body_model_dict[gender]
 
     # get "current" smpl body model
-    smpl_output = body_model(betas=body_param_dict['betas'].reshape(B * T, 10),
-                             global_orient=body_param_dict['global_orient'].reshape(B * T, 3, 3),
-                             body_pose=body_param_dict['body_pose'].reshape(B * T, 21, 3, 3),
-                             transl=body_param_dict['transl'].reshape(B * T, 3),
+    smpl_output = body_model(betas=betas.reshape(B * T, 10),
+                             global_orient=global_orient.reshape(B * T, 3, 3),
+                             body_pose=body_pose.reshape(B * T, 21, 3, 3),
+                             transl=transl.reshape(B * T, 3),
                              return_verts=True, return_full_pose=True)
 
     # query sampled points for sdf values
