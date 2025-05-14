@@ -103,16 +103,27 @@ def calc_point_sdf(scene_assets, points):
     sdf_values = sdf_values / sdf_scale.squeeze(-1)  # [B, P], scale back to the original scene size
     return sdf_values
 
+def sample_scene_points(model, smpl_output, scene_vertices):
+    # TODO: implement this function
+    # get scene points
+    # bb_min = smpl_output.vertices.min(1).values.reshape(1, 3)
+    # bb_max = smpl_output.vertices.max(1).values.reshape(1, 3)
+
+    # inds = (scene_vertices >= bb_min).all(-1) & (scene_vertices <= bb_max).all(-1)
+    # if not inds.any():
+    #     return None
+    # points = scene_vertices[inds]
+    # points = points.float().reshape(1, -1, 3)  # add batch dimension
+    # return points
+
 def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl):
     B, T, _, _ = motion_sequences['joints'].shape
-
-    # get scene points
-    scene_points = ...
+    print('B, T:', B, T)
 
     # get body pose parameters
     betas = motion_sequences['betas']
     global_orient = motion_sequences['global_orient']
-    body_pose = motion_sequences['body_pose'] @ transf_rotmat
+    body_pose = motion_sequences['body_pose'] @ transf_rotmat # TODO: implement this rotation
     transl = motion_sequences['transl']
 
     # get smplx model
@@ -125,6 +136,9 @@ def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl):
                              body_pose=body_pose.reshape(B * T, 21, 3, 3),
                              transl=transl.reshape(B * T, 3),
                              return_verts=True, return_full_pose=True)
+
+    # get scene points
+    scene_points = sample_scene_points(body_model, smpl_output, scene_assets['scene_with_floor_mesh'].vertices)
 
     # query sampled points for sdf values
     # selfpen_loss, _collision_mask = body_model.volume.collision_loss(scene_points, smpl_output, ret_collision_mask=True)
@@ -258,7 +272,7 @@ def optimize(history_motion_tensor, transf_rotmat, transf_transl, text_prompt, g
         
         print("##################################")
         sdf_values = calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl)
-
+        # TODO: implement meaningful loss function
         joints_sdf = calc_point_sdf(scene_assets, global_joints.reshape(1, -1, 3)).reshape(B, T, 22)
 
         foot_joints_sdf = joints_sdf[:, :, FOOT_JOINTS_IDX]  # [B, T, 2]
