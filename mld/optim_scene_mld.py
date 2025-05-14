@@ -117,36 +117,52 @@ def sample_scene_points(model, smpl_output, scene_vertices):
     # points = scene_vertices[inds]
     # points = points.float().reshape(1, -1, 3)  # add batch dimension
     # return points
+    return None
 
 def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl):
     B, T, _, _ = motion_sequences['joints'].shape
     print('B, T:', B, T)
+    print("transf_rotmat", transf_rotmat.shape)
+    print("transf_transl", transf_transl.shape)
 
     # get body pose parameterscon
     betas = motion_sequences['betas'] #body shape coeffs, don't rotate! 
-    print("betas shape", betas.shape())
+    print("betas shape", betas.shape)
 
     # > (B, T, 3, 3) -> (B, 3)
     global_orient = motion_sequences['global_orient'] #global rotation of root joint
+    print("global_orient shape", global_orient.shape)
+    
 
     #  (B, T, 21, 3, 3)-> (B, (J*3))
-    body_pose = motion_sequences['body_pose'] @ transf_rotmat #relative rotations of other joints
+    body_pose = motion_sequences['body_pose'] #relative rotations of other joints
+    print("body_pose shape", body_pose.shape)
 
     # (B, T, 3) -> (B, 3)
     transl = motion_sequences['transl'] #global translation of the root
+    print("transl shape", transl.shape)
 
     #Rotation Transformations
     # convert input axis angle to rot matrices
-    global_orient_mat = axis_angle_to_matrix(global_orient)  
-    body_pose_mat = axis_angle_to_matrix(body_pose) 
+    # global_orient_mat = axis_angle_to_matrix(global_orient)  
+    # body_pose_mat = axis_angle_to_matrix(body_pose) 
+    # print("global_orient_mat shape", global_orient_mat.shape)
+    # print("body_pose_mat shape", body_pose_mat.shape)
 
     #transform (multiply with transf_rotmat)
-    global_orient_rot_mat = torch.matmul(transf_rotmat, global_orient_mat)      
-    body_pose_rot_mat = torch.matmul(transf_rotmat.unsqueeze(0).unsqueeze(0), body_pose_mat) 
+    # global_orient_rot_mat = torch.matmul(transf_rotmat, global_orient)      
+    # body_pose_rot_mat = torch.matmul(transf_rotmat.unsqueeze(0).unsqueeze(0), body_pose) 
+
+    global_orient_world = torch.einsum('btij,bjk->btik', global_orient, transf_rotmat)
+    print("global_orient_world shape", global_orient_world.shape)
+    body_pose_world = torch.einsum('btjik,bkl->btjil', body_pose, transf_rotmat)
+    print("body_pose_world shape", body_pose_world.shape)
+    transl_world = torch.einsum('bij,btk->bti', transf_rotmat, transl)
+    print("transl_world shape", transl_world.shape)
 
     #convert back to axis-angle
-    global_orient_rot = matrix_to_axis_angle(global_orient_rot_mat) 
-    body_pose_rot = matrix_to_axis_angle(body_pose_rot_mat.view(B, T * 21, 3, 3)).view(B, T, 21, 3) 
+    global_orient_rot = matrix_to_axis_angle(global_orient_world) 
+    body_pose_rot = matrix_to_axis_angle(body_pose_world.view(B, T * 21, 3, 3)).view(B, T, 21, 3) 
     transl_rot =  (transf_rotmat @ transl.transpose(-1, -2)).transpose(-1, -2)  # (B, T, 3)
 
     #reshape for required input size for SMPL-X
