@@ -1,5 +1,6 @@
 {
-  "scene_dir": "./data/scenes/demo/62b1714ef66f4e0d9f42dcd12efb3f52",
+  "scene_dir": "./data/scenes/cab_g_benches",
+  "scene_file": "cab_g_benches_2000.obj",
   "floor_height": 0.0,
   "interaction_name": "sit",
   "interactions": [

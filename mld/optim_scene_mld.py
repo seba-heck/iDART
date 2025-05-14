@@ -43,8 +43,8 @@ from VolumetricSMPL import attach_volume
 
 # Testing SMPLX class with smplx.create and SMPLXLayer with smplx.build_layer
 vol_body_model_dict = {
-    'male':   smplx.create(model_path=body_model_dir, model_type='smplx', gender='male', ext='npz',num_pca_comps=12),
-    'female': smplx.create(model_path=body_model_dir, model_type='smplx', gender='female', ext='npz', num_pca_comps=12)
+    'male':   smplx.create(model_path=body_model_dir, model_type='smplx', gender='male',   num_betas=10, ext='npz', num_pca_comps=12),
+    'female': smplx.create(model_path=body_model_dir, model_type='smplx', gender='female', num_betas=10, ext='npz', num_pca_comps=12)
 }
 
 attach_volume(vol_body_model_dict['male'])
@@ -105,8 +105,11 @@ def calc_point_sdf(scene_assets, points):
     sdf_values = sdf_values / sdf_scale.squeeze(-1)  # [> B, P], scale back to the original scene size
     return sdf_values
 
-def sample_scene_points(model, smpl_output, scene_vertices):
+def sample_scene_points(scene_assets):
     # TODO: implement this function
+    all_points = scene_assets["scene_points"]
+    print("all_points shape", all_points.shape)
+
     # get scene points
     # bb_min = smpl_output.vertices.min(1).values.reshape(1, 3)
     # bb_max = smpl_output.vertices.max(1).values.reshape(1, 3)
@@ -117,73 +120,75 @@ def sample_scene_points(model, smpl_output, scene_vertices):
     # points = scene_vertices[inds]
     # points = points.float().reshape(1, -1, 3)  # add batch dimension
     # return points
-    return None
+    return all_points
 
 def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl):
-    B, T, _, _ = motion_sequences['joints'].shape
-    print('B, T:', B, T)
+    B, T, J, _ = motion_sequences['joints'].shape
+    print('B, T, J:', B, T, J)
+    print('Device:', transf_rotmat.device)
+
+    transf_rotmat = transf_rotmat.to(device)
+    transf_transl = transf_transl.to(device)
     print("transf_rotmat", transf_rotmat.shape)
     print("transf_transl", transf_transl.shape)
 
+    # get scene points
+    scene_points = sample_scene_points(scene_assets).to(device=device)
+
     # get body pose parameterscon
-    betas = motion_sequences['betas'] #body shape coeffs, don't rotate! 
+    betas = motion_sequences['betas'].reshape(B * T, 10).to(device=device) #body shape coeffs, don't rotate! 
     print("betas shape", betas.shape)
 
     # > (B, T, 3, 3) -> (B, 3)
-    global_orient = motion_sequences['global_orient'] #global rotation of root joint
+    global_orient = motion_sequences['global_orient'].to(device=device) #global rotation of root joint
     print("global_orient shape", global_orient.shape)
     
-
     #  (B, T, 21, 3, 3)-> (B, (J*3))
-    body_pose = motion_sequences['body_pose'] #relative rotations of other joints
+    body_pose = motion_sequences['body_pose'].to(device=device) #relative rotations of other joints
     print("body_pose shape", body_pose.shape)
 
     # (B, T, 3) -> (B, 3)
-    transl = motion_sequences['transl'] #global translation of the root
+    transl = motion_sequences['transl'].to(device=device) #global translation of the root
     print("transl shape", transl.shape)
 
     #Rotation Transformations
-    # convert input axis angle to rot matrices
-    # global_orient_mat = axis_angle_to_matrix(global_orient)  
-    # body_pose_mat = axis_angle_to_matrix(body_pose) 
-    # print("global_orient_mat shape", global_orient_mat.shape)
-    # print("body_pose_mat shape", body_pose_mat.shape)
-
     #transform (multiply with transf_rotmat)
-    # global_orient_rot_mat = torch.matmul(transf_rotmat, global_orient)      
-    # body_pose_rot_mat = torch.matmul(transf_rotmat.unsqueeze(0).unsqueeze(0), body_pose) 
-
-    global_orient_world = torch.einsum('btij,bjk->btik', global_orient, transf_rotmat)
-    print("global_orient_world shape", global_orient_world.shape)
-    body_pose_world = torch.einsum('btjik,bkl->btjil', body_pose, transf_rotmat)
-    print("body_pose_world shape", body_pose_world.shape)
-    transl_world = torch.einsum('bij,btk->bti', transf_rotmat, transl)
-    print("transl_world shape", transl_world.shape)
+    global_orient = torch.einsum('btij,bjk->btik', global_orient, transf_rotmat)
+    body_pose = torch.einsum('btjik,bkl->btjil', body_pose, transf_rotmat)
+    # transl = torch.einsum('bij,btk->bti', transf_rotmat, transl)
 
     #convert back to axis-angle
-    global_orient_rot = matrix_to_axis_angle(global_orient_world) 
-    body_pose_rot = matrix_to_axis_angle(body_pose_world.view(B, T * 21, 3, 3)).view(B, T, 21, 3) 
-    transl_rot =  (transf_rotmat @ transl.transpose(-1, -2)).transpose(-1, -2)  # (B, T, 3)
+    global_orient = matrix_to_axis_angle(global_orient) 
+    body_pose = matrix_to_axis_angle(body_pose)#.view(B, T * 21, 3, 3)).view(B, T, 21, 3) 
+    transl =  (transf_rotmat @ transl.transpose(-1, -2)).transpose(-1, -2)  # (B, T, 3)
 
     #reshape for required input size for SMPL-X
-    global_orient_input = global_orient_rot.reshape(B * T, 3)
-    body_pose_input = body_pose_rot.reshape(B * T, 21 * 3)
-    transl_input = transl_rot.reshape(B * T, 3)
+    global_orient = global_orient.reshape(B * T, 3).to(device=device)
+    body_pose = body_pose.reshape(B * T, 21, 3).to(device=device)
+    transl = transl.reshape(B * T, 3).to(device=device)
 
+    # assert global_orient.shape[0] == B * T and global_orient.shape[1] == 3  , f"global_orient shape or device mismatch: {global_orient.shape}/{(B * T, 3)}, {global_orient.device}/{device}"
+    # assert body_pose.shape[0] == B * T     and body_pose.shape[1] == 21  , f"body_pose shape or device mismatch: {body_pose.shape}/{(B * T, 21 * 3)}, {body_pose.device}"
+    # assert transl.shape[0] == B * T        and transl.shape[1] == 3         , f"transl shape or device mismatch: {transl.shape}/{(B * T, 3)}, {transl.device}"
+    # assert betas.shape[0] == B * T         and betas.shape[1] == 10         , f"betas shape or device mismatch: {betas.shape}/{(B * T, 10)}, {betas.device}"
+    # assert scene_points.shape[0] == scene_assets['nbr_points'] and scene_points.shape[1] == 3, f"scene_points shape or device mismatch: {scene_points.shape}/{(scene_assets['nbr_points'], 3)}, {scene_points.device}"
 
     # get smplx model
     # body_model = primitive_utility.get_smpl_model(gender)
-    body_model = vol_body_model_dict[gender]
+    body_model = vol_body_model_dict[gender].to(device=device)
+
+    # Debugging: Check devices of all tensors
+    print(f"Device check:\n betas={betas.device},\n global_orient={global_orient.device},\n body_pose={body_pose.device},\n transl={transl.device}")
+    print("global_orient final shape", global_orient.shape)
+    print("body_pose final shape", body_pose.shape)
+    print("nbr joints body model", body_model.NUM_BODY_JOINTS)
 
     # get "current" smpl body model
-    smpl_output = body_model(betas=betas.reshape(B * T, 10),
-                             global_orient=global_orient_input,
-                             body_pose=body_pose_input,
-                             transl=transl_input,
+    smpl_output = body_model(betas=betas,
+                             global_orient=global_orient,
+                             body_pose=body_pose,
+                             transl=transl,
                              return_verts=True, return_full_pose=True)
-
-    # get scene points
-    scene_points = sample_scene_points(body_model, smpl_output, scene_assets['scene_with_floor_mesh'].vertices)
 
     # query sampled points for sdf values
     # selfpen_loss, _collision_mask = body_model.volume.collision_loss(scene_points, smpl_output, ret_collision_mask=True)
@@ -402,18 +407,17 @@ if __name__ == '__main__':
     interaction_name = interaction_cfg['interaction_name'].replace(' ', '_')
     scene_dir = Path(interaction_cfg['scene_dir'])
     scene_dir = Path(scene_dir)
-    scene_with_floor_mesh = trimesh.load(scene_dir / 'scene_with_floor.obj', process=False, force='mesh')
-    with open(scene_dir / 'scene_sdf.json', 'r') as f:
-        scene_sdf_config = json.load(f)
-    scene_sdf_grid = np.load(scene_dir / 'scene_sdf.npy')
-    scene_sdf_grid = torch.tensor(scene_sdf_grid, dtype=torch.float32, device=device).unsqueeze(
-        0)  # [1, size, size, size]
 
+    # read scene file
+    scene_mesh = trimesh.load(scene_dir / interaction_cfg["scene_file"], process=False, force='mesh') # open obj-file as mesh
+    scene_points = torch.tensor(scene_mesh.vertices, dtype=torch.float32, device=device) # only points/vertices of obj-mesh
+
+    # save infos as scene dict
     scene_assets = {
-        'scene_with_floor_mesh': scene_with_floor_mesh,
-        'scene_sdf_grid': scene_sdf_grid,
-        'scene_sdf_config': scene_sdf_config,
+        'scene_mesh': scene_mesh, # obj-mesh
+        'scene_points': scene_points, # only 3D points
         'floor_height': interaction_cfg['floor_height'],
+        'nbr_points': scene_points.shape[0],
     }
 
     out_path = optim_args.save_dir
