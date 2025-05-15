@@ -41,15 +41,6 @@ from mld.rollout_mld import load_mld, ClassifierFreeWrapper
 
 from VolumetricSMPL import attach_volume
 
-# Testing SMPLX class with smplx.create and SMPLXLayer with smplx.build_layer
-vol_body_model_dict = {
-    'male':   smplx.create(model_path=body_model_dir, model_type='smplx', gender='male',   num_betas=10, ext='npz', num_pca_comps=12),
-    'female': smplx.create(model_path=body_model_dir, model_type='smplx', gender='female', num_betas=10, ext='npz', num_pca_comps=12)
-}
-
-attach_volume(vol_body_model_dict['male'])
-attach_volume(vol_body_model_dict['female'])
-
 debug = 0
 
 @dataclass
@@ -105,9 +96,36 @@ def calc_point_sdf(scene_assets, points):
     sdf_values = sdf_values / sdf_scale.squeeze(-1)  # [> B, P], scale back to the original scene size
     return sdf_values
 
-def sample_scene_points(scene_assets):
-    # TODO: implement this function
-    all_points = scene_assets["scene_points"]
+def generate_random_indices(T, num_indices):
+    """
+    Generates random indices between 0 and T (exclusive).
+
+    Args:
+        T (int): The upper limit for the random indices (exclusive).
+        num_indices (int): The number of random indices to generate.
+
+    Returns:
+        torch.Tensor: A tensor containing the random indices.
+    """
+    if num_indices > T:
+        raise ValueError(f"num_indices ({num_indices}) cannot be greater than T ({T}).")
+
+    random_indices = torch.randint(0, T, (num_indices,))
+    return random_indices
+
+def sample_scene_points(scene_assets, B=8, T=98, s=20):
+    """
+    Transforms the scene points into a tensor of shape [B, T, 3].
+
+    Args:
+        scene_assets: dict containing scene information, including "scene_points".
+        B: Batch size.
+        T: Number of time steps.
+
+    Returns:
+        A tensor of shape [B, T, 3].
+    """
+    all_points = scene_assets["scene_points"]  # Shape: [N, 3]
     print("all_points shape", all_points.shape)
 
     # get scene points
@@ -120,7 +138,20 @@ def sample_scene_points(scene_assets):
     # points = scene_vertices[inds]
     # points = points.float().reshape(1, -1, 3)  # add batch dimension
     # return points
-    return all_points
+    # Ensure the number of points matches B * T
+    # Ensure the number of points matches B * T
+
+    # repeat points for each time step
+    stacked_pointspoints = all_points.unsqueeze(0).repeat(B, T, 1, 1)  # Shape: [T, N, 3]
+
+    random_indices = generate_random_indices(T, T//s)
+
+    # select subset of time steps
+    points = stacked_pointspoints[:,random_indices,:,:]  # Shape: [T//s, N, 3]
+    points = points.permute(2,0,1,3)
+
+    print("Transformed points shape:", points.shape)
+    return points, random_indices
 
 def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl):
     B, T, J, _ = motion_sequences['joints'].shape
@@ -131,9 +162,6 @@ def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl):
     transf_transl = transf_transl.to(device)
     print("transf_rotmat", transf_rotmat.shape)
     print("transf_transl", transf_transl.shape)
-
-    # get scene points
-    scene_points = sample_scene_points(scene_assets).to(device=device)
 
     # get body pose parameterscon
     betas = motion_sequences['betas'].reshape(B * T, 10).to(device=device) #body shape coeffs, don't rotate! 
@@ -167,14 +195,12 @@ def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl):
     body_pose = body_pose.reshape(B * T, 21, 3).to(device=device)
     transl = transl.reshape(B * T, 3).to(device=device)
 
-    # assert global_orient.shape[0] == B * T and global_orient.shape[1] == 3  , f"global_orient shape or device mismatch: {global_orient.shape}/{(B * T, 3)}, {global_orient.device}/{device}"
-    # assert body_pose.shape[0] == B * T     and body_pose.shape[1] == 21  , f"body_pose shape or device mismatch: {body_pose.shape}/{(B * T, 21 * 3)}, {body_pose.device}"
-    # assert transl.shape[0] == B * T        and transl.shape[1] == 3         , f"transl shape or device mismatch: {transl.shape}/{(B * T, 3)}, {transl.device}"
-    # assert betas.shape[0] == B * T         and betas.shape[1] == 10         , f"betas shape or device mismatch: {betas.shape}/{(B * T, 10)}, {betas.device}"
-    # assert scene_points.shape[0] == scene_assets['nbr_points'] and scene_points.shape[1] == 3, f"scene_points shape or device mismatch: {scene_points.shape}/{(scene_assets['nbr_points'], 3)}, {scene_points.device}"
+    assert global_orient.shape[0] == B * T and global_orient.shape[1] == 3  , f"global_orient shape or device mismatch: {global_orient.shape}/{(B * T, 3)}, {global_orient.device}/{device}"
+    assert body_pose.shape[0] == B * T     and body_pose.shape[1] == 21     , f"body_pose shape or device mismatch: {body_pose.shape}/{(B * T, 21 * 3)}, {body_pose.device}"
+    assert transl.shape[0] == B * T        and transl.shape[1] == 3         , f"transl shape or device mismatch: {transl.shape}/{(B * T, 3)}, {transl.device}"
+    assert betas.shape[0] == B * T         and betas.shape[1] == 10         , f"betas shape or device mismatch: {betas.shape}/{(B * T, 10)}, {betas.device}"
 
     # get smplx model
-    # body_model = primitive_utility.get_smpl_model(gender)
     body_model = vol_body_model_dict[gender].to(device=device)
 
     # Debugging: Check devices of all tensors
@@ -189,10 +215,37 @@ def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl):
                              body_pose=body_pose,
                              transl=transl,
                              return_verts=True, return_full_pose=True)
+    print("smpl_output shape", smpl_output.joints.shape)
+    print("smpl_output", type(smpl_output))
+
+    # get scene points
+    scene_points, idxs = sample_scene_points(scene_assets,B,T)
+    scene_points = scene_points.to(device=device)  # shape: [t, N, 3]
+
+    # # Create a new smpl_output object with the subsetted joints
+    # subset_smpl_output = smplx.SMPLXOutput(
+    #     full_pose=smpl_output.full_pose[:, idxs, ...],
+    #     joints=smpl_output.joints[:, idxs, ...],
+    #     vertices=smpl_output.vertices[:, idxs, ...],
+    #     # Add other attributes as needed
+    # )
+    # Create a new smpl_output object with the subsetted joints
+    t_ = len(idxs)
+    subset_smpl_output = smpl_output
+    subset_smpl_output.full_pose=smpl_output.full_pose.reshape(B,T,-1,3)[:, idxs, ...].reshape(B*t_,-1,3)
+    subset_smpl_output.vertices=smpl_output.vertices.reshape(B,T,-1,3)[:, idxs, ...].reshape(B*t_,-1,3)
+    subset_smpl_output.joints=smpl_output.joints.reshape(B,T,-1,3)[:, idxs, ...].reshape(B*t_,-1,3)
+    print("smpl_output shape", subset_smpl_output.joints.shape)
+
+    # body_model.volume.encode_body(subset_smpl_output)
+    # print(body_model.volume.impl_code["bbox_min"].shape)
+    # print(body_model.volume.impl_code["bbox_max"].shape)
+    # print(body_model.volume.impl_code["bbox_size"].shape)
+    # print(body_model.volume.impl_code["bbox_center"].shape)
 
     # query sampled points for sdf values
     # selfpen_loss, _collision_mask = body_model.volume.collision_loss(scene_points, smpl_output, ret_collision_mask=True)
-    sdf_values = body_model.volume.query(scene_points)
+    sdf_values = body_model.volume.query_fast(scene_points, subset_smpl_output)
 
     return sdf_values
 
@@ -389,12 +442,15 @@ if __name__ == '__main__':
     primitive_utility = dataset.primitive_utility
     batch_size = optim_args.batch_size
 
-    # # ADD VOLUME SDF
-    # print(primitive_utility.body_type)
-    # print(type(primitive_utility.bm_male))
-    # attach_volume(primitive_utility.bm_male)
-    # attach_volume(primitive_utility.bm_fem)
-    # print('> attach volume sdf to smpl model')
+    # ADD VolumetricSMPL
+    # make (high-level) SMPLX body model
+    vol_body_model_dict = {
+        'male':   smplx.create(model_path=body_model_dir, model_type='smplx', batch_size=784, gender='male',   num_betas=10, ext='npz', num_pca_comps=12),
+        'female': smplx.create(model_path=body_model_dir, model_type='smplx', batch_size=784, gender='female', num_betas=10, ext='npz', num_pca_comps=12)
+    }
+    # attach volumetric representation
+    attach_volume(vol_body_model_dict['male'])
+    attach_volume(vol_body_model_dict['female'])
 
     with open('./data/joint_skin_dist.json', 'r') as f:
         joint_skin_dist = json.load(f)
