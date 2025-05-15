@@ -96,24 +96,7 @@ def calc_point_sdf(scene_assets, points):
     sdf_values = sdf_values / sdf_scale.squeeze(-1)  # [> B, P], scale back to the original scene size
     return sdf_values
 
-def generate_random_indices(T, num_indices):
-    """
-    Generates random indices between 0 and T (exclusive).
-
-    Args:
-        T (int): The upper limit for the random indices (exclusive).
-        num_indices (int): The number of random indices to generate.
-
-    Returns:
-        torch.Tensor: A tensor containing the random indices.
-    """
-    if num_indices > T:
-        raise ValueError(f"num_indices ({num_indices}) cannot be greater than T ({T}).")
-
-    random_indices = torch.randint(0, T, (num_indices,))
-    return random_indices
-
-def sample_scene_points(scene_assets, B=8, T=98, s=20):
+def sample_scene_points(scene_assets, B=8, T=98, s=4, rand_idxs=False):
     """
     Transforms the scene points into a tensor of shape [B, T, 3].
 
@@ -144,14 +127,21 @@ def sample_scene_points(scene_assets, B=8, T=98, s=20):
     # repeat points for each time step
     stacked_pointspoints = all_points.unsqueeze(0).repeat(B, T, 1, 1)  # Shape: [T, N, 3]
 
-    random_indices = generate_random_indices(T, T//s)
+    # Generate subset time frames indices
+    if rand_idxs:
+        indices = torch.randint(0, T, (T//s,))
+    else:
+        indices = torch.arange(0, T, step=s)
+    
+    t_ = len(indices)
 
     # select subset of time steps
-    points = stacked_pointspoints[:,random_indices,:,:]  # Shape: [T//s, N, 3]
-    points = points.permute(2,0,1,3)
+    points = stacked_pointspoints[:,indices,:,:]  # Shape: [T//s, N, 3]
+    # points = points.permute(2,0,1,3)
+    points = points.reshape(B*t_, -1, 3)  # Shape: [B * T//s, N, 3]
 
     print("Transformed points shape:", points.shape)
-    return points, random_indices
+    return points, indices
 
 def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl):
     B, T, J, _ = motion_sequences['joints'].shape
@@ -219,23 +209,17 @@ def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl):
     print("smpl_output", type(smpl_output))
 
     # get scene points
-    scene_points, idxs = sample_scene_points(scene_assets,B,T)
-    scene_points = scene_points.to(device=device)  # shape: [t, N, 3]
+    scene_points, idxs = sample_scene_points(scene_assets,1,T)
+    # scene_points = scene_points.to(device=device)  # shape: [t, N, 3]
 
-    # # Create a new smpl_output object with the subsetted joints
-    # subset_smpl_output = smplx.SMPLXOutput(
-    #     full_pose=smpl_output.full_pose[:, idxs, ...],
-    #     joints=smpl_output.joints[:, idxs, ...],
-    #     vertices=smpl_output.vertices[:, idxs, ...],
-    #     # Add other attributes as needed
-    # )
-    # Create a new smpl_output object with the subsetted joints
+    # get nbr of (random) selected time frames
     t_ = len(idxs)
-    subset_smpl_output = smpl_output
-    subset_smpl_output.full_pose=smpl_output.full_pose.reshape(B,T,-1,3)[:, idxs, ...].reshape(B*t_,-1,3)
-    subset_smpl_output.vertices=smpl_output.vertices.reshape(B,T,-1,3)[:, idxs, ...].reshape(B*t_,-1,3)
-    subset_smpl_output.joints=smpl_output.joints.reshape(B,T,-1,3)[:, idxs, ...].reshape(B*t_,-1,3)
-    print("smpl_output shape", subset_smpl_output.joints.shape)
+
+    # get SMPL body_model parameters
+    smpl_output_full_pose = smpl_output.full_pose.reshape(B,T,-1,3)
+    smpl_output_vertices = smpl_output.vertices.reshape(B,T,-1,3)
+    smpl_output_joints = smpl_output.joints.reshape(B,T,-1,3)
+    
 
     # body_model.volume.encode_body(subset_smpl_output)
     # print(body_model.volume.impl_code["bbox_min"].shape)
@@ -245,9 +229,23 @@ def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl):
 
     # query sampled points for sdf values
     # selfpen_loss, _collision_mask = body_model.volume.collision_loss(scene_points, smpl_output, ret_collision_mask=True)
-    sdf_values = body_model.volume.query_fast(scene_points, subset_smpl_output)
+    # sdf_values = body_model.volume.query_fast(scene_points, subset_smpl_output)
 
-    return sdf_values
+    # query sampled points for each batch
+    sdf_values = torch.zeros(B, t_, scene_assets['nbr_points'], device=device)
+    for i_ in range(B):
+        # select specific smpl_output for each batch
+        subset_smpl_output = smpl_output
+        subset_smpl_output.full_pose = smpl_output_full_pose[0, idxs, ...].reshape(t_,-1,3)
+        subset_smpl_output.vertices =  smpl_output_vertices[0, idxs, ...].reshape(t_,-1,3)
+        subset_smpl_output.joints =    smpl_output_joints[0, idxs, ...].reshape(t_,-1,3)
+        # query sampled points for sdf values
+        sdf_values[i_,...] = body_model.volume.query_fast(scene_points, subset_smpl_output)
+
+    print("huhuiiiiiiiiiii")
+    print(sdf_values.shape)
+
+    return sdf_values # shape: [B, t_, N]
 
 def calc_jerk(joints):
     vel = joints[:, 1:] - joints[:, :-1]  # --> > B x T-1 x 22 x 3
@@ -540,6 +538,11 @@ if __name__ == '__main__':
                 # goal_mesh = trimesh.creation.axis(axis_length=0.1, transform=transform)
                 # (axis_mesh + goal_mesh + scene_assets['scene_with_floor_mesh']).show()
 
+            print("""
+ # ----------------------- #
+ [INFO] START Optimizing 
+ # ----------------------- #
+            """)
             motion_sequences, history_motion_tensor, transf_rotmat, transf_transl = optimize(
                 history_motion_tensor, transf_rotmat, transf_transl, text_prompt, goal_joints, joints_mask)
 
