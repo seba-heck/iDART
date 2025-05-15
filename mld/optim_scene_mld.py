@@ -144,6 +144,22 @@ def sample_scene_points(scene_assets, B=8, T=98, s=4, rand_idxs=False):
     return points, indices
 
 def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl):
+    """
+    Calculate the signed distance function (SDF) values for the scene points.
+    
+    Args:
+        scene_assets: dict containing scene information, including "scene_points".
+        motion_sequences: dict containing motion sequences.
+        transf_rotmat: rotation matrix for transformation.
+        transf_transl: translation vector for transformation.
+    Returns:
+        A tensor of shape [B, t_, N] containing SDF values.
+    Dimensions:
+        B:  Batch size.
+        T:  Number of time frames (for each batch).
+        N:  Number of points in the scene.
+        t_: Number of time frames selected from the scene points evaluation.
+    """
     B, T, J, _ = motion_sequences['joints'].shape
     print('B, T, J:', B, T, J)
     print('Device:', transf_rotmat.device)
