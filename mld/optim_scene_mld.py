@@ -41,6 +41,11 @@ from mld.rollout_mld import load_mld, ClassifierFreeWrapper
 
 from VolumetricSMPL import attach_volume
 
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
 debug = 0
 
 @dataclass
@@ -109,7 +114,7 @@ def sample_scene_points(scene_assets, B=8, T=98, s=4, rand_idxs=False):
         A tensor of shape [B, T, 3].
     """
     all_points = scene_assets["scene_points"]  # Shape: [N, 3]
-    print("all_points shape", all_points.shape)
+    # print("all_points shape", all_points.shape)
 
     # get scene points
     # bb_min = smpl_output.vertices.min(1).values.reshape(1, 3)
@@ -140,13 +145,76 @@ def sample_scene_points(scene_assets, B=8, T=98, s=4, rand_idxs=False):
     # points = points.permute(2,0,1,3)
     points = points.reshape(B*t_, -1, 3)  # Shape: [B * T//s, N, 3]
 
-    print("Transformed points shape:", points.shape)
+    # print("Transformed points shape:", points.shape)
     return points, indices
+
+def plot_sampled_points_with_sdf(points, sdf_values, smpl_output, B=8, T=98, title="Sampled Points with SDF Values"):
+    """
+    Plots the sampled points as a scatter plot, with SDF values as colors.
+
+    Args:
+        points (torch.Tensor): Tensor of shape [N, 3], containing the 3D coordinates of the points.
+        sdf_values (torch.Tensor): Tensor of shape [N], containing the SDF values for the points.
+        title (str): Title of the plot.
+    """
+    # Convert tensors to numpy arrays for plotting
+    points_np = points.cpu().detach().numpy()
+    sdf_values_np = sdf_values.cpu().detach().numpy()
+    smpl_output_np = smpl_output.cpu().detach().numpy()
+
+    for b_ in range(B):
+        for t_ in range(T):
+            # Create a 3D scatter plot
+            fig = plt.figure(figsize=(10, 8))
+            ax = fig.add_subplot(111, projection='3d')
+
+            # Scatter plot with SDF values as colors
+            scatter = ax.scatter(points_np[t_,:, 0], points_np[t_,:, 1], points_np[t_,:, 2], c=sdf_values_np[-(1+b_),t_,:], cmap='viridis', s=5, alpha=0.4)
+
+            # Add color bar
+            cbar = plt.colorbar(scatter, ax=ax, shrink=0.5, aspect=10)
+            cbar.set_label("SDF Values")
+
+            # scatter plot of SMPL body
+            ax.scatter(smpl_output_np[-(1+b_),t_,:,0],smpl_output_np[-(1+b_),t_,:,1],smpl_output_np[-(1+b_),t_,:,2],c='black', s=10, alpha=1.0)
+
+            # Set plot labels and title
+            ax.set_xlabel("X")
+            ax.set_ylabel("Y")
+            ax.set_zlabel("Z")
+            ax.set_title(title)
+
+            # Ensure equally spaced axes
+            x_limits = ax.get_xlim()
+            y_limits = ax.get_ylim()
+            z_limits = ax.get_zlim()
+
+            x_range = x_limits[1] - x_limits[0]
+            y_range = y_limits[1] - y_limits[0]
+            z_range = z_limits[1] - z_limits[0]
+            max_range = max(x_range, y_range, z_range)
+
+            # Center the axes
+            x_middle = (x_limits[0] + x_limits[1]) / 2
+            y_middle = (y_limits[0] + y_limits[1]) / 2
+            z_middle = (z_limits[0] + z_limits[1]) / 2
+
+            ax.set_xlim([x_middle - max_range / 2, x_middle + max_range / 2])
+            ax.set_ylim([y_middle - max_range / 2, y_middle + max_range / 2])
+            ax.set_zlim([z_middle - max_range / 2, z_middle + max_range / 2])
+            
+            # Set the angle of view
+            ax.view_init(elev=40, azim=10)
+
+            # Show the plot
+            plt.tight_layout()
+            plt.savefig(f"bin/imgs/sdf-points-{b_}-{t_}.png")
+            plt.close()
 
 def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl):
     """
     Calculate the signed distance function (SDF) values for the scene points.
-    
+
     Args:
         scene_assets: dict containing scene information, including "scene_points".
         motion_sequences: dict containing motion sequences.
@@ -161,40 +229,39 @@ def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl):
         t_: Number of time frames selected from the scene points evaluation.
     """
     B, T, J, _ = motion_sequences['joints'].shape
-    print('B, T, J:', B, T, J)
-    print('Device:', transf_rotmat.device)
+    # print('B, T, J:', B, T, J)
+    # print('Device:', transf_rotmat.device)
 
     transf_rotmat = transf_rotmat.to(device)
     transf_transl = transf_transl.to(device)
-    print("transf_rotmat", transf_rotmat.shape)
-    print("transf_transl", transf_transl.shape)
+    # print("transf_rotmat", transf_rotmat.shape)
+    # print("transf_transl", transf_transl.shape)
 
     # get body pose parameterscon
     betas = motion_sequences['betas'].reshape(B * T, 10).to(device=device) #body shape coeffs, don't rotate! 
-    print("betas shape", betas.shape)
-
     # > (B, T, 3, 3) -> (B, 3)
     global_orient = motion_sequences['global_orient'].to(device=device) #global rotation of root joint
-    print("global_orient shape", global_orient.shape)
-    
     #  (B, T, 21, 3, 3)-> (B, (J*3))
     body_pose = motion_sequences['body_pose'].to(device=device) #relative rotations of other joints
-    print("body_pose shape", body_pose.shape)
-
     # (B, T, 3) -> (B, 3)
     transl = motion_sequences['transl'].to(device=device) #global translation of the root
-    print("transl shape", transl.shape)
+    
+    # print("betas shape", betas.shape)
+    # print("global_orient shape", global_orient.shape)
+    # print("body_pose shape", body_pose.shape)
+    # print("transl shape", transl.shape)
 
     #Rotation Transformations
+    transf_rotmat.permute(0,2,1)
     #transform (multiply with transf_rotmat)
-    global_orient = torch.einsum('btij,bjk->btik', global_orient, transf_rotmat)
-    body_pose = torch.einsum('btjik,bkl->btjil', body_pose, transf_rotmat)
-    # transl = torch.einsum('bij,btk->bti', transf_rotmat, transl)
+    global_orient = torch.einsum('bij,btjk->btik', transf_rotmat, global_orient)
+    # body_pose = torch.einsum('bik,btjkl->btjil', transf_rotmat.permute(0,2,1), body_pose)
+    transl = torch.einsum('bij,btk->bti', transf_rotmat, transl)# + transf_transl
 
     #convert back to axis-angle
     global_orient = matrix_to_axis_angle(global_orient) 
     body_pose = matrix_to_axis_angle(body_pose)#.view(B, T * 21, 3, 3)).view(B, T, 21, 3) 
-    transl =  (transf_rotmat @ transl.transpose(-1, -2)).transpose(-1, -2)  # (B, T, 3)
+    # transl =  (transf_rotmat @ transl.transpose(-1, -2)).transpose(-1, -2)  + transf_transl# (B, T, 3)
 
     #reshape for required input size for SMPL-X
     global_orient = global_orient.reshape(B * T, 3).to(device=device)
@@ -210,10 +277,10 @@ def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl):
     body_model = vol_body_model_dict[gender].to(device=device)
 
     # Debugging: Check devices of all tensors
-    print(f"Device check:\n betas={betas.device},\n global_orient={global_orient.device},\n body_pose={body_pose.device},\n transl={transl.device}")
-    print("global_orient final shape", global_orient.shape)
-    print("body_pose final shape", body_pose.shape)
-    print("nbr joints body model", body_model.NUM_BODY_JOINTS)
+    # print(f"Device check:\n betas={betas.device},\n global_orient={global_orient.device},\n body_pose={body_pose.device},\n transl={transl.device}")
+    # print("global_orient final shape", global_orient.shape)
+    # print("body_pose final shape", body_pose.shape)
+    # print("nbr joints body model", body_model.NUM_BODY_JOINTS)
 
     # get "current" smpl body model
     smpl_output = body_model(betas=betas,
@@ -221,8 +288,8 @@ def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl):
                              body_pose=body_pose,
                              transl=transl,
                              return_verts=True, return_full_pose=True)
-    print("smpl_output shape", smpl_output.joints.shape)
-    print("smpl_output", type(smpl_output))
+    # print("smpl_output shape", smpl_output.joints.shape)
+    # print("smpl_output", type(smpl_output))
 
     # get scene points
     scene_points, idxs = sample_scene_points(scene_assets,1,T)
@@ -258,8 +325,9 @@ def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl):
         # query sampled points for sdf values
         sdf_values[i_,...] = body_model.volume.query_fast(scene_points, subset_smpl_output)
 
-    print("huhuiiiiiiiiiii")
-    print(sdf_values.shape)
+    # print(sdf_values.shape)
+
+    plot_sampled_points_with_sdf(scene_points, sdf_values, smpl_output_vertices, B=1, T=t_)
 
     return sdf_values # shape: [B, t_, N]
 
@@ -387,29 +455,37 @@ def optimize(history_motion_tensor, transf_rotmat, transf_transl, text_prompt, g
         global_joints = motion_sequences['joints']  # [> B, T, 22, 3]
         B, T, _, _ = global_joints.shape
         
-        print("##################################")
+        torch.cuda.empty_cache()
         sdf_values = calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl)
         # TODO: implement meaningful loss function
-        joints_sdf = calc_point_sdf(scene_assets, global_joints.reshape(1, -1, 3)).reshape(B, T, 22)
 
-        joints_sdf = calc_point_sdf(scene_assets, global_joints.reshape(1, -1, 3)).reshape( B, T, 22)
+        # # FOOT-CONTACT_LOSS, don't how to do this with VolSMPL
+        # foot_joints_sdf = joints_sdf[:, :, FOOT_JOINTS_IDX]  # [> B, T, 2]
+        # loss_floor_contact = (foot_joints_sdf.amin(dim=-1) - optim_args.contact_thresh).clamp(min=0).mean()
 
-        foot_joints_sdf = joints_sdf[:, :, FOOT_JOINTS_IDX]  # [> B, T, 2]
-        loss_floor_contact = (foot_joints_sdf.amin(dim=-1) - optim_args.contact_thresh).clamp(min=0).mean()
-        negative_sdf_per_frame = (joints_sdf - joint_skin_dist.reshape(1, 1, 22)).clamp(max=0).sum(
-            dim=-1)  # [> B, T], clip negative sdf, sum over joints
-        negative_sdf_mean = negative_sdf_per_frame.mean()
-        loss_collision = -negative_sdf_mean
+        # # GENERAL COLLISION_LOSS
+        # negative_sdf_per_frame = (joints_sdf - joint_skin_dist.reshape(1, 1, 22)).clamp(max=0).sum( # i think joint_skin_dist is the distance to the skin (and no more necessary, thanks VolSMPL)
+        #     dim=-1)  # [> B, T], clip negative sdf, sum over joints
+        # negative_sdf_mean = negative_sdf_per_frame.mean()
+        # loss_collision = -negative_sdf_mean
+        loss_collision = torch.relu(-sdf_values).sum(-1).mean()
+
+        # OTHER LOSS VALUES (just leave or?)
         loss_joints = criterion(motion_sequences['joints'][:, -1, joints_mask], goal_joints[:, joints_mask])
         loss_jerk = calc_jerk(motion_sequences['joints'])
-        loss = loss_joints + optim_args.weight_collision * loss_collision + optim_args.weight_jerk * loss_jerk + optim_args.weight_contact * loss_floor_contact
+        # print("loss_joints shape", loss_joints.shape)
+        # print("loss_collision shape", loss_collision.shape)
+
+        # TOTAL LOSS
+        loss = loss_joints + optim_args.weight_collision * loss_collision + optim_args.weight_jerk * loss_jerk
+        # loss = loss_joints + optim_args.weight_collision * loss_collision + optim_args.weight_jerk * loss_jerk + optim_args.weight_contact * loss_floor_contact
 
         loss.backward()
         if optim_args.optim_unit_grad:
             noise.grad.data /= noise.grad.norm(p=2, dim=reduction_dims, keepdim=True).clamp(min=1e-6)
         optimizer.step()
-        print(f'[{i}/{optim_steps}] loss: {loss.item()} loss_joints: {loss_joints.item()} loss_collision: {loss_collision.item()} loss_jerk: {loss_jerk.item()} loss_floor_contact: {loss_floor_contact.item()}')
-
+        print(f'[{i}/{optim_steps}] loss: {loss.item()} loss_joints: {loss_joints.item()} loss_collision: {loss_collision.item()} loss_jerk: {loss_jerk.item()}')
+        # print(f'[{i}/{optim_steps}] loss: {loss.item()} loss_joints: {loss_joints.item()} loss_collision: {loss_collision.item()} loss_jerk: {loss_jerk.item()} loss_floor_contact: {loss_floor_contact.item()}')
 
     for key in motion_sequences:
         if torch.is_tensor(motion_sequences[key]):
@@ -481,6 +557,10 @@ if __name__ == '__main__':
     # read scene file
     scene_mesh = trimesh.load(scene_dir / interaction_cfg["scene_file"], process=False, force='mesh') # open obj-file as mesh
     scene_points = torch.tensor(scene_mesh.vertices, dtype=torch.float32, device=device) # only points/vertices of obj-mesh
+    
+    # change axis orientation
+    scene_points[:, [1,2]] = scene_points[:, [2,1]]
+    scene_points[:, 0] = -scene_points[:, 0]
 
     # save infos as scene dict
     scene_assets = {
@@ -555,9 +635,9 @@ if __name__ == '__main__':
                 # (axis_mesh + goal_mesh + scene_assets['scene_with_floor_mesh']).show()
 
             print("""
- # ----------------------- #
- [INFO] START Optimizing 
- # ----------------------- #
+# ------------------------ #
+[Start] Optimizing Routine
+# ------------------------ #
             """)
             motion_sequences, history_motion_tensor, transf_rotmat, transf_transl = optimize(
                 history_motion_tensor, transf_rotmat, transf_transl, text_prompt, goal_joints, joints_mask)
