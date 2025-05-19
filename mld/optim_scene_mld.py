@@ -53,7 +53,7 @@ class OptimArgs:
     seed: int = 0
     torch_deterministic: bool = True
     device: str = "cuda"
-    save_dir = None
+    save_dir = './bin/output'
 
     denoiser_checkpoint: str = ''
 
@@ -634,11 +634,7 @@ if __name__ == '__main__':
                 # goal_mesh = trimesh.creation.axis(axis_length=0.1, transform=transform)
                 # (axis_mesh + goal_mesh + scene_assets['scene_with_floor_mesh']).show()
 
-            print("""
-# ------------------------ #
-[Start] Optimizing Routine
-# ------------------------ #
-            """)
+            print("""# ------------------------ #\n[Start] Optimizing Routine""")
             motion_sequences, history_motion_tensor, transf_rotmat, transf_transl = optimize(
                 history_motion_tensor, transf_rotmat, transf_transl, text_prompt, goal_joints, joints_mask)
 
@@ -659,7 +655,8 @@ if __name__ == '__main__':
                 all_motion_sequences['goal_location_idx'] += [num_goals - 1] * num_frames
             with open(cache_path, 'wb') as f:
                 pickle.dump([all_motion_sequences, history_motion_tensor, transf_rotmat, transf_transl], f)
-
+            print("[End] Optimizing Routine\n# ------------------------ #")
+            
     for idx in range(batch_size):
         sequence = {
             'texts': all_motion_sequences['texts'],

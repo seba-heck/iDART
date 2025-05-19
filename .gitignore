@@ -183,5 +183,5 @@ data/seq_data_zero_male/
 data/smplx_lockedhead_20230207/
 data/traj_test/
 
-data/*.json
+data/*.npz
 data/*.pkl
