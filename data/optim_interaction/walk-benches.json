@@ -6,7 +6,7 @@
   "interactions": [
     {
       "text_prompt": "walk*12",
-      "init_joints": [[-2.0, 0.0, 1.2]],
+      "init_joints": [[-2.0, 0.0, 1.2],[-2.0, 0.1, 1.1],[-2.0,-0.1, 1.1]],
       "goal_joints": [[ 1.0, 0.0, 1.2]]
     }
 

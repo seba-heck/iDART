@@ -80,7 +80,7 @@ class OptimArgs:
 
     interaction_cfg: str = './data/optim_interaction/climb_up_stairs.json'
 
-    visualize_sdf: bool = False
+    visualize_sdf: int = 0
 
 
 import torch.nn.functional as F
@@ -215,7 +215,7 @@ def plot_sampled_points_with_sdf(points, sdf_values, smpl_output, B=8, T=98, tit
             plt.savefig(f"bin/imgs/sdf-points-{b_}-{t_}.png")
             plt.close()
 
-def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl):
+def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl, plot=False):
     """
     Calculate the signed distance function (SDF) values for the scene points.
 
@@ -331,7 +331,8 @@ def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl):
 
     # print(sdf_values.shape)
 
-    plot_sampled_points_with_sdf(scene_points, sdf_values, smpl_output_vertices, B=1, T=t_)
+    if plot==True:
+        plot_sampled_points_with_sdf(scene_points, sdf_values, smpl_output_vertices[:, idxs, ...], B=1, T=t_)
 
     return sdf_values # shape: [B, t_, N]
 
@@ -465,7 +466,7 @@ def optimize(history_motion_tensor, transf_rotmat, transf_transl, text_prompt, g
         
         torch.cuda.empty_cache()
         t_sdf_start = time.time()
-        sdf_values = calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl)
+        sdf_values = calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl, plot=(optim_args.visualize_sdf==1))
         # TODO: implement meaningful loss function
 
         # # FOOT-CONTACT_LOSS, don't how to do this with VolSMPL
@@ -583,7 +584,7 @@ if __name__ == '__main__':
     scene_points = torch.tensor(scene_mesh.vertices, dtype=torch.float32, device=device) # only points/vertices of obj-mesh
     
     # change axis orientation
-    scene_points[:, [1,2]] = scene_points[:, [2,1]]
+    scene_points[:, [0,1,2]] = scene_points[:, [2,0,1]]
     scene_points[:, 0] = -scene_points[:, 0]
 
     # save infos as scene dict
