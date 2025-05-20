@@ -28,7 +28,15 @@ model_list=(
 )
 
 for interaction_cfg in "${interaction_cfg_list[@]}"; do
+  interaction_name=$(basename "$interaction_cfg" .json)
+
   for model in "${model_list[@]}"; do
     time python -m mld.optim_scene_mld --denoiser_checkpoint "$model" --interaction_cfg "$interaction_cfg" --optim_lr $optim_lr --optim_steps $optim_steps --batch_size $batch_size --guidance_param $guidance --respacing "$respacing" --export_smpl $export_smpl  --use_predicted_joints $use_predicted_joints  --optim_unit_grad $optim_unit_grad  --optim_anneal_lr $optim_anneal_lr  --weight_jerk $weight_jerk --weight_collision $weight_collision  --weight_contact $weight_contact  --weight_skate $weight_skate  --contact_thresh $contact_thresh  --load_cache $load_cache  --init_noise_scale $init_noise_scale --visualize_sdf $visualize_sdf
+
+    if [ $visualize_sdf -eq 1 ]; then
+      ffmpeg -framerate 10 -i "bin/imgs/sdf-points-0-%d.png" -c:v libx264 -pix_fmt yuv420p "bin/result/optim_${interaction_name}.mp4" -y
+      echo "[INFO] Video saved as 'bin/result/optim_${interaction_name}.mp4'."
+    fi
+
   done
 done

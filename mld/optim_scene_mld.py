@@ -73,7 +73,7 @@ class OptimArgs:
     weight_collision: float = 0.0
     weight_contact: float = 0.0
     weight_skate: float = 0.0
-    floor_contact_loss: int = 0
+    floor_contact_loss: int = 1
     load_cache: int = 0
     contact_thresh: float = 0.03
     init_noise_scale: float = 1.0
@@ -214,6 +214,8 @@ def plot_sampled_points_with_sdf(points, sdf_values, smpl_output, B=8, T=98, tit
             plt.tight_layout()
             plt.savefig(f"bin/imgs/sdf-points-{b_}-{t_}.png")
             plt.close()
+
+    print(f'[Done] Plotting SDF-Points [bin/imgs/sdf-points-{B}-{T}.png]')
 
 def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl, plot=False):
     """
@@ -460,22 +462,22 @@ def optimize(history_motion_tensor, transf_rotmat, transf_transl, text_prompt, g
                                                                                                     history_motion_tensor,
                                                                                                     transf_rotmat,
                                                                                                     transf_transl)
-        times['rollout'] += t_rollout_start - time.time()
+        times['rollout'] += time.time() - t_rollout_start
         global_joints = motion_sequences['joints']  # [> B, T, 22, 3]
         B, T, _, _ = global_joints.shape
         
         torch.cuda.empty_cache()
         t_sdf_start = time.time()
-        sdf_values = calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl, plot=(optim_args.visualize_sdf==1))
+        sdf_values = calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl, plot=(optim_args.visualize_sdf==1 and i+1 >= optim_steps))
         # TODO: implement meaningful loss function
 
         # # FOOT-CONTACT_LOSS, don't how to do this with VolSMPL
         # foot_joints_sdf = joints_sdf[:, :, FOOT_JOINTS_IDX]  # [> B, T, 2]
         # loss_floor_contact = (foot_joints_sdf.amin(dim=-1) - optim_args.contact_thresh).clamp(min=0).mean()
         if optim_args.floor_contact_loss == 0: 
-            loss_floor_contact = torch.relu(sdf_values - optim_args.contact_thresh).min(dim=-1).mean()
+            loss_floor_contact = torch.relu(sdf_values - optim_args.contact_thresh).amin(dim=-1).mean()
         elif optim_args.floor_contact_loss == 1:
-            loss_floor = ((global_joints[:, :, FOOT_JOINTS_IDX, 2] - joint_skin_dist.reshape(1,1,22)[FOOT_JOINTS_IDX]).amin(dim=-1) - optim_args.contact_thresh).clamp(min=0).mean()
+            loss_floor_contact = ((global_joints[:, :, FOOT_JOINTS_IDX, 2] - joint_skin_dist.reshape(1,1,22)[:,:,FOOT_JOINTS_IDX]).amin(dim=-1) - scene_assets['floor_height'] - optim_args.contact_thresh).clamp(min=0).mean()
 
         # # GENERAL COLLISION_LOSS
         # negative_sdf_per_frame = (joints_sdf - joint_skin_dist.reshape(1, 1, 22)).clamp(max=0).sum( # i think joint_skin_dist is the distance to the skin (and no more necessary, thanks VolSMPL)
@@ -484,7 +486,7 @@ def optimize(history_motion_tensor, transf_rotmat, transf_transl, text_prompt, g
         # loss_collision = -negative_sdf_mean
         loss_collision = torch.relu(-sdf_values).sum(-1).mean()
 
-        times['sdf'] += t_sdf_start - time.time()
+        times['sdf'] += time.time() - t_sdf_start
 
         # OTHER LOSS VALUES (just leave or?)
         loss_joints = criterion(motion_sequences['joints'][:, -1, joints_mask], goal_joints[:, joints_mask])
@@ -493,8 +495,8 @@ def optimize(history_motion_tensor, transf_rotmat, transf_transl, text_prompt, g
         # print("loss_collision shape", loss_collision.shape)
 
         # TOTAL LOSS
-        loss = loss_joints + optim_args.weight_collision * loss_collision + optim_args.weight_jerk * loss_jerk
-        # loss = loss_joints + optim_args.weight_collision * loss_collision + optim_args.weight_jerk * loss_jerk + optim_args.weight_contact * loss_floor_contact
+        # loss = loss_joints + optim_args.weight_collision * loss_collision + optim_args.weight_jerk * loss_jerk
+        loss = loss_joints + optim_args.weight_collision * loss_collision + optim_args.weight_jerk * loss_jerk + optim_args.weight_contact * loss_floor_contact
 
         loss.backward()
         if optim_args.optim_unit_grad:
@@ -503,8 +505,8 @@ def optimize(history_motion_tensor, transf_rotmat, transf_transl, text_prompt, g
         # print(f'[{i}/{optim_steps}] loss: {loss.item()} loss_joints: {loss_joints.item()} loss_collision: {loss_collision.item()} loss_jerk: {loss_jerk.item()}')
         print(f'[{i}/{optim_steps}] loss: {loss.item()} loss_joints: {loss_joints.item()} loss_collision: {loss_collision.item()} loss_jerk: {loss_jerk.item()} loss_floor_contact: {loss_floor_contact.item()}')
 
-    times['total'] += t_total_start - time.time()
-    times['nbr_iteration'] = i
+    times['total'] += time.time() - t_total_start
+    times['nbr_iterations'] = optim_steps
 
     losses['total'] = loss
     losses['joints'] = loss_joints
@@ -738,18 +740,20 @@ if __name__ == '__main__':
     print(f'[Done] Results are at [{out_path.absolute()}]')
 
     print(f"""
-Times:
-    total   = {times['total']}
-    rollout = {times['rollout']}
-    sdf     = {times['sdf']}
-    nbr it. = {times['nbr_iterations']}
-Losses:
-    total     = {losses['total']}
-    joints    = {losses['joints']}
-    collision = {losses['collision']}
-    jerk      = {losses['jerk']}
-    floor     = {losses['floor']}
+    ╔════════════════════════════════════════════════════════════════════════════╗
+    ║                                Optimization Results                        ║
+    ╠════════════════════════════════════════════════════════════════════════════╣
+    ║ Times:                                                                     ║
+    ║     total   = {times['total']:<10.5f}                                                  ║
+    ║     rollout = {times['rollout']:<10.5f}                                                  ║
+    ║     sdf     = {times['sdf']:<10.5f}                                                  ║
+    ║     nbr it. = {times['nbr_iterations']:<10}                                                  ║
+    ║                                                                            ║
+    ║ Losses:                                                                    ║
+    ║     total     = {losses['total']:<15.8f}                                             ║
+    ║     joints    = {losses['joints']:<15.8f}                                             ║
+    ║     collision = {losses['collision']:<15.8f}                                             ║
+    ║     jerk      = {losses['jerk']:<15.8f}                                             ║
+    ║     floor     = {losses['floor']:<15.8f}                                             ║
+    ╚════════════════════════════════════════════════════════════════════════════╝
     """)
-
-
-
