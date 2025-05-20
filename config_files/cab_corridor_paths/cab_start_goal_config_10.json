@@ -1,0 +1,21 @@
+{
+    "scene_id": "cab korridor",
+    "start": {
+        "name": "Empty",
+        "position": [
+            -0.717472493648529,
+            -0.5601332783699036,
+            0.0
+        ]
+    },
+    "goal": {
+        "name": "Empty.001",
+        "position": [
+            -0.1896038055419922,
+            -0.07041565328836441,
+            0.0
+        ]
+    },
+    "navigation_type": "point_to_point",
+    "comment": "C"
+}
