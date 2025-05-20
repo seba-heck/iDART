@@ -83,27 +83,27 @@ class OptimArgs:
     visualize_sdf: bool = False
 
 
-import torch.nn.functional as F
-def calc_point_sdf(scene_assets, points):
-    device = points.device
-    scene_sdf_config = scene_assets['scene_sdf_config']
-    scene_sdf_grid = scene_assets['scene_sdf_grid']
-    sdf_size = scene_sdf_config['size']
-    sdf_scale = scene_sdf_config['scale']
-    sdf_scale = torch.tensor(sdf_scale, dtype=torch.float32, device=device).reshape(1, 1, 1)  # [1, 1, 1]
-    sdf_center = scene_sdf_config['center']
-    sdf_center = torch.tensor(sdf_center, dtype=torch.float32, device=device).reshape(1, 1, 3)  # [1, 1, 3]
-    batch_size, num_points, _ = points.shape
-    # convert to [-1, 1], here scale is (1.6/extent) proportional to the inverse of scene size, https://github.com/wang-ps/mesh2sdf/blob/1b54d1f5458d8622c444f78d4477f600a6fe50e1/example/test.py#L22
-    points = (points - sdf_center) * sdf_scale  # [> B, num_points, 3]
-    sdf_values = F.grid_sample(scene_sdf_grid.unsqueeze(0),  # [> B, 1, size, size, size]
-                               points[:, :, [2, 1, 0]].view(batch_size, num_points, 1, 1, 3),
-                               padding_mode='border',
-                               align_corners=True
-                               ).reshape(batch_size, num_points)
-    # print('sdf_values', sdf_values.shape)
-    sdf_values = sdf_values / sdf_scale.squeeze(-1)  # [> B, P], scale back to the original scene size
-    return sdf_values
+# import torch.nn.functional as F
+# def calc_point_sdf(scene_assets, points):
+#     device = points.device
+#     scene_sdf_config = scene_assets['scene_sdf_config']
+#     scene_sdf_grid = scene_assets['scene_sdf_grid']
+#     sdf_size = scene_sdf_config['size']
+#     sdf_scale = scene_sdf_config['scale']
+#     sdf_scale = torch.tensor(sdf_scale, dtype=torch.float32, device=device).reshape(1, 1, 1)  # [1, 1, 1]
+#     sdf_center = scene_sdf_config['center']
+#     sdf_center = torch.tensor(sdf_center, dtype=torch.float32, device=device).reshape(1, 1, 3)  # [1, 1, 3]
+#     batch_size, num_points, _ = points.shape
+#     # convert to [-1, 1], here scale is (1.6/extent) proportional to the inverse of scene size, https://github.com/wang-ps/mesh2sdf/blob/1b54d1f5458d8622c444f78d4477f600a6fe50e1/example/test.py#L22
+#     points = (points - sdf_center) * sdf_scale  # [> B, num_points, 3]
+#     sdf_values = F.grid_sample(scene_sdf_grid.unsqueeze(0),  # [> B, 1, size, size, size]
+#                                points[:, :, [2, 1, 0]].view(batch_size, num_points, 1, 1, 3),
+#                                padding_mode='border',
+#                                align_corners=True
+#                                ).reshape(batch_size, num_points)
+#     # print('sdf_values', sdf_values.shape)
+#     sdf_values = sdf_values / sdf_scale.squeeze(-1)  # [> B, P], scale back to the original scene size
+#     return sdf_values
 
 def sample_scene_points(scene_assets, B=8, T=98, s=4, rand_idxs=False):
     """
@@ -118,21 +118,7 @@ def sample_scene_points(scene_assets, B=8, T=98, s=4, rand_idxs=False):
         A tensor of shape [B, T, 3].
     """
     all_points = scene_assets["scene_points"]  # Shape: [N, 3]
-    # print("all_points shape", all_points.shape)
-
-    # get scene points
-    # bb_min = smpl_output.vertices.min(1).values.reshape(1, 3)
-    # bb_max = smpl_output.vertices.max(1).values.reshape(1, 3)
-
-    # inds = (scene_vertices >= bb_min).all(-1) & (scene_vertices <= bb_max).all(-1)
-    # if not inds.any():
-    #     return None
-    # points = scene_vertices[inds]
-    # points = points.float().reshape(1, -1, 3)  # add batch dimension
-    # return points
-    # Ensure the number of points matches B * T
-    # Ensure the number of points matches B * T
-
+    
     # repeat points for each time step
     stacked_pointspoints = all_points.unsqueeze(0).repeat(B, T, 1, 1)  # Shape: [T, N, 3]
 
@@ -520,26 +506,26 @@ def optimize(history_motion_tensor, transf_rotmat, transf_transl, text_prompt, g
 if __name__ == '__main__':
     optim_args = tyro.cli(OptimArgs)
     # TRY NOT TO MODIFY: seeding
-    random.seed(optim_args.seed)
-    np.random.seed(optim_args.seed)
-    torch.manual_seed(optim_args.seed)
-    torch.set_default_dtype(torch.float32)
-    torch.backends.cudnn.deterministic = optim_args.torch_deterministic
+    # random.seed(optim_args.seed)
+    # np.random.seed(optim_args.seed)
+    # torch.manual_seed(optim_args.seed)
+    # torch.set_default_dtype(torch.float32)
+    # torch.backends.cudnn.deterministic = optim_args.torch_deterministic
     device = torch.device(optim_args.device if torch.cuda.is_available() else "cpu")
     optim_args.device = device
 
-    denoiser_args, denoiser_model, vae_args, vae_model = load_mld(optim_args.denoiser_checkpoint, device)
-    denoiser_checkpoint = Path(optim_args.denoiser_checkpoint)
-    save_dir = denoiser_checkpoint.parent / denoiser_checkpoint.name.split('.')[0] / 'optim'
-    save_dir.mkdir(parents=True, exist_ok=True)
-    optim_args.save_dir = save_dir
+    # denoiser_args, denoiser_model, vae_args, vae_model = load_mld(optim_args.denoiser_checkpoint, device)
+    # denoiser_checkpoint = Path(optim_args.denoiser_checkpoint)
+    # save_dir = denoiser_checkpoint.parent / denoiser_checkpoint.name.split('.')[0] / 'optim'
+    # save_dir.mkdir(parents=True, exist_ok=True)
+    # optim_args.save_dir = save_dir
 
-    diffusion_args = denoiser_args.diffusion_args
-    assert 'ddim' in optim_args.respacing
-    diffusion_args.respacing = optim_args.respacing
-    print('diffusion_args:', asdict(diffusion_args))
-    diffusion = create_gaussian_diffusion(diffusion_args)
-    sample_fn = diffusion.ddim_sample_loop_full_chain
+    # diffusion_args = denoiser_args.diffusion_args
+    # assert 'ddim' in optim_args.respacing
+    # diffusion_args.respacing = optim_args.respacing
+    # print('diffusion_args:', asdict(diffusion_args))
+    # diffusion = create_gaussian_diffusion(diffusion_args)
+    # sample_fn = diffusion.ddim_sample_loop_full_chain
 
     # load initial seed dataset
     dataset = SinglePrimitiveDataset(cfg_path=vae_args.data_args.cfg_path,  # cfg path from model checkpoint
