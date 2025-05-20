@@ -472,10 +472,12 @@ def optimize(history_motion_tensor, transf_rotmat, transf_transl, text_prompt, g
         # # FOOT-CONTACT_LOSS, don't how to do this with VolSMPL
         # foot_joints_sdf = joints_sdf[:, :, FOOT_JOINTS_IDX]  # [> B, T, 2]
         # loss_floor_contact = (foot_joints_sdf.amin(dim=-1) - optim_args.contact_thresh).clamp(min=0).mean()
-        if optim_args.floor_contact_loss == 0: 
+        
+        if optim_args.floor_contact_loss == 0: #penalize sdf vals if not within threshold from floor
             loss_floor_contact = torch.relu(sdf_values - optim_args.contact_thresh).min(dim=-1).mean()
         elif optim_args.floor_contact_loss == 1:
-            loss_floor = ((global_joints[:, :, FOOT_JOINTS_IDX, 2] - joint_skin_dist.reshape(1,1,22)[FOOT_JOINTS_IDX]).amin(dim=-1) - optim_args.contact_thresh).clamp(min=0).mean()
+            #loss_floor = ((global_joints[:, :, FOOT_JOINTS_IDX, 2] - joint_skin_dist.reshape(1,1,22)[FOOT_JOINTS_IDX]).amin(dim=-1) - optim_args.contact_thresh).clamp(min=0).mean()
+            loss_floor_contact = ((global_joints[:, :, FOOT_JOINTS_IDX, 2] - joint_skin_dist.reshape(1,1,22)[FOOT_JOINTS_IDX]).amin(dim=-1) - optim_args.contact_thresh).clamp(min=0).mean()
 
         # # GENERAL COLLISION_LOSS
         # negative_sdf_per_frame = (joints_sdf - joint_skin_dist.reshape(1, 1, 22)).clamp(max=0).sum( # i think joint_skin_dist is the distance to the skin (and no more necessary, thanks VolSMPL)
