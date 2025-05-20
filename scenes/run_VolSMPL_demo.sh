@@ -9,6 +9,7 @@ IMAGE_PATTERN="visualization_%d.png"
 
 # Activate the Conda environment
 echo "Activating Conda environment: $CONDA_ENV"
+conda init
 conda activate $CONDA_ENV
 
 # Check and install necessary Python packages
@@ -27,7 +28,7 @@ fi
 
 # Create a video from the images using ffmpeg
 echo "Creating MP4 video from images..."
-ffmpeg -framerate 30 -i "$IMAGE_DIR/$IMAGE_PATTERN" -c:v libx264 -pix_fmt yuv420p "$OUTPUT_DIR/$OUTPUT_VIDEO"
+ffmpeg -framerate 8 -i "$IMAGE_DIR/$IMAGE_PATTERN" -c:v libx264 -pix_fmt yuv420p "$OUTPUT_DIR/$OUTPUT_VIDEO"
 
 # Check if the video was created successfully
 if [ -f "$OUTPUT_VIDEO" ]; then
