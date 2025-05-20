@@ -5,9 +5,9 @@
   "interaction_name": "walk-benches-2000",
   "interactions": [
     {
-      "text_prompt": "walk*12",
-      "init_joints": [[-2.0, 0.0, 1.2],[-2.0, 0.1, 1.1],[-2.0,-0.1, 1.1]],
-      "goal_joints": [[ 1.0, 0.0, 1.2]]
+      "text_prompt": "walk backwards*4,jump forward*4,walk*4",
+      "init_joints": [[-2.0, 0.0, 1.1],[-2.0, 0.1, 1.0],[-2.0,-0.1, 1.0]],
+      "goal_joints": [[ 1.0, 0.0, 1.1]]
     }
 
   ]

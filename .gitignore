@@ -182,6 +182,15 @@ data/hml3d_smplh/
 data/seq_data_zero_male/
 data/smplx_lockedhead_20230207/
 data/traj_test/
+bin/*.mp4
+bin/result/*.mp4
+bin/imgs/*.png
 
 data/*.npz
 data/*.pkl
+
+data/action_statistics.json
+data/fps_dict.json
+data/fps_dict_all.json
+data/joint_skin_dist.json
+    
