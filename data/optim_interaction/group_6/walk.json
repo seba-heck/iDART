@@ -1,0 +1,14 @@
+{
+  "scene_dir": "./data/scenes/cab_e",
+  "floor_height": 0.0,
+  "interaction_name": "walk",
+  "duration_in_seconds": 8.0,
+  "interactions": [
+    {
+      "text_prompt": "turn right*3, walk*3, turn left*1, ",
+      "init_joints": [[-1.99134, -1.53048, 0.061622], [-1.04646, -1.49958, 0.076275], [-1.59912, -1.95155, 0.060157]],
+      "goal_joints": [[1.44697, 0.762644, 0.045804]]
+    }
+
+  ]
+}

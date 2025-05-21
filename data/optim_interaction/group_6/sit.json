@@ -1,0 +1,14 @@
+{
+  "scene_dir": "./data/scenes/cab_e",
+  "floor_height": 0.0,
+  "interaction_name": "sit",
+  "duration_in_seconds": 8.0,
+  "interactions": [
+    {
+      "text_prompt": "walk*2,sit on bench*6",
+      "init_joints": [[0.002083, -1.52732, 0.051402], [-0.703856, -1.44226, 0.044155], [1.1688, -1.45053, 0.038958]],
+      "goal_joints": [[0.003639, -0.272106, 0.042013]]
+    }
+
+  ]
+}
