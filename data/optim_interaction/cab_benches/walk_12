@@ -1,0 +1,22 @@
+{
+  "scene_dir": "./data/scenes/cab_g_benches",
+  "scene_file": "cab_g_benches_2000.obj",
+  "floor_height": 0.0,
+  "interaction_name": "walk-benches-2000",
+  "interactions": [
+    {
+      "text_prompt": "walk*12",
+      "init_joints": [[
+            -1.486210584640503,
+            2.5589938163757324,
+            0.0
+        ]],
+      "goal_joints": [[
+            -1.4892027378082275,
+            0.7769811749458313,
+            0.0
+        ]]
+    }
+
+  ]
+}
