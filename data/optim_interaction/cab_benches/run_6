@@ -1,0 +1,22 @@
+{
+  "scene_dir": "./data/scenes/cab_g_benches",
+  "scene_file": "cab_g_benches_2000.obj",
+  "floor_height": 0.0,
+  "interaction_name": "run-benches-2000",
+  "interactions": [
+    {
+      "text_prompt": "run*6",
+      "init_joints": [[
+            -0.7465763092041016,
+            0.049511805176734924,
+            0.0
+        ]],
+      "goal_joints": [ [
+            1.1053752899169922,
+            -1.5091042518615723,
+            0.0
+        ]]
+    }
+
+  ]
+}
