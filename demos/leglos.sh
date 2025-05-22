@@ -20,11 +20,12 @@ visualize_sdf=1
 
 load_cache=0
 interaction_cfg_list=(
-'./data/optim_interaction/walk-benches.json'
+'./data/optim_interaction/group_6/walk.json'
+'./data/optim_interaction/group_6/sit.json'
 )
 
 model_list=(
-'./mld_denoiser/mld_fps_clip_repeat_euler/checkpoint_300000.pt'
+'/mld_denoiser/mld_fps_clip_repeat_euler/checkpoint_300000.pt'
 )
 
 for interaction_cfg in "${interaction_cfg_list[@]}"; do
