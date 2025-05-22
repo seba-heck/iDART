@@ -1,0 +1,2 @@
+Start: Between the two column
+Goal: In front of the bench

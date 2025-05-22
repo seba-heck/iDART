@@ -20,8 +20,8 @@ visualize_sdf=1
 
 load_cache=0
 interaction_cfg_list=(
-'./data/optim_interaction/cab_benches/walk_3.json'
-'./data/optim_interaction/cab_benches/run_3.json'
+'./data/optim_interaction/cab_e/path1/walk_12.json'
+#'./data/optim_interaction/cab_benches/path1/run_3.json'
 )
 
 model_list=(

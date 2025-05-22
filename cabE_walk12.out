@@ -1,0 +1,196 @@
+/work/courses/digital_human/6/miniconda3/envs/DART/lib/python3.8/site-packages/torch/nn/modules/transformer.py:282: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.self_attn.batch_first was not True(use batch_first for better inference performance)
+  warnings.warn(f"enable_nested_tensor is True, but self.use_nested_tensor is False because {why_not_sparsity_fast_path}")
+denoiser model type: transformer
+denoiser model args: {'h_dim': 512, 'ff_size': 1024, 'num_layers': 8, 'num_heads': 4, 'dropout': 0.1, 'activation': 'gelu', 'cond_mask_prob': 0.1, 'clip_dim': 512, 'history_shape': (2, 276), 'noise_shape': (1, 256)}
+TRANS_ENC init
+Loading denoiser checkpoint from ./mld_denoiser/mld_fps_clip_repeat_euler/checkpoint_300000.pt
+vae model args: {'arch': 'all_encoder', 'ff_size': 1024, 'num_layers': 7, 'num_heads': 4, 'dropout': 0.1, 'normalize_before': False, 'activation': 'gelu', 'position_embedding': 'learned', 'latent_dim': (1, 256), 'h_dim': 256, 'nfeats': 276}
+Loading vae checkpoint from ./mvae/mvae_fps_clip/checkpoint_200000.pt
+latent_mean: 0.005734771955758333
+latent_std: 0.8744232654571533
+diffusion_args: {'diffusion_steps': 10, 'respacing': 'ddim10', 'noise_schedule': 'cosine', 'sigma_small': True}
+######## HALLO #######
+./config_files/config_hydra/motion_primitive/mp_h2_f8_r8.yaml
+./data/seq_data_zero_male
+loading mean and std from data/seq_data_zero_male/mean_std_h2_f8.pkl
+Batch sizes: 784 = (8*12 + 2) * 8
+# ------------------------ #
+[Start] Optimizing Routine
+  0%|          | 0/100 [00:00<?, ?it/s]  1%|          | 1/100 [00:21<35:52, 21.75s/it]  2%|▏         | 2/100 [00:32<24:59, 15.30s/it]  3%|▎         | 3/100 [00:42<20:53, 12.92s/it]  4%|▍         | 4/100 [00:52<18:38, 11.66s/it]  5%|▌         | 5/100 [01:01<17:13, 10.88s/it]  6%|▌         | 6/100 [01:11<16:36, 10.60s/it]  7%|▋         | 7/100 [01:22<16:34, 10.69s/it]  8%|▊         | 8/100 [01:33<16:11, 10.56s/it]  9%|▉         | 9/100 [01:42<15:41, 10.35s/it] 10%|█         | 10/100 [01:52<15:05, 10.06s/it] 11%|█         | 11/100 [02:02<14:54, 10.05s/it] 12%|█▏        | 12/100 [02:12<14:57, 10.20s/it] 13%|█▎        | 13/100 [02:23<14:56, 10.31s/it] 14%|█▍        | 14/100 [02:33<14:40, 10.24s/it] 15%|█▌        | 15/100 [02:41<13:28,  9.52s/it] 16%|█▌        | 16/100 [02:49<12:33,  8.96s/it] 17%|█▋        | 17/100 [02:56<11:53,  8.60s/it] 18%|█▊        | 18/100 [03:04<11:29,  8.41s/it] 19%|█▉        | 19/100 [03:12<11:08,  8.26s/it] 20%|██        | 20/100 [03:20<10:48,  8.10s/it] 21%|██        | 21/100 [03:28<10:35,  8.04s/it] 22%|██▏       | 22/100 [03:36<10:22,  7.98s/it] 23%|██▎       | 23/100 [03:44<10:17,  8.02s/it] 24%|██▍       | 24/100 [03:52<10:02,  7.93s/it] 25%|██▌       | 25/100 [03:59<09:42,  7.77s/it] 26%|██▌       | 26/100 [04:07<09:37,  7.80s/it] 27%|██▋       | 27/100 [04:15<09:29,  7.80s/it] 28%|██▊       | 28/100 [04:22<09:22,  7.81s/it] 29%|██▉       | 29/100 [04:30<09:20,  7.89s/it] 30%|███       | 30/100 [04:38<09:10,  7.86s/it] 31%|███       | 31/100 [04:46<08:54,  7.75s/it] 32%|███▏      | 32/100 [04:53<08:40,  7.66s/it] 33%|███▎      | 33/100 [05:01<08:34,  7.67s/it] 34%|███▍      | 34/100 [05:09<08:31,  7.75s/it] 35%|███▌      | 35/100 [05:19<09:10,  8.47s/it] 36%|███▌      | 36/100 [05:28<09:13,  8.64s/it] 37%|███▋      | 37/100 [05:37<09:09,  8.72s/it] 38%|███▊      | 38/100 [05:46<08:58,  8.69s/it] 39%|███▉      | 39/100 [05:55<09:01,  8.87s/it] 40%|████      | 40/100 [06:04<08:48,  8.81s/it] 41%|████      | 41/100 [06:12<08:33,  8.71s/it] 42%|████▏     | 42/100 [06:20<08:16,  8.57s/it] 43%|████▎     | 43/100 [06:29<08:04,  8.50s/it] 44%|████▍     | 44/100 [06:38<08:11,  8.78s/it] 45%|████▌     | 45/100 [06:47<08:05,  8.83s/it] 46%|████▌     | 46/100 [06:56<07:59,  8.88s/it] 47%|████▋     | 47/100 [07:05<07:47,  8.82s/it] 48%|████▊     | 48/100 [07:13<07:35,  8.76s/it] 49%|████▉     | 49/100 [07:22<07:33,  8.88s/it] 50%|█████     | 50/100 [07:32<07:30,  9.00s/it] 51%|█████     | 51/100 [07:40<07:13,  8.85s/it] 52%|█████▏    | 52/100 [07:46<06:26,  8.04s/it] 53%|█████▎    | 53/100 [07:53<05:55,  7.56s/it] 54%|█████▍    | 54/100 [07:59<05:29,  7.16s/it] 55%|█████▌    | 55/100 [08:05<05:10,  6.90s/it] 56%|█████▌    | 56/100 [08:11<04:51,  6.62s/it] 57%|█████▋    | 57/100 [08:18<04:50,  6.77s/it] 58%|█████▊    | 58/100 [08:25<04:36,  6.59s/it] 59%|█████▉    | 59/100 [08:31<04:32,  6.64s/it] 60%|██████    | 60/100 [08:38<04:21,  6.55s/it] 61%|██████    | 61/100 [08:44<04:10,  6.42s/it] 62%|██████▏   | 62/100 [08:50<04:05,  6.47s/it] 63%|██████▎   | 63/100 [08:57<03:57,  6.43s/it] 64%|██████▍   | 64/100 [09:04<03:56,  6.58s/it] 65%|██████▌   | 65/100 [09:10<03:47,  6.51s/it] 66%|██████▌   | 66/100 [09:16<03:40,  6.47s/it] 67%|██████▋   | 67/100 [09:23<03:32,  6.44s/it] 68%|██████▊   | 68/100 [09:29<03:22,  6.34s/it] 69%|██████▉   | 69/100 [09:35<03:17,  6.36s/it] 70%|███████   | 70/100 [09:42<03:10,  6.35s/it] 71%|███████   | 71/100 [09:48<03:00,  6.24s/it] 72%|███████▏  | 72/100 [09:54<02:53,  6.19s/it] 73%|███████▎  | 73/100 [10:00<02:47,  6.20s/it] 74%|███████▍  | 74/100 [10:06<02:40,  6.18s/it] 75%|███████▌  | 75/100 [10:13<02:38,  6.36s/it] 76%|███████▌  | 76/100 [10:22<02:50,  7.10s/it] 77%|███████▋  | 77/100 [10:30<02:54,  7.59s/it] 78%|███████▊  | 78/100 [10:39<02:54,  7.94s/it] 79%|███████▉  | 79/100 [10:47<02:49,  8.05s/it] 80%|████████  | 80/100 [10:56<02:43,  8.18s/it] 81%|████████  | 81/100 [11:04<02:37,  8.29s/it] 82%|████████▏ | 82/100 [11:14<02:33,  8.53s/it] 83%|████████▎ | 83/100 [11:22<02:24,  8.52s/it] 84%|████████▍ | 84/100 [11:31<02:17,  8.58s/it] 85%|████████▌ | 85/100 [11:39<02:06,  8.40s/it] 86%|████████▌ | 86/100 [11:47<01:58,  8.45s/it] 87%|████████▋ | 87/100 [11:56<01:50,  8.51s/it] 88%|████████▊ | 88/100 [12:05<01:42,  8.56s/it] 89%|████████▉ | 89/100 [12:13<01:33,  8.47s/it] 90%|█████████ | 90/100 [12:21<01:24,  8.43s/it] 91%|█████████ | 91/100 [12:30<01:15,  8.43s/it] 92%|█████████▏| 92/100 [12:38<01:07,  8.49s/it] 93%|█████████▎| 93/100 [12:48<01:01,  8.79s/it] 94%|█████████▍| 94/100 [12:56<00:51,  8.64s/it] 95%|█████████▌| 95/100 [13:05<00:43,  8.72s/it] 96%|█████████▌| 96/100 [13:13<00:34,  8.62s/it] 97%|█████████▋| 97/100 [13:22<00:26,  8.68s/it] 98%|█████████▊| 98/100 [13:31<00:17,  8.70s/it] 99%|█████████▉| 99/100 [13:39<00:08,  8.66s/it]100%|██████████| 100/100 [13:57<00:00, 11.42s/it]100%|██████████| 100/100 [13:57<00:00,  8.38s/it]
+[Done] Plotting SDF-Points [bin/imgs/sdf-points-1-13.png]
+[0/100] loss: 0.06468909978866577 loss_joints: 0.05878075957298279 loss_collision: 0.039583720266819 loss_jerk: 0.01617235317826271 loss_floor_contact: 0.003327256301417947
+[1/100] loss: 0.03364437818527222 loss_joints: 0.02851249650120735 loss_collision: 0.02710125595331192 loss_jerk: 0.015950515866279602 loss_floor_contact: 0.0082670534029603
+[2/100] loss: 0.019409766420722008 loss_joints: 0.01510919164866209 loss_collision: 0.014820046722888947 loss_jerk: 0.016091881319880486 loss_floor_contact: 0.012093826197087765
+[3/100] loss: 0.011766202747821808 loss_joints: 0.007188859861344099 loss_collision: 0.016486147418618202 loss_jerk: 0.01587781496345997 loss_floor_contact: 0.013409472070634365
+[4/100] loss: 0.007980548776686192 loss_joints: 0.0033508576452732086 loss_collision: 0.019653121009469032 loss_jerk: 0.016097726300358772 loss_floor_contact: 0.01054606307297945
+[5/100] loss: 0.006267225835472345 loss_joints: 0.0013920086203143 loss_collision: 0.01859903335571289 loss_jerk: 0.01597275584936142 loss_floor_contact: 0.014180383644998074
+[6/100] loss: 0.005460161715745926 loss_joints: 0.0009259573416784406 loss_collision: 0.02012600190937519 loss_jerk: 0.015475889667868614 loss_floor_contact: 0.009740152396261692
+[7/100] loss: 0.006598540116101503 loss_joints: 0.0019822916947305202 loss_collision: 0.022063100710511208 loss_jerk: 0.01571318879723549 loss_floor_contact: 0.008386190049350262
+[8/100] loss: 0.00722144590690732 loss_joints: 0.002823900431394577 loss_collision: 0.02442673221230507 loss_jerk: 0.015532447025179863 loss_floor_contact: 0.004016272258013487
+[9/100] loss: 0.007145247887820005 loss_joints: 0.0026282723993062973 loss_collision: 0.021480239927768707 loss_jerk: 0.015487153083086014 loss_floor_contact: 0.008202360942959785
+[10/100] loss: 0.007508055306971073 loss_joints: 0.002991995308548212 loss_collision: 0.022447623312473297 loss_jerk: 0.015510018914937973 loss_floor_contact: 0.007202953565865755
+[11/100] loss: 0.006910490803420544 loss_joints: 0.002514469902962446 loss_collision: 0.02140403352677822 loss_jerk: 0.015551106072962284 loss_floor_contact: 0.0070050666108727455
+[12/100] loss: 0.005898295436054468 loss_joints: 0.0015490967780351639 loss_collision: 0.019192637875676155 loss_jerk: 0.015562059357762337 loss_floor_contact: 0.008737284690141678
+[13/100] loss: 0.005404431838542223 loss_joints: 0.0008744340157136321 loss_collision: 0.019924428313970566 loss_jerk: 0.015582118183374405 loss_floor_contact: 0.00979342870414257
+[14/100] loss: 0.004998819902539253 loss_joints: 0.0005558195989578962 loss_collision: 0.021367963403463364 loss_jerk: 0.015774190425872803 loss_floor_contact: 0.0072878459468483925
+[15/100] loss: 0.005157600622624159 loss_joints: 0.0009061236632987857 loss_collision: 0.022997401654720306 loss_jerk: 0.015673303976655006 loss_floor_contact: 0.0038440676871687174
+[16/100] loss: 0.005213417112827301 loss_joints: 0.0008321890491060913 loss_collision: 0.024764209985733032 loss_jerk: 0.015604984015226364 loss_floor_contact: 0.0034430869854986668
+[17/100] loss: 0.004711513873189688 loss_joints: 0.0005761231295764446 loss_collision: 0.019157489761710167 loss_jerk: 0.015617099590599537 loss_floor_contact: 0.006579313427209854
+[18/100] loss: 0.004476568661630154 loss_joints: 0.00040147543768398464 loss_collision: 0.018021313473582268 loss_jerk: 0.0156266950070858 loss_floor_contact: 0.007102922536432743
+[19/100] loss: 0.004413039889186621 loss_joints: 0.00045545323519036174 loss_collision: 0.01615636982023716 loss_jerk: 0.01552196592092514 loss_floor_contact: 0.007897530682384968
+[20/100] loss: 0.00458306772634387 loss_joints: 0.0005551364738494158 loss_collision: 0.015711218118667603 loss_jerk: 0.015391109511256218 loss_floor_contact: 0.009176981635391712
+[21/100] loss: 0.004563910886645317 loss_joints: 0.0007187362643890083 loss_collision: 0.014423362910747528 loss_jerk: 0.01535390131175518 loss_floor_contact: 0.008674482814967632
+[22/100] loss: 0.004415792878717184 loss_joints: 0.0007603986887261271 loss_collision: 0.015059726312756538 loss_jerk: 0.01531391404569149 loss_floor_contact: 0.006180300377309322
+[23/100] loss: 0.004519803449511528 loss_joints: 0.0007334825349971652 loss_collision: 0.015927661210298538 loss_jerk: 0.01527042780071497 loss_floor_contact: 0.00666511757299304
+[24/100] loss: 0.00450019259005785 loss_joints: 0.0006557956803590059 loss_collision: 0.016485735774040222 loss_jerk: 0.015228009782731533 loss_floor_contact: 0.006730225868523121
+[25/100] loss: 0.004384789150208235 loss_joints: 0.000548428506590426 loss_collision: 0.016342246904969215 loss_jerk: 0.015247759409248829 loss_floor_contact: 0.0067736003547906876
+[26/100] loss: 0.004191040527075529 loss_joints: 0.00040170561987906694 loss_collision: 0.015156952664256096 loss_jerk: 0.01525119412690401 loss_floor_contact: 0.007485202979296446
+[27/100] loss: 0.0041036116890609264 loss_joints: 0.0002856445498764515 loss_collision: 0.01478534284979105 loss_jerk: 0.015155591070652008 loss_floor_contact: 0.008238733746111393
+[28/100] loss: 0.004113545175641775 loss_joints: 0.0002103646838804707 loss_collision: 0.016136059537529945 loss_jerk: 0.015072418376803398 loss_floor_contact: 0.00782332755625248
+[29/100] loss: 0.004085690714418888 loss_joints: 0.00018684356473386288 loss_collision: 0.017293833196163177 loss_jerk: 0.015028713271021843 loss_floor_contact: 0.006665922235697508
+[30/100] loss: 0.004187735728919506 loss_joints: 0.0001467899710405618 loss_collision: 0.018714113160967827 loss_jerk: 0.01497361995279789 loss_floor_contact: 0.006721723824739456
+[31/100] loss: 0.004171932116150856 loss_joints: 9.677273192210123e-05 loss_collision: 0.01798827014863491 loss_jerk: 0.014906790107488632 loss_floor_contact: 0.007856534793972969
+[32/100] loss: 0.00405815290287137 loss_joints: 0.00011194368562428281 loss_collision: 0.017102887853980064 loss_jerk: 0.014852216467261314 loss_floor_contact: 0.007506984286010265
+[33/100] loss: 0.004114552866667509 loss_joints: 0.00010389130329713225 loss_collision: 0.018110448494553566 loss_jerk: 0.014794815331697464 loss_floor_contact: 0.007201349828392267
+[34/100] loss: 0.0039352430030703545 loss_joints: 9.065973426913843e-05 loss_collision: 0.016384275630116463 loss_jerk: 0.01473003625869751 loss_floor_contact: 0.007331518922001123
+[35/100] loss: 0.003955451305955648 loss_joints: 8.713165880180895e-05 loss_collision: 0.016976967453956604 loss_jerk: 0.01466278824955225 loss_floor_contact: 0.007043443154543638
+[36/100] loss: 0.003999605309218168 loss_joints: 0.00010777015995699912 loss_collision: 0.017807235941290855 loss_jerk: 0.014594145119190216 loss_floor_contact: 0.006516972091048956
+[37/100] loss: 0.0037985765375196934 loss_joints: 9.35785355977714e-05 loss_collision: 0.016024360433220863 loss_jerk: 0.014533063396811485 loss_floor_contact: 0.006492555607110262
+[38/100] loss: 0.0039012120105326176 loss_joints: 6.011088771629147e-05 loss_collision: 0.017246924340724945 loss_jerk: 0.01447579450905323 loss_floor_contact: 0.006688293535262346
+[39/100] loss: 0.003840409219264984 loss_joints: 5.700409383280203e-05 loss_collision: 0.017000919207930565 loss_jerk: 0.014424160122871399 loss_floor_contact: 0.006408970803022385
+[40/100] loss: 0.0036464056465774775 loss_joints: 7.375066343229264e-05 loss_collision: 0.016120530664920807 loss_jerk: 0.014363822527229786 loss_floor_contact: 0.005242195911705494
+[41/100] loss: 0.0035834533628076315 loss_joints: 0.00011220663145650178 loss_collision: 0.01513398066163063 loss_jerk: 0.014322008937597275 loss_floor_contact: 0.0052564749494194984
+[42/100] loss: 0.003515459131449461 loss_joints: 0.00017626331828068942 loss_collision: 0.013843202032148838 loss_jerk: 0.01426408439874649 loss_floor_contact: 0.005284673068672419
+[43/100] loss: 0.003691719379276037 loss_joints: 0.0002122474688803777 loss_collision: 0.014728710986673832 loss_jerk: 0.01418330892920494 loss_floor_contact: 0.00588269904255867
+[44/100] loss: 0.0037770739290863276 loss_joints: 0.00027913751546293497 loss_collision: 0.015184944495558739 loss_jerk: 0.01411048136651516 loss_floor_contact: 0.0056839375756680965
+[45/100] loss: 0.0038060364313423634 loss_joints: 0.0003042062162421644 loss_collision: 0.015962179750204086 loss_jerk: 0.014091628603637218 loss_floor_contact: 0.0049644941464066505
+[46/100] loss: 0.0037618030328303576 loss_joints: 0.0002854707418009639 loss_collision: 0.015249781310558319 loss_jerk: 0.014058699831366539 loss_floor_contact: 0.005454842001199722
+[47/100] loss: 0.003535105613991618 loss_joints: 0.00023306097136810422 loss_collision: 0.014303299598395824 loss_jerk: 0.014017378911376 loss_floor_contact: 0.004699768498539925
+[48/100] loss: 0.003366064513102174 loss_joints: 0.00017141671560239047 loss_collision: 0.01323187630623579 loss_jerk: 0.01397861447185278 loss_floor_contact: 0.004735986236482859
+[49/100] loss: 0.0035568876191973686 loss_joints: 0.00015490099031012505 loss_collision: 0.015576922334730625 loss_jerk: 0.01391678024083376 loss_floor_contact: 0.00452616298571229
+[50/100] loss: 0.003446570597589016 loss_joints: 0.00012017690460197628 loss_collision: 0.014524968340992928 loss_jerk: 0.013845419511198997 loss_floor_contact: 0.004893547389656305
+[51/100] loss: 0.0034564642701298 loss_joints: 0.0001124983245972544 loss_collision: 0.015196118503808975 loss_jerk: 0.013778280466794968 loss_floor_contact: 0.004465260077267885
+[52/100] loss: 0.0034535143058747053 loss_joints: 0.00012259343930054456 loss_collision: 0.014644598588347435 loss_jerk: 0.013725272379815578 loss_floor_contact: 0.004939336329698563
+[53/100] loss: 0.003411425743252039 loss_joints: 0.00014529639156535268 loss_collision: 0.013848910108208656 loss_jerk: 0.013670711778104305 loss_floor_contact: 0.00514167221263051
+[54/100] loss: 0.00333983963355422 loss_joints: 0.00014583040319848806 loss_collision: 0.01350601390004158 loss_jerk: 0.013637373223900795 loss_floor_contact: 0.00479670288041234
+[55/100] loss: 0.0033911652863025665 loss_joints: 0.0001265798491658643 loss_collision: 0.014269212260842323 loss_jerk: 0.013567347079515457 loss_floor_contact: 0.004809293430298567
+[56/100] loss: 0.003439849941059947 loss_joints: 0.000128578714793548 loss_collision: 0.014799872413277626 loss_jerk: 0.013508433476090431 loss_floor_contact: 0.004804405849426985
+[57/100] loss: 0.003381422022357583 loss_joints: 0.00013382654287852347 loss_collision: 0.0143109280616045 loss_jerk: 0.013442197814583778 loss_floor_contact: 0.004722827114164829
+[58/100] loss: 0.003309892490506172 loss_joints: 0.00011962014104938135 loss_collision: 0.013832184486091137 loss_jerk: 0.013379981741309166 loss_floor_contact: 0.0046905577182769775
+[59/100] loss: 0.0034207089338451624 loss_joints: 9.16067510843277e-05 loss_collision: 0.015534056350588799 loss_jerk: 0.013328704982995987 loss_floor_contact: 0.0044282604940235615
+[60/100] loss: 0.0034470960963517427 loss_joints: 8.563209848944098e-05 loss_collision: 0.015774831175804138 loss_jerk: 0.013286637142300606 loss_floor_contact: 0.004553170409053564
+[61/100] loss: 0.0033391148317605257 loss_joints: 9.606812091078609e-05 loss_collision: 0.014419571496546268 loss_jerk: 0.013233672827482224 loss_floor_contact: 0.004777221474796534
+[62/100] loss: 0.0034061125479638577 loss_joints: 0.00012243102537468076 loss_collision: 0.014596784487366676 loss_jerk: 0.013187536038458347 loss_floor_contact: 0.00505249435082078
+[63/100] loss: 0.003409748896956444 loss_joints: 0.0001304874604102224 loss_collision: 0.014592286199331284 loss_jerk: 0.013146011158823967 loss_floor_contact: 0.0050543141551315784
+[64/100] loss: 0.0033069683704525232 loss_joints: 0.00012111559044569731 loss_collision: 0.013714891858398914 loss_jerk: 0.013089712709188461 loss_floor_contact: 0.005053922533988953
+[65/100] loss: 0.0032817241735756397 loss_joints: 9.953637345461175e-05 loss_collision: 0.014139609411358833 loss_jerk: 0.013050755485892296 loss_floor_contact: 0.004631512798368931
+[66/100] loss: 0.003340951632708311 loss_joints: 7.012744026724249e-05 loss_collision: 0.01530158706009388 loss_jerk: 0.013005606830120087 loss_floor_contact: 0.0044010477140545845
+[67/100] loss: 0.0031973356381058693 loss_joints: 4.5395136112347245e-05 loss_collision: 0.013529741205275059 loss_jerk: 0.012962186709046364 loss_floor_contact: 0.005027477629482746
+[68/100] loss: 0.0031837515998631716 loss_joints: 4.466719110496342e-05 loss_collision: 0.013253695331513882 loss_jerk: 0.012908803299069405 loss_floor_contact: 0.0052283452823758125
+[69/100] loss: 0.00326396687887609 loss_joints: 4.767086647916585e-05 loss_collision: 0.01348070614039898 loss_jerk: 0.012860875576734543 loss_floor_contact: 0.00582137843593955
+[70/100] loss: 0.0032264748588204384 loss_joints: 4.1882358345901594e-05 loss_collision: 0.0128232566639781 loss_jerk: 0.012806382961571217 loss_floor_contact: 0.006216283887624741
+[71/100] loss: 0.003180457977578044 loss_joints: 3.3210322726517916e-05 loss_collision: 0.012709020636975765 loss_jerk: 0.012767023406922817 loss_floor_contact: 0.005996432621032
+[72/100] loss: 0.003194804536178708 loss_joints: 2.309270712430589e-05 loss_collision: 0.013042744249105453 loss_jerk: 0.012738041579723358 loss_floor_contact: 0.005936331581324339
+[73/100] loss: 0.0030971907544881105 loss_joints: 2.2015909053152427e-05 loss_collision: 0.01218409463763237 loss_jerk: 0.012687426060438156 loss_floor_contact: 0.005880227778106928
+[74/100] loss: 0.00318530504591763 loss_joints: 2.7124329790240154e-05 loss_collision: 0.012764867395162582 loss_jerk: 0.012657344341278076 loss_floor_contact: 0.006159595679491758
+[75/100] loss: 0.0030647485982626677 loss_joints: 2.826086347340606e-05 loss_collision: 0.011730995029211044 loss_jerk: 0.012625707313418388 loss_floor_contact: 0.006008173804730177
+[76/100] loss: 0.0030146557837724686 loss_joints: 3.0600269383285195e-05 loss_collision: 0.011912085115909576 loss_jerk: 0.012593726627528667 loss_floor_contact: 0.005334744229912758
+[77/100] loss: 0.003119958098977804 loss_joints: 4.052918666275218e-05 loss_collision: 0.012489346787333488 loss_jerk: 0.012558420188724995 loss_floor_contact: 0.0057465205900371075
+[78/100] loss: 0.003170375246554613 loss_joints: 6.128053064458072e-05 loss_collision: 0.012166591361165047 loss_jerk: 0.01253475435078144 loss_floor_contact: 0.006389598827809095
+[79/100] loss: 0.0032610564958304167 loss_joints: 7.469607953680679e-05 loss_collision: 0.012458236888051033 loss_jerk: 0.012511213310062885 loss_floor_contact: 0.0068941544741392136
+[80/100] loss: 0.0030669430270791054 loss_joints: 9.768141171662137e-05 loss_collision: 0.011700190603733063 loss_jerk: 0.012499035336077213 loss_floor_contact: 0.005493389442563057
+[81/100] loss: 0.0030243804212659597 loss_joints: 0.00011861472012242302 loss_collision: 0.01195722445845604 loss_jerk: 0.012476499192416668 loss_floor_contact: 0.004623933229595423
+[82/100] loss: 0.003101903013885021 loss_joints: 0.00014975217345636338 loss_collision: 0.013056834228336811 loss_jerk: 0.012456490658223629 loss_floor_contact: 0.004008183721452951
+[83/100] loss: 0.003121525514870882 loss_joints: 0.00016839464660733938 loss_collision: 0.013220954686403275 loss_jerk: 0.012433396652340889 loss_floor_contact: 0.0038769557140767574
+[84/100] loss: 0.00311727705411613 loss_joints: 0.0001720478176139295 loss_collision: 0.013204915449023247 loss_jerk: 0.0124189592897892 loss_floor_contact: 0.0038284179754555225
+[85/100] loss: 0.0030099533032625914 loss_joints: 0.00016178362420760095 loss_collision: 0.012342322617769241 loss_jerk: 0.012401829473674297 loss_floor_contact: 0.00373754370957613
+[86/100] loss: 0.0030535964760929346 loss_joints: 0.0001558962685521692 loss_collision: 0.01269625499844551 loss_jerk: 0.012389025650918484 loss_floor_contact: 0.003891719738021493
+[87/100] loss: 0.0031095072627067566 loss_joints: 0.0001542354584671557 loss_collision: 0.013248253613710403 loss_jerk: 0.012378640472888947 loss_floor_contact: 0.003925822209566832
+[88/100] loss: 0.003122671041637659 loss_joints: 0.00015971007815096527 loss_collision: 0.01349185872823 loss_jerk: 0.012369083240628242 loss_floor_contact: 0.0037686661817133427
+[89/100] loss: 0.0031074252910912037 loss_joints: 0.00015576640726067126 loss_collision: 0.013439791277050972 loss_jerk: 0.012359770014882088 loss_floor_contact: 0.003717027837410569
+[90/100] loss: 0.003096185391768813 loss_joints: 0.00014482464757747948 loss_collision: 0.013267172500491142 loss_jerk: 0.012348422780632973 loss_floor_contact: 0.003898011753335595
+[91/100] loss: 0.003084972035139799 loss_joints: 0.0001327236241195351 loss_collision: 0.013194908387959003 loss_jerk: 0.01233791932463646 loss_floor_contact: 0.0039896550588309765
+[92/100] loss: 0.0030423058196902275 loss_joints: 0.0001185325818369165 loss_collision: 0.012463546358048916 loss_jerk: 0.0123218335211277 loss_floor_contact: 0.00445235101506114
+[93/100] loss: 0.0030444366857409477 loss_joints: 0.00011290826660115272 loss_collision: 0.012443600222468376 loss_jerk: 0.012311151251196861 loss_floor_contact: 0.004560532979667187
+[94/100] loss: 0.0030409989412873983 loss_joints: 0.00011332743451930583 loss_collision: 0.012332111597061157 loss_jerk: 0.012303275056183338 loss_floor_contact: 0.004641327541321516
+[95/100] loss: 0.00300673209130764 loss_joints: 0.00011812971206381917 loss_collision: 0.012434270232915878 loss_jerk: 0.0122964046895504 loss_floor_contact: 0.004155347123742104
+[96/100] loss: 0.0029805521480739117 loss_joints: 0.00012566291843540967 loss_collision: 0.012318111956119537 loss_jerk: 0.012288730591535568 loss_floor_contact: 0.003942051436752081
+[97/100] loss: 0.0030109116341918707 loss_joints: 0.00012813395005650818 loss_collision: 0.012666108086705208 loss_jerk: 0.012284016236662865 loss_floor_contact: 0.0038776518777012825
+[98/100] loss: 0.0030325865373015404 loss_joints: 0.00012757517106365412 loss_collision: 0.012922624126076698 loss_jerk: 0.012280871160328388 loss_floor_contact: 0.0038466176483780146
+[Done] Plotting SDF-Points [bin/imgs/sdf-points-1-13.png]
+[99/100] loss: 0.002935093594714999 loss_joints: 0.00012587601668201387 loss_collision: 0.011908567510545254 loss_jerk: 0.012278921902179718 loss_floor_contact: 0.003904683282598853
+[End] Optimizing Routine
+# ------------------------ #
+[Done] Results are at [/home/davidbl/iDART/mld_denoiser/mld_fps_clip_repeat_euler/checkpoint_300000/optim/walk12-cabE-4000_use_pred_joints_ddim10_guidance5.0_seed0_contact0.1_thresh0.0_collision0.1_jerk0.1]
+
+    ╔════════════════════════════════════════════════════════════════════════════╗
+    ║                                Optimization Results                        ║
+    ╠════════════════════════════════════════════════════════════════════════════╣
+    ║ Times:                                                                     ║
+    ║     total   = 837.82827                                                    ║
+    ║     rollout = 460.51170                                                    ║
+    ║     sdf     = 59.83347                                                     ║
+    ║     nbr it. = 100                                                          ║
+    ║                                                                            ║
+    ║ Losses:                                                                    ║
+    ║     total     = 0.00293509                                                 ║
+    ║     joints    = 0.00012588                                                 ║
+    ║     collision = 0.01190857                                                 ║
+    ║     jerk      = 0.01227892                                                 ║
+    ║     floor     = 0.00390468                                                 ║
+    ╚════════════════════════════════════════════════════════════════════════════╝
+    
+
+real	14m39.050s
+user	10m30.120s
+sys	0m56.776s
+ffmpeg version 6.1.1 Copyright (c) 2000-2023 the FFmpeg developers
+  built with gcc 12.3.0 (conda-forge gcc 12.3.0-5)
+  configuration: --prefix=/work/courses/digital_human/6/miniconda3/envs/DART --cc=/home/conda/feedstock_root/build_artifacts/ffmpeg_1706918361713/_build_env/bin/x86_64-conda-linux-gnu-cc --cxx=/home/conda/feedstock_root/build_artifacts/ffmpeg_1706918361713/_build_env/bin/x86_64-conda-linux-gnu-c++ --nm=/home/conda/feedstock_root/build_artifacts/ffmpeg_1706918361713/_build_env/bin/x86_64-conda-linux-gnu-nm --ar=/home/conda/feedstock_root/build_artifacts/ffmpeg_1706918361713/_build_env/bin/x86_64-conda-linux-gnu-ar --disable-doc --disable-openssl --enable-demuxer=dash --enable-hardcoded-tables --enable-libfreetype --enable-libharfbuzz --enable-libfontconfig --enable-libopenh264 --enable-libdav1d --enable-gnutls --enable-libmp3lame --enable-libvpx --enable-libass --enable-pthreads --enable-vaapi --enable-libopenvino --enable-gpl --enable-libx264 --enable-libx265 --enable-libaom --enable-libsvtav1 --enable-libxml2 --enable-pic --enable-shared --disable-static --enable-version3 --enable-zlib --enable-libopus --pkg-config=/home/conda/feedstock_root/build_artifacts/ffmpeg_1706918361713/_build_env/bin/pkg-config
+  libavutil      58. 29.100 / 58. 29.100
+  libavcodec     60. 31.102 / 60. 31.102
+  libavformat    60. 16.100 / 60. 16.100
+  libavdevice    60.  3.100 / 60.  3.100
+  libavfilter     9. 12.100 /  9. 12.100
+  libswscale      7.  5.100 /  7.  5.100
+  libswresample   4. 12.100 /  4. 12.100
+  libpostproc    57.  3.100 / 57.  3.100
+Input #0, image2, from 'bin/imgs/sdf-points-0-%d.png':
+  Duration: 00:00:02.50, start: 0.000000, bitrate: N/A
+  Stream #0:0: Video: png, rgba(pc, gbr/unknown/unknown), 1000x800 [SAR 3937:3937 DAR 5:4], 10 fps, 10 tbr, 10 tbn
+Stream mapping:
+  Stream #0:0 -> #0:0 (png (native) -> h264 (libx264))
+Press [q] to stop, [?] for help
+[libx264 @ 0x60aeaf6b3c00] using SAR=1/1
+[libx264 @ 0x60aeaf6b3c00] using cpu capabilities: MMX2 SSE2Fast SSSE3 SSE4.2 AVX FMA3 BMI2 AVX2
+[libx264 @ 0x60aeaf6b3c00] profile High, level 3.1, 4:2:0, 8-bit
+[libx264 @ 0x60aeaf6b3c00] 264 - core 164 r3095 baee400 - H.264/MPEG-4 AVC codec - Copyleft 2003-2022 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=3 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=10 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
+Output #0, mp4, to 'bin/result/optim_walk_12.mp4':
+  Metadata:
+    encoder         : Lavf60.16.100
+  Stream #0:0: Video: h264 (avc1 / 0x31637661), yuv420p(tv, progressive), 1000x800 [SAR 1:1 DAR 5:4], q=2-31, 10 fps, 10240 tbn
+    Metadata:
+      encoder         : Lavc60.31.102 libx264
+    Side data:
+      cpb: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: N/A
+frame=    0 fps=0.0 q=0.0 size=       0kB time=N/A bitrate=N/A speed=N/A    [out#0/mp4 @ 0x60aeaf6b1fc0] video:161kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: 0.708455%
+frame=   25 fps=0.0 q=-1.0 Lsize=     162kB time=00:00:02.20 bitrate= 604.3kbits/s speed=3.32x    
+[libx264 @ 0x60aeaf6b3c00] frame I:1     Avg QP:18.39  size: 73789
+[libx264 @ 0x60aeaf6b3c00] frame P:8     Avg QP:20.88  size:  8561
+[libx264 @ 0x60aeaf6b3c00] frame B:16    Avg QP:22.07  size:  1377
+[libx264 @ 0x60aeaf6b3c00] consecutive B-frames: 12.0%  8.0%  0.0% 80.0%
+[libx264 @ 0x60aeaf6b3c00] mb I  I16..4:  3.1% 66.9% 30.0%
+[libx264 @ 0x60aeaf6b3c00] mb P  I16..4:  0.2%  1.7%  1.6%  P16..4:  8.8%  2.4%  1.4%  0.0%  0.0%    skip:83.9%
+[libx264 @ 0x60aeaf6b3c00] mb B  I16..4:  0.1%  0.5%  0.0%  B16..8:  9.1%  1.0%  0.3%  direct: 0.3%  skip:88.8%  L0:34.2% L1:63.3% BI: 2.4%
+[libx264 @ 0x60aeaf6b3c00] 8x8 transform intra:64.5% inter:54.6%
+[libx264 @ 0x60aeaf6b3c00] coded y,uvDC,uvAC intra: 30.2% 19.2% 18.2% inter: 2.2% 2.4% 0.5%
+[libx264 @ 0x60aeaf6b3c00] i16 v,h,dc,p: 53% 24% 23%  0%
+[libx264 @ 0x60aeaf6b3c00] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 52%  8% 34%  1%  1%  1%  1%  2%  1%
+[libx264 @ 0x60aeaf6b3c00] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 36% 25% 12%  4%  4%  4%  4%  9%  3%
+[libx264 @ 0x60aeaf6b3c00] i8c dc,h,v,p: 89%  2%  6%  3%
+[libx264 @ 0x60aeaf6b3c00] Weighted P-Frames: Y:0.0% UV:0.0%
+[libx264 @ 0x60aeaf6b3c00] ref P L0: 60.5% 16.1% 16.0%  7.5%
+[libx264 @ 0x60aeaf6b3c00] ref B L0: 69.1% 28.5%  2.4%
+[libx264 @ 0x60aeaf6b3c00] ref B L1: 89.3% 10.7%
+[libx264 @ 0x60aeaf6b3c00] kb/s:525.82
+[INFO] Video saved as 'bin/result/optim_walk_12.mp4'.

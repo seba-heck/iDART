@@ -9,38 +9,141 @@ Loading vae checkpoint from ./mvae/mvae_fps_clip/checkpoint_200000.pt
 latent_mean: 0.005734771955758333
 latent_std: 0.8744232654571533
 diffusion_args: {'diffusion_steps': 10, 'respacing': 'ddim10', 'noise_schedule': 'cosine', 'sigma_small': True}
+######## HALLO #######
+./config_files/config_hydra/motion_primitive/mp_h2_f8_r8.yaml
+./data/seq_data_zero_male
 loading mean and std from data/seq_data_zero_male/mean_std_h2_f8.pkl
+Batch sizes: 208 = (8*3 + 2) * 8
 # ------------------------ #
 [Start] Optimizing Routine
-  0%|          | 0/100 [00:00<?, ?it/s]  0%|          | 0/100 [00:06<?, ?it/s]
-Traceback (most recent call last):
-  File "/work/courses/digital_human/6/miniconda3/envs/DART/lib/python3.8/runpy.py", line 194, in _run_module_as_main
-    return _run_code(code, main_globals, None,
-  File "/work/courses/digital_human/6/miniconda3/envs/DART/lib/python3.8/runpy.py", line 87, in _run_code
-    exec(code, run_globals)
-  File "/home/davidbl/iDART/mld/optim_scene_mld.py", line 683, in <module>
-    motion_sequences, history_motion_tensor, transf_rotmat, transf_transl = optimize(
-  File "/home/davidbl/iDART/mld/optim_scene_mld.py", line 471, in optimize
-    sdf_values = calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl, plot=(optim_args.visualize_sdf==1 and i+1 >= optim_steps))
-  File "/home/davidbl/iDART/mld/optim_scene_mld.py", line 332, in calc_vol_sdf
-    sdf_values[i_,...] = body_model.volume.query_fast(scene_points, subset_smpl_output)
-  File "/work/courses/digital_human/6/miniconda3/envs/DART/lib/python3.8/site-packages/VolumetricSMPL/volumetric_smpl.py", line 1052, in query_fast
-    self._attach_impl_code(smpl_output)
-  File "/work/courses/digital_human/6/miniconda3/envs/DART/lib/python3.8/site-packages/VolumetricSMPL/volumetric_smpl.py", line 608, in _attach_impl_code
-    self.encode_body(smpl_output)
-  File "/work/courses/digital_human/6/miniconda3/envs/DART/lib/python3.8/site-packages/VolumetricSMPL/volumetric_smpl.py", line 581, in encode_body
-    sampled_points = self.partitioner.sample_mesh_points(vertices, self.n_samples)
-  File "/work/courses/digital_human/6/miniconda3/envs/DART/lib/python3.8/site-packages/VolumetricSMPL/volumetric_smpl.py", line 428, in sample_mesh_points
-    central_points = self._sample_mesh_points(posed_vert, self.tight_face_tensor, n_tight_samples, return_normals)
-  File "/work/courses/digital_human/6/miniconda3/envs/DART/lib/python3.8/site-packages/VolumetricSMPL/volumetric_smpl.py", line 420, in _sample_mesh_points
-    samp_points = sample_points_from_meshes(meshes, n_samples, return_normals)
-  File "/work/courses/digital_human/6/miniconda3/envs/DART/lib/python3.8/site-packages/pytorch3d/ops/sample_points_from_meshes.py", line 69, in sample_points_from_meshes
-    raise ValueError("Meshes contain nan or inf.")
-ValueError: Meshes contain nan or inf.
+  0%|          | 0/100 [00:00<?, ?it/s]  1%|          | 1/100 [00:08<14:12,  8.61s/it]  2%|▏         | 2/100 [00:11<08:11,  5.01s/it]  3%|▎         | 3/100 [00:13<06:29,  4.01s/it]  4%|▍         | 4/100 [00:16<05:29,  3.44s/it]  5%|▌         | 5/100 [00:18<04:54,  3.10s/it]  6%|▌         | 6/100 [00:21<04:32,  2.90s/it]  7%|▋         | 7/100 [00:24<04:18,  2.78s/it]  8%|▊         | 8/100 [00:26<04:07,  2.69s/it]  9%|▉         | 9/100 [00:29<04:06,  2.71s/it] 10%|█         | 10/100 [00:31<04:04,  2.71s/it] 11%|█         | 11/100 [00:34<03:49,  2.58s/it] 12%|█▏        | 12/100 [00:36<03:40,  2.50s/it] 13%|█▎        | 13/100 [00:38<03:23,  2.34s/it] 14%|█▍        | 14/100 [00:40<03:11,  2.23s/it] 15%|█▌        | 15/100 [00:42<03:04,  2.17s/it] 16%|█▌        | 16/100 [00:44<03:05,  2.21s/it] 17%|█▋        | 17/100 [00:47<03:01,  2.19s/it] 18%|█▊        | 18/100 [00:48<02:53,  2.12s/it] 19%|█▉        | 19/100 [00:50<02:43,  2.02s/it] 20%|██        | 20/100 [00:52<02:39,  1.99s/it] 21%|██        | 21/100 [00:54<02:41,  2.04s/it] 22%|██▏       | 22/100 [00:56<02:40,  2.05s/it] 23%|██▎       | 23/100 [00:58<02:38,  2.06s/it] 24%|██▍       | 24/100 [01:00<02:32,  2.01s/it] 25%|██▌       | 25/100 [01:02<02:29,  2.00s/it] 26%|██▌       | 26/100 [01:04<02:27,  2.00s/it] 27%|██▋       | 27/100 [01:06<02:21,  1.94s/it] 28%|██▊       | 28/100 [01:08<02:17,  1.92s/it] 29%|██▉       | 29/100 [01:10<02:15,  1.92s/it] 30%|███       | 30/100 [01:12<02:22,  2.04s/it] 31%|███       | 31/100 [01:14<02:20,  2.03s/it] 32%|███▏      | 32/100 [01:16<02:16,  2.00s/it] 33%|███▎      | 33/100 [01:18<02:14,  2.01s/it] 34%|███▍      | 34/100 [01:20<02:13,  2.02s/it] 35%|███▌      | 35/100 [01:22<02:08,  1.97s/it] 36%|███▌      | 36/100 [01:24<02:04,  1.95s/it] 37%|███▋      | 37/100 [01:26<02:10,  2.08s/it] 38%|███▊      | 38/100 [01:29<02:09,  2.10s/it] 39%|███▉      | 39/100 [01:31<02:12,  2.18s/it] 40%|████      | 40/100 [01:33<02:06,  2.11s/it] 41%|████      | 41/100 [01:35<01:58,  2.02s/it] 42%|████▏     | 42/100 [01:37<01:54,  1.97s/it] 43%|████▎     | 43/100 [01:39<01:52,  1.97s/it] 44%|████▍     | 44/100 [01:40<01:47,  1.91s/it] 45%|████▌     | 45/100 [01:43<01:52,  2.05s/it] 46%|████▌     | 46/100 [01:45<01:54,  2.11s/it] 47%|████▋     | 47/100 [01:47<01:47,  2.03s/it] 48%|████▊     | 48/100 [01:49<01:44,  2.02s/it] 49%|████▉     | 49/100 [01:51<01:40,  1.97s/it] 50%|█████     | 50/100 [01:52<01:37,  1.95s/it] 51%|█████     | 51/100 [01:55<01:36,  1.97s/it] 52%|█████▏    | 52/100 [01:56<01:33,  1.95s/it] 53%|█████▎    | 53/100 [01:59<01:36,  2.05s/it] 54%|█████▍    | 54/100 [02:01<01:32,  2.02s/it] 55%|█████▌    | 55/100 [02:03<01:32,  2.06s/it] 56%|█████▌    | 56/100 [02:05<01:31,  2.08s/it] 57%|█████▋    | 57/100 [02:07<01:32,  2.16s/it] 58%|█████▊    | 58/100 [02:10<01:36,  2.30s/it] 59%|█████▉    | 59/100 [02:13<01:38,  2.40s/it] 60%|██████    | 60/100 [02:16<01:43,  2.60s/it] 61%|██████    | 61/100 [02:18<01:40,  2.59s/it] 62%|██████▏   | 62/100 [02:20<01:34,  2.49s/it] 63%|██████▎   | 63/100 [02:23<01:32,  2.50s/it] 64%|██████▍   | 64/100 [02:25<01:28,  2.45s/it] 65%|██████▌   | 65/100 [02:28<01:28,  2.52s/it] 66%|██████▌   | 66/100 [02:31<01:28,  2.60s/it] 67%|██████▋   | 67/100 [02:33<01:23,  2.55s/it] 68%|██████▊   | 68/100 [02:36<01:23,  2.59s/it] 69%|██████▉   | 69/100 [02:38<01:20,  2.58s/it] 70%|███████   | 70/100 [02:41<01:16,  2.55s/it] 71%|███████   | 71/100 [02:44<01:15,  2.62s/it] 72%|███████▏  | 72/100 [02:46<01:11,  2.55s/it] 73%|███████▎  | 73/100 [02:49<01:08,  2.53s/it] 74%|███████▍  | 74/100 [02:51<01:05,  2.53s/it] 75%|███████▌  | 75/100 [02:53<01:01,  2.47s/it] 76%|███████▌  | 76/100 [02:56<01:01,  2.55s/it] 77%|███████▋  | 77/100 [02:59<01:03,  2.77s/it] 78%|███████▊  | 78/100 [03:02<00:59,  2.70s/it] 79%|███████▉  | 79/100 [03:05<00:58,  2.78s/it] 80%|████████  | 80/100 [03:08<00:54,  2.74s/it] 81%|████████  | 81/100 [03:10<00:49,  2.62s/it] 82%|████████▏ | 82/100 [03:13<00:49,  2.77s/it] 83%|████████▎ | 83/100 [03:15<00:45,  2.68s/it] 84%|████████▍ | 84/100 [03:18<00:42,  2.68s/it] 85%|████████▌ | 85/100 [03:21<00:40,  2.69s/it] 86%|████████▌ | 86/100 [03:23<00:35,  2.56s/it] 87%|████████▋ | 87/100 [03:26<00:33,  2.59s/it] 88%|████████▊ | 88/100 [03:28<00:30,  2.54s/it] 89%|████████▉ | 89/100 [03:31<00:29,  2.66s/it] 90%|█████████ | 90/100 [03:34<00:27,  2.71s/it] 91%|█████████ | 91/100 [03:36<00:23,  2.63s/it] 92%|█████████▏| 92/100 [03:39<00:20,  2.62s/it] 93%|█████████▎| 93/100 [03:43<00:20,  2.90s/it] 94%|█████████▍| 94/100 [03:45<00:16,  2.76s/it] 95%|█████████▌| 95/100 [03:48<00:13,  2.71s/it] 96%|█████████▌| 96/100 [03:50<00:10,  2.66s/it] 97%|█████████▋| 97/100 [03:53<00:08,  2.82s/it] 98%|█████████▊| 98/100 [03:56<00:05,  2.73s/it] 99%|█████████▉| 99/100 [03:58<00:02,  2.59s/it]100%|██████████| 100/100 [04:03<00:00,  3.38s/it]100%|██████████| 100/100 [04:03<00:00,  2.44s/it]
+[Done] Plotting SDF-Points [bin/imgs/sdf-points-1-4.png]
+[0/100] loss: 0.20881547033786774 loss_joints: 0.19740968942642212 loss_collision: 0.0560130700469017 loss_jerk: 0.04823333024978638 loss_floor_contact: 0.009811564348638058
+[1/100] loss: 0.1865529865026474 loss_joints: 0.1741086095571518 loss_collision: 0.0515243262052536 loss_jerk: 0.06255857646465302 loss_floor_contact: 0.010360914282500744
+[2/100] loss: 0.18693651258945465 loss_joints: 0.17513597011566162 loss_collision: 0.0490514412522316 loss_jerk: 0.05963286757469177 loss_floor_contact: 0.009321165271103382
+[3/100] loss: 0.18346452713012695 loss_joints: 0.17211215198040009 loss_collision: 0.04416869580745697 loss_jerk: 0.060579005628824234 loss_floor_contact: 0.008776017464697361
+[4/100] loss: 0.1758907437324524 loss_joints: 0.16442278027534485 loss_collision: 0.04325484856963158 loss_jerk: 0.06299126893281937 loss_floor_contact: 0.008433542214334011
+[5/100] loss: 0.1721562296152115 loss_joints: 0.16087102890014648 loss_collision: 0.040450312197208405 loss_jerk: 0.06374341994524002 loss_floor_contact: 0.008658277802169323
+[6/100] loss: 0.17063690721988678 loss_joints: 0.15947657823562622 loss_collision: 0.039631567895412445 loss_jerk: 0.06321512907743454 loss_floor_contact: 0.008756576105952263
+[7/100] loss: 0.16903255879878998 loss_joints: 0.15719634294509888 loss_collision: 0.04354554042220116 loss_jerk: 0.06403684616088867 loss_floor_contact: 0.010779804550111294
+[8/100] loss: 0.16672922670841217 loss_joints: 0.15493366122245789 loss_collision: 0.043254684656858444 loss_jerk: 0.06512422859668732 loss_floor_contact: 0.009576878510415554
+[9/100] loss: 0.16425538063049316 loss_joints: 0.1524728685617447 loss_collision: 0.04333055764436722 loss_jerk: 0.06538639962673187 loss_floor_contact: 0.009108166210353374
+[10/100] loss: 0.1620723456144333 loss_joints: 0.15061978995800018 loss_collision: 0.04111834987998009 loss_jerk: 0.06385479122400284 loss_floor_contact: 0.009552443400025368
+[11/100] loss: 0.16091609001159668 loss_joints: 0.1491725742816925 loss_collision: 0.04192440211772919 loss_jerk: 0.06567135453224182 loss_floor_contact: 0.009839452803134918
+[12/100] loss: 0.1577494740486145 loss_joints: 0.14590387046337128 loss_collision: 0.042517587542533875 loss_jerk: 0.06600329279899597 loss_floor_contact: 0.009935076348483562
+[13/100] loss: 0.15586495399475098 loss_joints: 0.14434921741485596 loss_collision: 0.03970624506473541 loss_jerk: 0.06537304818630219 loss_floor_contact: 0.010078159160912037
+[14/100] loss: 0.15462127327919006 loss_joints: 0.14339838922023773 loss_collision: 0.03761373460292816 loss_jerk: 0.061894576996564865 loss_floor_contact: 0.012720746919512749
+[15/100] loss: 0.15306715667247772 loss_joints: 0.14197760820388794 loss_collision: 0.03725215420126915 loss_jerk: 0.06141655892133713 loss_floor_contact: 0.0122267697006464
+[16/100] loss: 0.15164563059806824 loss_joints: 0.14023767411708832 loss_collision: 0.039149511605501175 loss_jerk: 0.062257714569568634 loss_floor_contact: 0.01267237402498722
+[17/100] loss: 0.15014636516571045 loss_joints: 0.13877545297145844 loss_collision: 0.03780307620763779 loss_jerk: 0.06298315525054932 loss_floor_contact: 0.012922919355332851
+[18/100] loss: 0.14846719801425934 loss_joints: 0.13735415041446686 loss_collision: 0.034279804676771164 loss_jerk: 0.0633891373872757 loss_floor_contact: 0.013461611233651638
+[19/100] loss: 0.14730413258075714 loss_joints: 0.13624194264411926 loss_collision: 0.03455733880400658 loss_jerk: 0.062384214252233505 loss_floor_contact: 0.013680454343557358
+[20/100] loss: 0.14613381028175354 loss_joints: 0.1351412683725357 loss_collision: 0.035350147634744644 loss_jerk: 0.06156223267316818 loss_floor_contact: 0.013013082556426525
+[21/100] loss: 0.14483265578746796 loss_joints: 0.13392288982868195 loss_collision: 0.03500780835747719 loss_jerk: 0.061165403574705124 loss_floor_contact: 0.01292451098561287
+[22/100] loss: 0.14360302686691284 loss_joints: 0.13256260752677917 loss_collision: 0.03653533384203911 loss_jerk: 0.06117329001426697 loss_floor_contact: 0.01269565150141716
+[23/100] loss: 0.1420210897922516 loss_joints: 0.13136643171310425 loss_collision: 0.03367369994521141 loss_jerk: 0.06012033298611641 loss_floor_contact: 0.012752503156661987
+[24/100] loss: 0.14108894765377045 loss_joints: 0.13043737411499023 loss_collision: 0.03944724053144455 loss_jerk: 0.0579405277967453 loss_floor_contact: 0.009128018282353878
+[25/100] loss: 0.13999950885772705 loss_joints: 0.12981204688549042 loss_collision: 0.036381471902132034 loss_jerk: 0.0552164688706398 loss_floor_contact: 0.010276798158884048
+[26/100] loss: 0.13938890397548676 loss_joints: 0.12929019331932068 loss_collision: 0.040284011512994766 loss_jerk: 0.053234733641147614 loss_floor_contact: 0.007468432653695345
+[27/100] loss: 0.1382160782814026 loss_joints: 0.12855610251426697 loss_collision: 0.03647772967815399 loss_jerk: 0.0527631938457489 loss_floor_contact: 0.007358726114034653
+[28/100] loss: 0.13753336668014526 loss_joints: 0.12753349542617798 loss_collision: 0.038806717842817307 loss_jerk: 0.053120508790016174 loss_floor_contact: 0.008071497082710266
+[29/100] loss: 0.13647888600826263 loss_joints: 0.1263221949338913 loss_collision: 0.03969826549291611 loss_jerk: 0.05346550792455673 loss_floor_contact: 0.008403119631111622
+[30/100] loss: 0.13526132702827454 loss_joints: 0.1250804364681244 loss_collision: 0.03977132961153984 loss_jerk: 0.05338894948363304 loss_floor_contact: 0.008648579008877277
+[31/100] loss: 0.13412776589393616 loss_joints: 0.12408803403377533 loss_collision: 0.03925095498561859 loss_jerk: 0.052578218281269073 loss_floor_contact: 0.008568111807107925
+[32/100] loss: 0.13327734172344208 loss_joints: 0.12328831851482391 loss_collision: 0.038896024227142334 loss_jerk: 0.052810780704021454 loss_floor_contact: 0.008183427155017853
+[33/100] loss: 0.13258956372737885 loss_joints: 0.12258090823888779 loss_collision: 0.039337970316410065 loss_jerk: 0.052992090582847595 loss_floor_contact: 0.007756482809782028
+[34/100] loss: 0.13139480352401733 loss_joints: 0.12175576388835907 loss_collision: 0.03617280349135399 loss_jerk: 0.052960388362407684 loss_floor_contact: 0.007257156074047089
+[35/100] loss: 0.13063859939575195 loss_joints: 0.12079073488712311 loss_collision: 0.03883625194430351 loss_jerk: 0.05293571576476097 loss_floor_contact: 0.006706675514578819
+[36/100] loss: 0.1295514851808548 loss_joints: 0.1197705864906311 loss_collision: 0.03759263455867767 loss_jerk: 0.05314838886260986 loss_floor_contact: 0.0070679811760783195
+[37/100] loss: 0.12880384922027588 loss_joints: 0.11882369220256805 loss_collision: 0.03907838463783264 loss_jerk: 0.05339697375893593 loss_floor_contact: 0.007326128892600536
+[38/100] loss: 0.12796521186828613 loss_joints: 0.11800524592399597 loss_collision: 0.037519972771406174 loss_jerk: 0.05287289246916771 loss_floor_contact: 0.009206868708133698
+[39/100] loss: 0.1274377554655075 loss_joints: 0.11735451221466064 loss_collision: 0.03829526528716087 loss_jerk: 0.0526292622089386 loss_floor_contact: 0.009907977655529976
+[40/100] loss: 0.1268095076084137 loss_joints: 0.11679945886135101 loss_collision: 0.037874795496463776 loss_jerk: 0.05345159024000168 loss_floor_contact: 0.008774119429290295
+[41/100] loss: 0.1263767033815384 loss_joints: 0.1163172721862793 loss_collision: 0.03755335509777069 loss_jerk: 0.054004814475774765 loss_floor_contact: 0.009036064147949219
+[42/100] loss: 0.12548144161701202 loss_joints: 0.11584731191396713 loss_collision: 0.034665677696466446 loss_jerk: 0.053708963096141815 loss_floor_contact: 0.007966560311615467
+[43/100] loss: 0.12524650990962982 loss_joints: 0.11525802314281464 loss_collision: 0.03788818418979645 loss_jerk: 0.05280003696680069 loss_floor_contact: 0.009196572005748749
+[44/100] loss: 0.12437567114830017 loss_joints: 0.1146899089217186 loss_collision: 0.03763251751661301 loss_jerk: 0.052558206021785736 loss_floor_contact: 0.006666956003755331
+[45/100] loss: 0.12341891974210739 loss_joints: 0.11410149186849594 loss_collision: 0.03420141711831093 loss_jerk: 0.05229819938540459 loss_floor_contact: 0.006674628704786301
+[46/100] loss: 0.12276601791381836 loss_joints: 0.11356246471405029 loss_collision: 0.033900730311870575 loss_jerk: 0.05211867392063141 loss_floor_contact: 0.006016120780259371
+[47/100] loss: 0.122177854180336 loss_joints: 0.11305534839630127 loss_collision: 0.03336544707417488 loss_jerk: 0.052057020366191864 loss_floor_contact: 0.005802624858915806
+[48/100] loss: 0.1218474730849266 loss_joints: 0.11258392781019211 loss_collision: 0.0344318151473999 loss_jerk: 0.05197460204362869 loss_floor_contact: 0.006229080259799957
+[49/100] loss: 0.12078963965177536 loss_joints: 0.11218473315238953 loss_collision: 0.02714822068810463 loss_jerk: 0.05188426002860069 loss_floor_contact: 0.0070165712386369705
+[50/100] loss: 0.12044049054384232 loss_joints: 0.11175497621297836 loss_collision: 0.02736577019095421 loss_jerk: 0.05204528570175171 loss_floor_contact: 0.0074440850876271725
+[51/100] loss: 0.12041198462247849 loss_joints: 0.11126818507909775 loss_collision: 0.031963564455509186 loss_jerk: 0.0522305965423584 loss_floor_contact: 0.0072438158094882965
+[52/100] loss: 0.11959957331418991 loss_joints: 0.11078216880559921 loss_collision: 0.02795562520623207 loss_jerk: 0.05249305069446564 loss_floor_contact: 0.007725384086370468
+[53/100] loss: 0.11944255977869034 loss_joints: 0.11032034456729889 loss_collision: 0.030943799763917923 loss_jerk: 0.05267881602048874 loss_floor_contact: 0.007599491160362959
+[54/100] loss: 0.11889420449733734 loss_joints: 0.10988103598356247 loss_collision: 0.030425071716308594 loss_jerk: 0.05270947888493538 loss_floor_contact: 0.006997126154601574
+[55/100] loss: 0.11818183958530426 loss_joints: 0.1094135046005249 loss_collision: 0.029049698263406754 loss_jerk: 0.052691034972667694 loss_floor_contact: 0.005942641757428646
+[56/100] loss: 0.11815115809440613 loss_joints: 0.10899806022644043 loss_collision: 0.03343595936894417 loss_jerk: 0.052636079490184784 loss_floor_contact: 0.005458898842334747
+[57/100] loss: 0.11771336197853088 loss_joints: 0.10863818973302841 loss_collision: 0.03330720216035843 loss_jerk: 0.052591241896152496 loss_floor_contact: 0.004853241145610809
+[58/100] loss: 0.11721912771463394 loss_joints: 0.10832460969686508 loss_collision: 0.03210730850696564 loss_jerk: 0.05257304757833481 loss_floor_contact: 0.004264775197952986
+[59/100] loss: 0.11677824705839157 loss_joints: 0.10804244130849838 loss_collision: 0.03081333264708519 loss_jerk: 0.05258486419916153 loss_floor_contact: 0.003959819674491882
+[60/100] loss: 0.11635793000459671 loss_joints: 0.10774904489517212 loss_collision: 0.029664281755685806 loss_jerk: 0.05268319323658943 loss_floor_contact: 0.0037413695827126503
+[61/100] loss: 0.11607799679040909 loss_joints: 0.1074213981628418 loss_collision: 0.030201494693756104 loss_jerk: 0.05271422490477562 loss_floor_contact: 0.0036502291914075613
+[62/100] loss: 0.11574418842792511 loss_joints: 0.10708308219909668 loss_collision: 0.030062485486268997 loss_jerk: 0.052957020699977875 loss_floor_contact: 0.0035915470216423273
+[63/100] loss: 0.11542896926403046 loss_joints: 0.10673323273658752 loss_collision: 0.03023410215973854 loss_jerk: 0.05333293601870537 loss_floor_contact: 0.003390282392501831
+[64/100] loss: 0.11518508940935135 loss_joints: 0.10640086978673935 loss_collision: 0.0310613252222538 loss_jerk: 0.05349889025092125 loss_floor_contact: 0.003282001707702875
+[65/100] loss: 0.11450591683387756 loss_joints: 0.10608746111392975 loss_collision: 0.02775697410106659 loss_jerk: 0.053405262529850006 loss_floor_contact: 0.0030223573558032513
+[66/100] loss: 0.1143646314740181 loss_joints: 0.10579399764537811 loss_collision: 0.02963859960436821 loss_jerk: 0.05314192175865173 loss_floor_contact: 0.0029257673304528
+[67/100] loss: 0.11406327039003372 loss_joints: 0.10552766174077988 loss_collision: 0.029913324862718582 loss_jerk: 0.052843980491161346 loss_floor_contact: 0.0025987946428358555
+[68/100] loss: 0.11349496245384216 loss_joints: 0.10526268929243088 loss_collision: 0.02674635499715805 loss_jerk: 0.05278674140572548 loss_floor_contact: 0.0027896836400032043
+[69/100] loss: 0.11316169798374176 loss_joints: 0.10498218238353729 loss_collision: 0.026170045137405396 loss_jerk: 0.05283404886722565 loss_floor_contact: 0.0027910657227039337
+[70/100] loss: 0.11296473443508148 loss_joints: 0.10466009378433228 loss_collision: 0.027432702481746674 loss_jerk: 0.05316919833421707 loss_floor_contact: 0.0024444982409477234
+[71/100] loss: 0.11297066509723663 loss_joints: 0.10434626042842865 loss_collision: 0.030424878001213074 loss_jerk: 0.053653374314308167 loss_floor_contact: 0.0021658039186149836
+[72/100] loss: 0.11279164254665375 loss_joints: 0.10405617952346802 loss_collision: 0.026662025600671768 loss_jerk: 0.053999967873096466 loss_floor_contact: 0.006692655384540558
+[73/100] loss: 0.11261264979839325 loss_joints: 0.10379807651042938 loss_collision: 0.028325948864221573 loss_jerk: 0.05400846526026726 loss_floor_contact: 0.005811385810375214
+[74/100] loss: 0.11275392025709152 loss_joints: 0.10357116162776947 loss_collision: 0.032106250524520874 loss_jerk: 0.053914815187454224 loss_floor_contact: 0.005806520581245422
+[75/100] loss: 0.11230438202619553 loss_joints: 0.10337534546852112 loss_collision: 0.029031548649072647 loss_jerk: 0.05388062447309494 loss_floor_contact: 0.006378233432769775
+[76/100] loss: 0.11204914003610611 loss_joints: 0.10319888591766357 loss_collision: 0.028415925800800323 loss_jerk: 0.05390385538339615 loss_floor_contact: 0.006182760000228882
+[77/100] loss: 0.1119687631726265 loss_joints: 0.10303573310375214 loss_collision: 0.030064117163419724 loss_jerk: 0.053974274545907974 loss_floor_contact: 0.005291938781738281
+[78/100] loss: 0.11165536195039749 loss_joints: 0.10285751521587372 loss_collision: 0.02760188654065132 loss_jerk: 0.054134100675582886 loss_floor_contact: 0.006242483854293823
+[79/100] loss: 0.11191222816705704 loss_joints: 0.10268120467662811 loss_collision: 0.031027987599372864 loss_jerk: 0.0543438121676445 loss_floor_contact: 0.006938450038433075
+[80/100] loss: 0.11136698722839355 loss_joints: 0.10251308977603912 loss_collision: 0.027760054916143417 loss_jerk: 0.05443181097507477 loss_floor_contact: 0.006347153335809708
+[81/100] loss: 0.11127225309610367 loss_joints: 0.10235520452260971 loss_collision: 0.029049791395664215 loss_jerk: 0.05453971028327942 loss_floor_contact: 0.005580917000770569
+[82/100] loss: 0.11081302165985107 loss_joints: 0.10220761597156525 loss_collision: 0.027485638856887817 loss_jerk: 0.054575514048337936 loss_floor_contact: 0.003992915153503418
+[83/100] loss: 0.11059080064296722 loss_joints: 0.10206913948059082 loss_collision: 0.027987048029899597 loss_jerk: 0.05452956631779671 loss_floor_contact: 0.0027000531554222107
+[84/100] loss: 0.11074510961771011 loss_joints: 0.10194647312164307 loss_collision: 0.03208326920866966 loss_jerk: 0.054342493414878845 loss_floor_contact: 0.001560598611831665
+[85/100] loss: 0.11084125190973282 loss_joints: 0.1018391102552414 loss_collision: 0.03436167538166046 loss_jerk: 0.05417581647634506 loss_floor_contact: 0.001483917236328125
+[86/100] loss: 0.11062586307525635 loss_joints: 0.10175091028213501 loss_collision: 0.033083874732255936 loss_jerk: 0.05411844328045845 loss_floor_contact: 0.0015472760424017906
+[87/100] loss: 0.11048080027103424 loss_joints: 0.10167484730482101 loss_collision: 0.032732389867305756 loss_jerk: 0.05386430770158768 loss_floor_contact: 0.0014628684148192406
+[88/100] loss: 0.1103258803486824 loss_joints: 0.10160702466964722 loss_collision: 0.03197773918509483 loss_jerk: 0.05378945916891098 loss_floor_contact: 0.0014213509857654572
+[89/100] loss: 0.10983365029096603 loss_joints: 0.10153669118881226 loss_collision: 0.026642244309186935 loss_jerk: 0.05381667613983154 loss_floor_contact: 0.0025106966495513916
+[90/100] loss: 0.10999737679958344 loss_joints: 0.10146588087081909 loss_collision: 0.029623713344335556 loss_jerk: 0.05384711176156998 loss_floor_contact: 0.0018441006541252136
+[91/100] loss: 0.10981271415948868 loss_joints: 0.10139240324497223 loss_collision: 0.02789360284805298 loss_jerk: 0.053892120718955994 loss_floor_contact: 0.0024173222482204437
+[92/100] loss: 0.10994918644428253 loss_joints: 0.10132169723510742 loss_collision: 0.030591540038585663 loss_jerk: 0.0539412721991539 loss_floor_contact: 0.0017420798540115356
+[93/100] loss: 0.10941322147846222 loss_joints: 0.1012561246752739 loss_collision: 0.027034655213356018 loss_jerk: 0.05399037152528763 loss_floor_contact: 0.0005459487438201904
+[94/100] loss: 0.10942671447992325 loss_joints: 0.10119789838790894 loss_collision: 0.02799512818455696 loss_jerk: 0.05403894931077957 loss_floor_contact: 0.00025412067770957947
+[95/100] loss: 0.10968166589736938 loss_joints: 0.1011497974395752 loss_collision: 0.030863922089338303 loss_jerk: 0.0540948212146759 loss_floor_contact: 0.0003599412739276886
+[96/100] loss: 0.10935017466545105 loss_joints: 0.10111158341169357 loss_collision: 0.02771614119410515 loss_jerk: 0.05414784699678421 loss_floor_contact: 0.000521879643201828
+[97/100] loss: 0.10972225666046143 loss_joints: 0.10108190774917603 loss_collision: 0.03182857483625412 loss_jerk: 0.05419347435235977 loss_floor_contact: 0.0003815069794654846
+[98/100] loss: 0.10959287732839584 loss_joints: 0.10106053203344345 loss_collision: 0.03082883358001709 loss_jerk: 0.054228320717811584 loss_floor_contact: 0.0002662576735019684
+[Done] Plotting SDF-Points [bin/imgs/sdf-points-1-4.png]
+[99/100] loss: 0.10927992314100266 loss_joints: 0.10104691982269287 loss_collision: 0.027874749153852463 loss_jerk: 0.05425143986940384 loss_floor_contact: 0.00020373985171318054
+[End] Optimizing Routine
+# ------------------------ #
+[Done] Results are at [/home/davidbl/iDART/mld_denoiser/mld_fps_clip_repeat_euler/checkpoint_300000/optim/run3-cabE-4000_use_pred_joints_ddim10_guidance5.0_seed0_contact0.1_thresh0.0_collision0.1_jerk0.1]
 
-real	0m53.685s
-user	0m24.266s
-sys	0m8.312s
+    ╔════════════════════════════════════════════════════════════════════════════╗
+    ║                                Optimization Results                        ║
+    ╠════════════════════════════════════════════════════════════════════════════╣
+    ║ Times:                                                                     ║
+    ║     total   = 243.89232                                                    ║
+    ║     rollout = 105.59315                                                    ║
+    ║     sdf     = 44.89272                                                     ║
+    ║     nbr it. = 100                                                          ║
+    ║                                                                            ║
+    ║ Losses:                                                                    ║
+    ║     total     = 0.10927992                                                 ║
+    ║     joints    = 0.10104692                                                 ║
+    ║     collision = 0.02787475                                                 ║
+    ║     jerk      = 0.05425144                                                 ║
+    ║     floor     = 0.00020374                                                 ║
+    ╚════════════════════════════════════════════════════════════════════════════╝
+    
+
+real	4m43.633s
+user	3m6.321s
+sys	0m19.911s
 ffmpeg version 6.1.1 Copyright (c) 2000-2023 the FFmpeg developers
   built with gcc 12.3.0 (conda-forge gcc 12.3.0-5)
   configuration: --prefix=/work/courses/digital_human/6/miniconda3/envs/DART --cc=/home/conda/feedstock_root/build_artifacts/ffmpeg_1706918361713/_build_env/bin/x86_64-conda-linux-gnu-cc --cxx=/home/conda/feedstock_root/build_artifacts/ffmpeg_1706918361713/_build_env/bin/x86_64-conda-linux-gnu-c++ --nm=/home/conda/feedstock_root/build_artifacts/ffmpeg_1706918361713/_build_env/bin/x86_64-conda-linux-gnu-nm --ar=/home/conda/feedstock_root/build_artifacts/ffmpeg_1706918361713/_build_env/bin/x86_64-conda-linux-gnu-ar --disable-doc --disable-openssl --enable-demuxer=dash --enable-hardcoded-tables --enable-libfreetype --enable-libharfbuzz --enable-libfontconfig --enable-libopenh264 --enable-libdav1d --enable-gnutls --enable-libmp3lame --enable-libvpx --enable-libass --enable-pthreads --enable-vaapi --enable-libopenvino --enable-gpl --enable-libx264 --enable-libx265 --enable-libaom --enable-libsvtav1 --enable-libxml2 --enable-pic --enable-shared --disable-static --enable-version3 --enable-zlib --enable-libopus --pkg-config=/home/conda/feedstock_root/build_artifacts/ffmpeg_1706918361713/_build_env/bin/pkg-config
@@ -58,97 +161,10 @@ Input #0, image2, from 'bin/imgs/sdf-points-0-%d.png':
 Stream mapping:
   Stream #0:0 -> #0:0 (png (native) -> h264 (libx264))
 Press [q] to stop, [?] for help
-[libx264 @ 0x5b1f2b9eac00] using SAR=1/1
-[libx264 @ 0x5b1f2b9eac00] using cpu capabilities: MMX2 SSE2Fast SSSE3 SSE4.2 AVX FMA3 BMI2 AVX2
-[libx264 @ 0x5b1f2b9eac00] profile High, level 3.1, 4:2:0, 8-bit
-[libx264 @ 0x5b1f2b9eac00] 264 - core 164 r3095 baee400 - H.264/MPEG-4 AVC codec - Copyleft 2003-2022 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=3 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=10 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
-Output #0, mp4, to 'bin/result/optim_walk_3.mp4':
-  Metadata:
-    encoder         : Lavf60.16.100
-  Stream #0:0: Video: h264 (avc1 / 0x31637661), yuv420p(tv, progressive), 1000x800 [SAR 1:1 DAR 5:4], q=2-31, 10 fps, 10240 tbn
-    Metadata:
-      encoder         : Lavc60.31.102 libx264
-    Side data:
-      cpb: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: N/A
-frame=    0 fps=0.0 q=0.0 size=       0kB time=N/A bitrate=N/A speed=N/A    [out#0/mp4 @ 0x5b1f2b9e8fc0] video:169kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: 0.669322%
-frame=   25 fps=0.0 q=-1.0 Lsize=     171kB time=00:00:02.20 bitrate= 635.0kbits/s speed=2.87x    
-[libx264 @ 0x5b1f2b9eac00] frame I:1     Avg QP:17.96  size: 60054
-[libx264 @ 0x5b1f2b9eac00] frame P:9     Avg QP:19.95  size:  8465
-[libx264 @ 0x5b1f2b9eac00] frame B:15    Avg QP:23.66  size:  2435
-[libx264 @ 0x5b1f2b9eac00] consecutive B-frames: 12.0% 16.0% 24.0% 48.0%
-[libx264 @ 0x5b1f2b9eac00] mb I  I16..4:  4.3% 67.3% 28.4%
-[libx264 @ 0x5b1f2b9eac00] mb P  I16..4:  0.2%  0.9%  0.4%  P16..4: 10.0%  3.7%  2.5%  0.0%  0.0%    skip:82.4%
-[libx264 @ 0x5b1f2b9eac00] mb B  I16..4:  0.0%  0.4%  0.0%  B16..8: 12.6%  2.6%  0.8%  direct: 1.1%  skip:82.5%  L0:38.9% L1:54.3% BI: 6.8%
-[libx264 @ 0x5b1f2b9eac00] 8x8 transform intra:67.9% inter:37.0%
-[libx264 @ 0x5b1f2b9eac00] coded y,uvDC,uvAC intra: 22.6% 11.7% 10.8% inter: 3.4% 2.7% 1.3%
-[libx264 @ 0x5b1f2b9eac00] i16 v,h,dc,p: 58% 20% 22%  0%
-[libx264 @ 0x5b1f2b9eac00] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 54%  7% 35%  1%  1%  1%  1%  1%  0%
-[libx264 @ 0x5b1f2b9eac00] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 40% 27% 11%  4%  2%  3%  3%  8%  2%
-[libx264 @ 0x5b1f2b9eac00] i8c dc,h,v,p: 92%  2%  4%  2%
-[libx264 @ 0x5b1f2b9eac00] Weighted P-Frames: Y:0.0% UV:0.0%
-[libx264 @ 0x5b1f2b9eac00] ref P L0: 59.7% 16.2% 14.7%  9.5%
-[libx264 @ 0x5b1f2b9eac00] ref B L0: 81.5% 15.2%  3.3%
-[libx264 @ 0x5b1f2b9eac00] ref B L1: 95.7%  4.3%
-[libx264 @ 0x5b1f2b9eac00] kb/s:552.86
-[INFO] Video saved as 'bin/result/optim_walk_3.mp4'.
-/work/courses/digital_human/6/miniconda3/envs/DART/lib/python3.8/site-packages/torch/nn/modules/transformer.py:282: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.self_attn.batch_first was not True(use batch_first for better inference performance)
-  warnings.warn(f"enable_nested_tensor is True, but self.use_nested_tensor is False because {why_not_sparsity_fast_path}")
-denoiser model type: transformer
-denoiser model args: {'h_dim': 512, 'ff_size': 1024, 'num_layers': 8, 'num_heads': 4, 'dropout': 0.1, 'activation': 'gelu', 'cond_mask_prob': 0.1, 'clip_dim': 512, 'history_shape': (2, 276), 'noise_shape': (1, 256)}
-TRANS_ENC init
-Loading denoiser checkpoint from ./mld_denoiser/mld_fps_clip_repeat_euler/checkpoint_300000.pt
-vae model args: {'arch': 'all_encoder', 'ff_size': 1024, 'num_layers': 7, 'num_heads': 4, 'dropout': 0.1, 'normalize_before': False, 'activation': 'gelu', 'position_embedding': 'learned', 'latent_dim': (1, 256), 'h_dim': 256, 'nfeats': 276}
-Loading vae checkpoint from ./mvae/mvae_fps_clip/checkpoint_200000.pt
-latent_mean: 0.005734771955758333
-latent_std: 0.8744232654571533
-diffusion_args: {'diffusion_steps': 10, 'respacing': 'ddim10', 'noise_schedule': 'cosine', 'sigma_small': True}
-loading mean and std from data/seq_data_zero_male/mean_std_h2_f8.pkl
-# ------------------------ #
-[Start] Optimizing Routine
-  0%|          | 0/100 [00:00<?, ?it/s]  0%|          | 0/100 [00:01<?, ?it/s]
-Traceback (most recent call last):
-  File "/work/courses/digital_human/6/miniconda3/envs/DART/lib/python3.8/runpy.py", line 194, in _run_module_as_main
-    return _run_code(code, main_globals, None,
-  File "/work/courses/digital_human/6/miniconda3/envs/DART/lib/python3.8/runpy.py", line 87, in _run_code
-    exec(code, run_globals)
-  File "/home/davidbl/iDART/mld/optim_scene_mld.py", line 683, in <module>
-    motion_sequences, history_motion_tensor, transf_rotmat, transf_transl = optimize(
-  File "/home/davidbl/iDART/mld/optim_scene_mld.py", line 471, in optimize
-    sdf_values = calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl, plot=(optim_args.visualize_sdf==1 and i+1 >= optim_steps))
-  File "/home/davidbl/iDART/mld/optim_scene_mld.py", line 292, in calc_vol_sdf
-    smpl_output = body_model(betas=betas,
-  File "/work/courses/digital_human/6/miniconda3/envs/DART/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1518, in _wrapped_call_impl
-    return self._call_impl(*args, **kwargs)
-  File "/work/courses/digital_human/6/miniconda3/envs/DART/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1527, in _call_impl
-    return forward_call(*args, **kwargs)
-  File "/work/courses/digital_human/6/miniconda3/envs/DART/lib/python3.8/site-packages/smplx/body_models.py", line 1208, in forward
-    full_pose = torch.cat([global_orient.reshape(-1, 1, 3),
-RuntimeError: Sizes of tensors must match except in dimension 1. Expected size 208 but got size 784 for tensor number 2 in the list.
-
-real	0m24.411s
-user	0m19.172s
-sys	0m4.967s
-ffmpeg version 6.1.1 Copyright (c) 2000-2023 the FFmpeg developers
-  built with gcc 12.3.0 (conda-forge gcc 12.3.0-5)
-  configuration: --prefix=/work/courses/digital_human/6/miniconda3/envs/DART --cc=/home/conda/feedstock_root/build_artifacts/ffmpeg_1706918361713/_build_env/bin/x86_64-conda-linux-gnu-cc --cxx=/home/conda/feedstock_root/build_artifacts/ffmpeg_1706918361713/_build_env/bin/x86_64-conda-linux-gnu-c++ --nm=/home/conda/feedstock_root/build_artifacts/ffmpeg_1706918361713/_build_env/bin/x86_64-conda-linux-gnu-nm --ar=/home/conda/feedstock_root/build_artifacts/ffmpeg_1706918361713/_build_env/bin/x86_64-conda-linux-gnu-ar --disable-doc --disable-openssl --enable-demuxer=dash --enable-hardcoded-tables --enable-libfreetype --enable-libharfbuzz --enable-libfontconfig --enable-libopenh264 --enable-libdav1d --enable-gnutls --enable-libmp3lame --enable-libvpx --enable-libass --enable-pthreads --enable-vaapi --enable-libopenvino --enable-gpl --enable-libx264 --enable-libx265 --enable-libaom --enable-libsvtav1 --enable-libxml2 --enable-pic --enable-shared --disable-static --enable-version3 --enable-zlib --enable-libopus --pkg-config=/home/conda/feedstock_root/build_artifacts/ffmpeg_1706918361713/_build_env/bin/pkg-config
-  libavutil      58. 29.100 / 58. 29.100
-  libavcodec     60. 31.102 / 60. 31.102
-  libavformat    60. 16.100 / 60. 16.100
-  libavdevice    60.  3.100 / 60.  3.100
-  libavfilter     9. 12.100 /  9. 12.100
-  libswscale      7.  5.100 /  7.  5.100
-  libswresample   4. 12.100 /  4. 12.100
-  libpostproc    57.  3.100 / 57.  3.100
-Input #0, image2, from 'bin/imgs/sdf-points-0-%d.png':
-  Duration: 00:00:02.50, start: 0.000000, bitrate: N/A
-  Stream #0:0: Video: png, rgba(pc, gbr/unknown/unknown), 1000x800 [SAR 3937:3937 DAR 5:4], 10 fps, 10 tbr, 10 tbn
-Stream mapping:
-  Stream #0:0 -> #0:0 (png (native) -> h264 (libx264))
-Press [q] to stop, [?] for help
-[libx264 @ 0x5b1ccd805c00] using SAR=1/1
-[libx264 @ 0x5b1ccd805c00] using cpu capabilities: MMX2 SSE2Fast SSSE3 SSE4.2 AVX FMA3 BMI2 AVX2
-[libx264 @ 0x5b1ccd805c00] profile High, level 3.1, 4:2:0, 8-bit
-[libx264 @ 0x5b1ccd805c00] 264 - core 164 r3095 baee400 - H.264/MPEG-4 AVC codec - Copyleft 2003-2022 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=3 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=10 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
+[libx264 @ 0x5e5aab9d0c00] using SAR=1/1
+[libx264 @ 0x5e5aab9d0c00] using cpu capabilities: MMX2 SSE2Fast SSSE3 SSE4.2 AVX FMA3 BMI2 AVX2
+[libx264 @ 0x5e5aab9d0c00] profile High, level 3.1, 4:2:0, 8-bit
+[libx264 @ 0x5e5aab9d0c00] 264 - core 164 r3095 baee400 - H.264/MPEG-4 AVC codec - Copyleft 2003-2022 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=3 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=10 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
 Output #0, mp4, to 'bin/result/optim_run_3.mp4':
   Metadata:
     encoder         : Lavf60.16.100
@@ -157,24 +173,24 @@ Output #0, mp4, to 'bin/result/optim_run_3.mp4':
       encoder         : Lavc60.31.102 libx264
     Side data:
       cpb: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: N/A
-frame=    0 fps=0.0 q=0.0 size=       0kB time=N/A bitrate=N/A speed=N/A    [out#0/mp4 @ 0x5b1ccd803fc0] video:169kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: 0.669322%
-frame=   25 fps=0.0 q=-1.0 Lsize=     171kB time=00:00:02.20 bitrate= 635.0kbits/s speed=3.07x    
-[libx264 @ 0x5b1ccd805c00] frame I:1     Avg QP:17.96  size: 60054
-[libx264 @ 0x5b1ccd805c00] frame P:9     Avg QP:19.95  size:  8465
-[libx264 @ 0x5b1ccd805c00] frame B:15    Avg QP:23.66  size:  2435
-[libx264 @ 0x5b1ccd805c00] consecutive B-frames: 12.0% 16.0% 24.0% 48.0%
-[libx264 @ 0x5b1ccd805c00] mb I  I16..4:  4.3% 67.3% 28.4%
-[libx264 @ 0x5b1ccd805c00] mb P  I16..4:  0.2%  0.9%  0.4%  P16..4: 10.0%  3.7%  2.5%  0.0%  0.0%    skip:82.4%
-[libx264 @ 0x5b1ccd805c00] mb B  I16..4:  0.0%  0.4%  0.0%  B16..8: 12.6%  2.6%  0.8%  direct: 1.1%  skip:82.5%  L0:38.9% L1:54.3% BI: 6.8%
-[libx264 @ 0x5b1ccd805c00] 8x8 transform intra:67.9% inter:37.0%
-[libx264 @ 0x5b1ccd805c00] coded y,uvDC,uvAC intra: 22.6% 11.7% 10.8% inter: 3.4% 2.7% 1.3%
-[libx264 @ 0x5b1ccd805c00] i16 v,h,dc,p: 58% 20% 22%  0%
-[libx264 @ 0x5b1ccd805c00] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 54%  7% 35%  1%  1%  1%  1%  1%  0%
-[libx264 @ 0x5b1ccd805c00] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 40% 27% 11%  4%  2%  3%  3%  8%  2%
-[libx264 @ 0x5b1ccd805c00] i8c dc,h,v,p: 92%  2%  4%  2%
-[libx264 @ 0x5b1ccd805c00] Weighted P-Frames: Y:0.0% UV:0.0%
-[libx264 @ 0x5b1ccd805c00] ref P L0: 59.7% 16.2% 14.7%  9.5%
-[libx264 @ 0x5b1ccd805c00] ref B L0: 81.5% 15.2%  3.3%
-[libx264 @ 0x5b1ccd805c00] ref B L1: 95.7%  4.3%
-[libx264 @ 0x5b1ccd805c00] kb/s:552.86
+frame=    0 fps=0.0 q=0.0 size=       0kB time=N/A bitrate=N/A speed=N/A    [out#0/mp4 @ 0x5e5aab9cefc0] video:196kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: 0.579223%
+frame=   25 fps=0.0 q=-1.0 Lsize=     197kB time=00:00:02.20 bitrate= 733.1kbits/s speed=2.82x    
+[libx264 @ 0x5e5aab9d0c00] frame I:1     Avg QP:19.01  size: 67498
+[libx264 @ 0x5e5aab9d0c00] frame P:9     Avg QP:20.26  size: 11343
+[libx264 @ 0x5e5aab9d0c00] frame B:15    Avg QP:22.38  size:  2011
+[libx264 @ 0x5e5aab9d0c00] consecutive B-frames: 12.0% 16.0% 24.0% 48.0%
+[libx264 @ 0x5e5aab9d0c00] mb I  I16..4:  4.0% 67.8% 28.2%
+[libx264 @ 0x5e5aab9d0c00] mb P  I16..4:  0.3%  1.9%  1.6%  P16..4: 11.1%  3.4%  2.2%  0.0%  0.0%    skip:79.4%
+[libx264 @ 0x5e5aab9d0c00] mb B  I16..4:  0.1%  0.4%  0.1%  B16..8: 12.7%  1.4%  0.4%  direct: 0.9%  skip:84.0%  L0:53.3% L1:40.9% BI: 5.7%
+[libx264 @ 0x5e5aab9d0c00] 8x8 transform intra:63.8% inter:52.8%
+[libx264 @ 0x5e5aab9d0c00] coded y,uvDC,uvAC intra: 30.6% 19.4% 18.2% inter: 3.5% 3.5% 1.2%
+[libx264 @ 0x5e5aab9d0c00] i16 v,h,dc,p: 51% 32% 18%  0%
+[libx264 @ 0x5e5aab9d0c00] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 50%  9% 34%  1%  1%  2%  1%  2%  1%
+[libx264 @ 0x5e5aab9d0c00] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 36% 25% 13%  4%  3%  4%  3%  8%  3%
+[libx264 @ 0x5e5aab9d0c00] i8c dc,h,v,p: 89%  2%  6%  3%
+[libx264 @ 0x5e5aab9d0c00] Weighted P-Frames: Y:0.0% UV:0.0%
+[libx264 @ 0x5e5aab9d0c00] ref P L0: 61.4% 12.1% 17.6%  8.9%
+[libx264 @ 0x5e5aab9d0c00] ref B L0: 79.8% 18.1%  2.1%
+[libx264 @ 0x5e5aab9d0c00] ref B L1: 95.4%  4.6%
+[libx264 @ 0x5e5aab9d0c00] kb/s:639.21
 [INFO] Video saved as 'bin/result/optim_run_3.mp4'.
