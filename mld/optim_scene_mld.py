@@ -73,7 +73,7 @@ class OptimArgs:
     weight_collision: float = 0.0
     weight_contact: float = 0.0
     weight_skate: float = 0.0
-    floor_contact_loss: int = 1
+    floor_contact_loss: int = 0
     load_cache: int = 0
     contact_thresh: float = 0.03
     init_noise_scale: float = 1.0
@@ -258,11 +258,11 @@ def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl, p
     # print("transl shape", transl.shape)
 
     #Rotation Transformations
-    transf_rotmat.permute(0,2,1)
+    # transf_rotmat.permute(0,2,1)
     #transform (multiply with transf_rotmat)
-    global_orient = torch.einsum('bij,btjk->btik', transf_rotmat, global_orient)
-    # body_pose = torch.einsum('bik,btjkl->btjil', transf_rotmat.permute(0,2,1), body_pose)
-    transl = torch.einsum('bij,btk->bti', transf_rotmat, transl)# + transf_transl
+    # global_orient = torch.einsum('bij,btjk->btik', transf_rotmat, global_orient)
+    # # body_pose = torch.einsum('bik,btjkl->btjil', transf_rotmat.permute(0,2,1), body_pose)
+    # transl = torch.einsum('bij,btk->bti', transf_rotmat, transl)# + transf_transl
 
     #convert back to axis-angle
     global_orient = matrix_to_axis_angle(global_orient) 
@@ -298,7 +298,7 @@ def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl, p
     # print("smpl_output", type(smpl_output))
 
     # get scene points
-    scene_points, idxs = sample_scene_points(scene_assets,1,T)
+    scene_points, idxs = sample_scene_points(scene_assets,1,T,s=8)
     # scene_points = scene_points.to(device=device)  # shape: [t, N, 3]
 
     # get nbr of (random) selected time frames
@@ -328,6 +328,13 @@ def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl, p
         subset_smpl_output.full_pose = smpl_output_full_pose[0, idxs, ...].reshape(t_,-1,3)
         subset_smpl_output.vertices =  smpl_output_vertices[0, idxs, ...].reshape(t_,-1,3)
         subset_smpl_output.joints =    smpl_output_joints[0, idxs, ...].reshape(t_,-1,3)
+
+        # Validate subset vertices
+        if torch.isnan(subset_smpl_output.vertices).any() or torch.isinf(subset_smpl_output.vertices).any():
+            print(f"[ERROR] Subset vertices for batch {i_} contain NaN or Inf values.")
+            # subset_smpl_output.vertices = torch.nan_to_num(subset_smpl_output.vertices, nan=0.0, posinf=0.0, neginf=0.0)
+            continue
+
         # query sampled points for sdf values
         sdf_values[i_,...] = body_model.volume.query_fast(scene_points, subset_smpl_output)
 
@@ -347,7 +354,7 @@ def calc_jerk(joints):
 
     return jerk.mean()
 
-def optimize(history_motion_tensor, transf_rotmat, transf_transl, text_prompt, goal_joints, joints_mask):
+def get_text_promts(text_prompt):
     texts = []
     if ',' in text_prompt:  # contain a time line of multipel actions
         num_rollout = 0
@@ -362,6 +369,10 @@ def optimize(history_motion_tensor, transf_rotmat, transf_transl, text_prompt, g
         num_rollout = int(num_rollout)
         for _ in range(num_rollout):
             texts.append(action)
+    return texts,num_rollout
+
+def optimize(history_motion_tensor, transf_rotmat, transf_transl, text_prompt, goal_joints, joints_mask):
+    texts,num_rollout = get_text_promts(text_prompt)
     all_text_embedding = encode_text(dataset.clip_model, texts, force_empty_zero=True).to(dtype=torch.float32,
                                                                                       device=device)
 
@@ -451,6 +462,7 @@ def optimize(history_motion_tensor, transf_rotmat, transf_transl, text_prompt, g
     t_total_start = time.time()
     for i in tqdm(range(optim_steps)):
         optimizer.zero_grad()
+        torch.cuda.empty_cache()
         if optim_args.optim_anneal_lr:
             frac = 1.0 - i / optim_steps
             lrnow = frac * lr
@@ -468,7 +480,7 @@ def optimize(history_motion_tensor, transf_rotmat, transf_transl, text_prompt, g
         
         torch.cuda.empty_cache()
         t_sdf_start = time.time()
-        sdf_values = calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl, plot=(optim_args.visualize_sdf==1 and i+1 >= optim_steps))
+        sdf_values = calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl, plot=(optim_args.visualize_sdf==1 and (i+1 >= optim_steps or i < 1)))
         # TODO: implement meaningful loss function
 
         # # FOOT-CONTACT_LOSS, don't how to do this with VolSMPL
@@ -568,16 +580,6 @@ if __name__ == '__main__':
    
 
 
-    # ADD VolumetricSMPL
-    # make (high-level) SMPLX body model
-    vol_body_model_dict = {
-        'male':   smplx.create(model_path=body_model_dir, model_type='smplx', batch_size=784, gender='male',   num_betas=10, ext='npz', num_pca_comps=12),
-        'female': smplx.create(model_path=body_model_dir, model_type='smplx', batch_size=784, gender='female', num_betas=10, ext='npz', num_pca_comps=12)
-    }
-    # attach volumetric representation
-    attach_volume(vol_body_model_dict['male'])
-    attach_volume(vol_body_model_dict['female'])
-
     with open('./data/joint_skin_dist.json', 'r') as f:
         joint_skin_dist = json.load(f)
         joint_skin_dist = torch.tensor(joint_skin_dist, dtype=torch.float32, device=device)
@@ -594,9 +596,12 @@ if __name__ == '__main__':
     scene_mesh = trimesh.load(scene_dir / interaction_cfg["scene_file"], process=False, force='mesh') # open obj-file as mesh
     scene_points = torch.tensor(scene_mesh.vertices, dtype=torch.float32, device=device) # only points/vertices of obj-mesh
     
+    if torch.isnan(scene_points).any() or torch.isinf(scene_points).any():
+        raise ValueError("[ERROR] Scene points contain NaN or Inf values.")
+
     # change axis orientation
     scene_points[:, [0,1,2]] = scene_points[:, [2,0,1]]
-    scene_points[:, 0] = -scene_points[:, 0]
+    scene_points[:, 1] = -scene_points[:, 1]
 
     # save infos as scene dict
     scene_assets = {
@@ -687,6 +692,20 @@ if __name__ == '__main__':
                 # goal_mesh = trimesh.creation.axis(axis_length=0.1, transform=transform)
                 # (axis_mesh + goal_mesh + scene_assets['scene_with_floor_mesh']).show()
 
+            # ADD VolumetricSMPL
+            # get batch size
+            _,num_rollout = get_text_promts(text_prompt)
+            batch_size_vol_ = (future_length * num_rollout + history_length) * batch_size
+            print(f"Batch sizes: {batch_size_vol_} = ({future_length}*{num_rollout} + {history_length}) * {batch_size}")
+            # make (high-level) SMPLX body model
+            vol_body_model_dict = {
+                'male':   smplx.create(model_path=body_model_dir, model_type='smplx', batch_size=batch_size_vol_, gender='male',   num_betas=10, ext='npz', num_pca_comps=12),
+                'female': smplx.create(model_path=body_model_dir, model_type='smplx', batch_size=batch_size_vol_, gender='female', num_betas=10, ext='npz', num_pca_comps=12)
+            }
+            # attach volumetric representation
+            attach_volume(vol_body_model_dict['male'])
+            attach_volume(vol_body_model_dict['female'])
+
             print("""# ------------------------ #\n[Start] Optimizing Routine""")
             motion_sequences, history_motion_tensor, transf_rotmat, transf_transl = optimize(
                 history_motion_tensor, transf_rotmat, transf_transl, text_prompt, goal_joints, joints_mask)
@@ -753,16 +772,16 @@ if __name__ == '__main__':
     ║                                Optimization Results                        ║
     ╠════════════════════════════════════════════════════════════════════════════╣
     ║ Times:                                                                     ║
-    ║     total   = {times['total']:<10.5f}                                                  ║
-    ║     rollout = {times['rollout']:<10.5f}                                                  ║
-    ║     sdf     = {times['sdf']:<10.5f}                                                  ║
-    ║     nbr it. = {times['nbr_iterations']:<10}                                                  ║
+    ║     total   = {times['total']:<10.5f}                                                   ║
+    ║     rollout = {times['rollout']:<10.5f}                                                   ║
+    ║     sdf     = {times['sdf']:<10.5f}                                                   ║
+    ║     nbr it. = {times['nbr_iterations']:<10}                                                   ║
     ║                                                                            ║
     ║ Losses:                                                                    ║
-    ║     total     = {losses['total']:<15.8f}                                             ║
-    ║     joints    = {losses['joints']:<15.8f}                                             ║
-    ║     collision = {losses['collision']:<15.8f}                                             ║
-    ║     jerk      = {losses['jerk']:<15.8f}                                             ║
-    ║     floor     = {losses['floor']:<15.8f}                                             ║
+    ║     total     = {losses['total']:<15.8f}                                            ║
+    ║     joints    = {losses['joints']:<15.8f}                                            ║
+    ║     collision = {losses['collision']:<15.8f}                                            ║
+    ║     jerk      = {losses['jerk']:<15.8f}                                            ║
+    ║     floor     = {losses['floor']:<15.8f}                                            ║
     ╚════════════════════════════════════════════════════════════════════════════╝
     """)
