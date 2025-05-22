@@ -531,6 +531,7 @@ if __name__ == '__main__':
     torch.backends.cudnn.deterministic = optim_args.torch_deterministic
     device = torch.device(optim_args.device if torch.cuda.is_available() else "cpu")
     optim_args.device = device
+    
 
     denoiser_args, denoiser_model, vae_args, vae_model = load_mld(optim_args.denoiser_checkpoint, device)
     denoiser_checkpoint = Path(optim_args.denoiser_checkpoint)
@@ -544,6 +545,10 @@ if __name__ == '__main__':
     print('diffusion_args:', asdict(diffusion_args))
     diffusion = create_gaussian_diffusion(diffusion_args)
     sample_fn = diffusion.ddim_sample_loop_full_chain
+    
+    print("######## HALLO #######")
+    print(vae_args.data_args.cfg_path)
+    print(vae_args.data_args.data_dir)
 
     # load initial seed dataset
     dataset = SinglePrimitiveDataset(cfg_path=vae_args.data_args.cfg_path,  # cfg path from model checkpoint
@@ -554,11 +559,14 @@ if __name__ == '__main__':
                                      enforce_gender='male',
                                      enforce_zero_beta=1,
                                      )
+    
     future_length = dataset.future_length
     history_length = dataset.history_length
     primitive_length = history_length + future_length
     primitive_utility = dataset.primitive_utility
     batch_size = optim_args.batch_size
+   
+
 
     # ADD VolumetricSMPL
     # make (high-level) SMPLX body model
