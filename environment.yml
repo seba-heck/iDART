@@ -440,3 +440,5 @@ dependencies:
       - yarl==1.15.2
       - ypy-websocket==0.8.4
       - zipp==3.17.0
+      - VolumetricSMPL
+

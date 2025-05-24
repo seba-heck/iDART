@@ -1,0 +1,21 @@
+{
+    "scene_id": "cab benches",
+    "start": {
+        "name": "2",
+        "position": [
+            2.7670083045959473,
+            0.15822768211364746,
+            0.0
+        ]
+    },
+    "goal": {
+        "name": "3",
+        "position": [
+            -1.486210584640503,
+            2.5589938163757324,
+            0.0
+        ]
+    },
+    "navigation_type": "point_to_point",
+    "comment": "C"
+}

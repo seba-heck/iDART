@@ -2,7 +2,7 @@ respacing='ddim10'
 guidance=5
 export_smpl=1
 use_predicted_joints=1
-batch_size=8
+batch_size=2
 optim_lr=0.01
 #optim_lr=0.1
 optim_steps=100
@@ -10,8 +10,8 @@ optim_unit_grad=1
 optim_anneal_lr=1
 
 weight_jerk=0.1
-weight_collision=0.1
-weight_contact=0.1
+weight_collision=0.2
+weight_contact=0.2
 weight_skate=0.0
 contact_thresh=0.00
 init_noise_scale=0.1
@@ -20,16 +20,14 @@ visualize_sdf=1
 
 load_cache=0
 interaction_cfg_list=(
-<<<<<<< HEAD
-'./data/optim_interaction/cab_benches/walk_3.json'
-=======
-'./data/optim_interaction/group_6/walk.json'
-'./data/optim_interaction/group_6/sit.json'
->>>>>>> origin/testing_scenes
+'./data/optim_interaction/foodlab/walk_3.json'
+'./data/optim_interaction/foodlab/walk_6.json'
+'./data/optim_interaction/foodlab/walk_12.json'
+'./data/optim_interaction/foodlab/sit-chair.json'
 )
 
 model_list=(
-'/mld_denoiser/mld_fps_clip_repeat_euler/checkpoint_300000.pt'
+'./mld_denoiser/mld_fps_clip_repeat_euler/checkpoint_300000.pt'
 )
 
 for interaction_cfg in "${interaction_cfg_list[@]}"; do

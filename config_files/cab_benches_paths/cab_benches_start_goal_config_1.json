@@ -1,0 +1,33 @@
+{
+    "scene_id": "cab benches",
+    "start": {
+        "name": "nav_point_01",
+        "position": [
+            0.03857994079589844,
+            -1.6826142072677612,
+            1.272979736328125
+        ],
+        "orientation": [
+            0,
+            0,
+            0,
+            1
+        ]
+    },
+    "goal": {
+        "name": "nav_point_2",
+        "position": [
+            0.9397165775299072,
+            -1.232057809829712,
+            0.45714473724365234
+        ],
+        "orientation": [
+            0,
+            0,
+            0,
+            1
+        ]
+    },
+    "navigation_type": "point_to_point",
+    "comment": "nc"
+}
