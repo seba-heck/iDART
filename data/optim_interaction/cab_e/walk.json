@@ -1,0 +1,16 @@
+{
+  "scene_dir": "./data/scenes/cab_e",
+  "scene_file": "cab_e_8000.obj",
+  "floor_height": 0.0,
+  "interaction_name": "cab_e_walk_8000",
+  "interactions": [
+    {
+      "text_prompt": "walk*15",
+      "init_joints": [[-1.5, 0.3, 1.1], 
+                      [-1.5, 0.4, 1.1], 
+                      [-1.5, 0.2, 1.1]],
+      "goal_joints": [[ 1.6, 0.75, 1.1]]
+    }
+
+  ]
+}
