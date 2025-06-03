@@ -1,6 +1,7 @@
 {
   "scene_dir": "./data/scenes/cab_e",
   "scene_file": "cab_e_8000.obj",
+  "scene_sdf": "cab_e_sdf",
   "floor_height": 0.0,
   "interaction_name": "cab_e_walk_8000",
   "interactions": [

@@ -1,6 +1,7 @@
 {
   "scene_dir": "./data/scenes/cab_g_benches",
   "scene_file": "cab_g_benches_8000.obj",
+  "scene_sdf": "cab_g_benches_sdf",
   "floor_height": 0.0,
   "interaction_name": "benches_walk_test_8000",
   "interactions": [

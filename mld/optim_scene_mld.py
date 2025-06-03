@@ -141,6 +141,12 @@ def sample_scene_points(scene_assets, B=8, T=98, s=4, rand_idxs=False):
         indices = torch.randint(0, T, (T//s,))
     else:
         indices = torch.arange(0, T, step=s)
+    # else:
+    #     regular_indices = torch.arange(0, T, step=2*s)
+    #     random_indices = torch.randint(0, T, (T//(2*s),))
+
+    #     # Combine and remove duplicates
+    #     indices = torch.cat([regular_indices, random_indices]).unique()
     
     t_ = len(indices)
 
@@ -298,7 +304,7 @@ def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl, p
     # print("smpl_output", type(smpl_output))
 
     # get scene points
-    scene_points, idxs = sample_scene_points(scene_assets,1,T,s=4)
+    scene_points, idxs = sample_scene_points(scene_assets,1,T,s=6)
     # scene_points = scene_points.to(device=device)  # shape: [t, N, 3]
 
     # get nbr of (random) selected time frames
@@ -510,7 +516,8 @@ def optimize(history_motion_tensor, transf_rotmat, transf_transl, text_prompt, g
 
         # TOTAL LOSS
         # loss = loss_joints + optim_args.weight_collision * loss_collision + optim_args.weight_jerk * loss_jerk
-        loss = loss_joints + optim_args.weight_collision * loss_collision + optim_args.weight_jerk * loss_jerk + optim_args.weight_contact * loss_floor_contact
+        # loss = loss_joints + optim_args.weight_collision * loss_collision + optim_args.weight_jerk * loss_jerk + optim_args.weight_contact * loss_floor_contact
+        loss = loss_joints + (i/optim_steps) * optim_args.weight_collision * loss_collision + optim_args.weight_jerk * loss_jerk + optim_args.weight_contact * loss_floor_contact
 
         loss.backward()
         if optim_args.optim_unit_grad:
@@ -545,7 +552,6 @@ if __name__ == '__main__':
     device = torch.device(optim_args.device if torch.cuda.is_available() else "cpu")
     optim_args.device = device
     
-
     denoiser_args, denoiser_model, vae_args, vae_model = load_mld(optim_args.denoiser_checkpoint, device)
     denoiser_checkpoint = Path(optim_args.denoiser_checkpoint)
     save_dir = denoiser_checkpoint.parent / denoiser_checkpoint.name.split('.')[0] / 'optim'
@@ -579,8 +585,6 @@ if __name__ == '__main__':
     primitive_utility = dataset.primitive_utility
     batch_size = optim_args.batch_size
    
-
-
     with open('./data/joint_skin_dist.json', 'r') as f:
         joint_skin_dist = json.load(f)
         joint_skin_dist = torch.tensor(joint_skin_dist, dtype=torch.float32, device=device)
@@ -748,7 +752,7 @@ if __name__ == '__main__':
             'future_length': future_length,
         }
         tensor_dict_to_device(sequence, 'cpu')
-        with open(out_path / f'sample_{idx}.pkl', 'wb') as f:
+        with open(out_path / f'volSPML_sample_{idx}.pkl', 'wb') as f:
             pickle.dump(sequence, f)
 
         # export smplx sequences for blender
@@ -765,7 +769,7 @@ if __name__ == '__main__':
                 'poses': poses.detach().cpu().numpy(),
                 'trans': sequence['transl'].detach().cpu().numpy(),
             }
-            with open(out_path / f'sample_{idx}_smplx.npz', 'wb') as f:
+            with open(out_path / f'volSMPL_sample_{idx}_smplx.npz', 'wb') as f:
                 np.savez(f, **data_dict)
 
     print(f'[Done] Results are at [{out_path.absolute()}]')

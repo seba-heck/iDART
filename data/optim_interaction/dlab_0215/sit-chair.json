@@ -1,12 +1,13 @@
 {
   "scene_dir": "./data/scenes/cnb_dlab_0215",
   "scene_file": "cnb_dlab_0215_8000.obj",
+  "scene_sdf": "cnb_dlab_0215_sdf",
   "floor_height": 0.0,
   "interaction_name": "cnb_dlab_0215_sit_8000",
   "interactions": [
     {
-      "text_prompt": "walk*8,turn right*3,sit on bench*6",
-      "init_joints": [[-2.0, 0.0, 1.0],[-2.0, 0.1, 1.0],[-2.0,-0.1, 1.0]],
+      "text_prompt": "walk*13,turn right*3,sit on bench*6",
+      "init_joints": [[-1.5, 0.0, 1.1],[-1.5, 0.1, 1.1],[-1.5,-0.1, 1.1]],
       "goal_joints": [[ 0.88, 0.86, 0.5]]
     }
 

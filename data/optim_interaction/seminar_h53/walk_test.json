@@ -1,6 +1,7 @@
 {
   "scene_dir": "./data/scenes/seminar_h53_0218",
   "scene_file": "seminar_h53_0218_8000.obj",
+  "scene_sdf": "seminar_h53_0218_sdf",
   "floor_height": 0.0,
   "interaction_name": "seminar_h53_0218_walk_test_8000",
   "interactions": [
