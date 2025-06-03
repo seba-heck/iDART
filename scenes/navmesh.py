@@ -10,6 +10,9 @@ def make_navmesh(inp_path,out_path):
     # read scene file
     scene_mesh = trimesh.load(inp_path, force='mesh') # open obj-file as mesh
 
+    scene_mesh.vertices[:, [0,1,2]] = scene_mesh.vertices[:, [2,0,1]]
+    scene_mesh.vertices[:, 1] = -scene_mesh.vertices[:, 1]
+
     # Validate and repair the mesh
     if not scene_mesh.is_watertight:
         print("[WARNING] Mesh is not watertight. Attempting to repair...")
@@ -17,6 +20,8 @@ def make_navmesh(inp_path,out_path):
         scene_mesh.remove_degenerate_faces()
         scene_mesh.remove_duplicate_faces()
         scene_mesh.remove_infinite_values()
+
+    print(scene_mesh.vertices, scene_mesh.faces)
 
     # create baker object
     baker = nmb.NavmeshBaker()
@@ -26,7 +31,7 @@ def make_navmesh(inp_path,out_path):
     baker.add_geometry(scene_mesh.vertices, scene_mesh.faces)
 
     # bake navigation mesh
-    baker.bake(cell_size=0.2)
+    baker.bake(cell_size=0.1)
 
     # obtain polygonal description of the mesh
     vertices, polygons = baker.get_polygonization()
@@ -54,10 +59,8 @@ def make_navmesh(inp_path,out_path):
 # read_from_text(file_path)
 
 # pathfinder = pf.PathFinder(vertices,polygons)
-# # pathfinder = pf.PathFinder(navmesh_data['vertices'], navmesh_data['polygons'])
+# pathfinder = pf.PathFinder(navmesh_data['vertices'], navmesh_data['polygons'])
 
 # path = pathfinder.search_path((0,0,0), (1,1,1))
 
 # print(path)
-
-make_navmesh(inp_path,out_path)
