@@ -1,0 +1,22 @@
+{
+  "scene_dir": "./data/scenes/foodlab_0312",
+  "scene_file": "foodlab_0312_2000_col_1000.obj",
+  "floor_height": 0.0,
+  "interaction_name": "foodlab_walk_col_2000",
+  "interactions": [
+    {
+      "text_prompt": "walk*20",
+      "init_joints": [
+        [-1.0,-2.0, 1.0],
+        [-1.0,-1.9, 1.0],
+        [-1.0,-2.1, 1.0]
+      ],
+      "goal_joints": [ [
+            2.0,
+            0.0,
+            1.0
+        ]]
+    }
+
+  ]
+}
