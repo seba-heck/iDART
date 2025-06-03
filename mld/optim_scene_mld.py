@@ -298,7 +298,7 @@ def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl, p
     # print("smpl_output", type(smpl_output))
 
     # get scene points
-    scene_points, idxs = sample_scene_points(scene_assets,1,T,s=8)
+    scene_points, idxs = sample_scene_points(scene_assets,1,T,s=4)
     # scene_points = scene_points.to(device=device)  # shape: [t, N, 3]
 
     # get nbr of (random) selected time frames
@@ -480,7 +480,8 @@ def optimize(history_motion_tensor, transf_rotmat, transf_transl, text_prompt, g
         
         torch.cuda.empty_cache()
         t_sdf_start = time.time()
-        sdf_values = calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl, plot=(optim_args.visualize_sdf==1 and (i+1 >= optim_steps or i < 1)))
+        sdf_values = calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl, plot=(optim_args.visualize_sdf==1 and (i % 10 == 0)))
+        # sdf_values = calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl, plot=(optim_args.visualize_sdf==1 and (i+1 >= optim_steps or i < 1)))
         # TODO: implement meaningful loss function
 
         # # FOOT-CONTACT_LOSS, don't how to do this with VolSMPL
@@ -497,7 +498,7 @@ def optimize(history_motion_tensor, transf_rotmat, transf_transl, text_prompt, g
         #     dim=-1)  # [> B, T], clip negative sdf, sum over joints
         # negative_sdf_mean = negative_sdf_per_frame.mean()
         # loss_collision = -negative_sdf_mean
-        loss_collision = torch.relu(-sdf_values).sum(-1).mean()
+        loss_collision = torch.relu(-sdf_values).sum(dim=(-2,-1)).mean()
 
         times['sdf'] += time.time() - t_sdf_start
 
@@ -600,7 +601,7 @@ if __name__ == '__main__':
         raise ValueError("[ERROR] Scene points contain NaN or Inf values.")
 
     # change axis orientation
-    scene_points[:, [0,1,2]] = scene_points[:, [2,0,1]]
+    scene_points[:, [0,1,2]] = scene_points[:, [0,2,1]]
     scene_points[:, 1] = -scene_points[:, 1]
 
     # save infos as scene dict
@@ -656,6 +657,8 @@ if __name__ == '__main__':
     input_motions = input_motions.to(device)  # [> B, D, 1, T]
     motion_tensor = input_motions.squeeze(2).permute(0, 2, 1)  # [> B, T, D]
     init_history_motion = motion_tensor[:, :history_length, :]  # [> B, H, D]
+
+    print(f"Weights: contact={optim_args.weight_contact}, collision={optim_args.weight_collision}, jerk={optim_args.weight_jerk}")
 
     all_motion_sequences = None
     for interaction_idx, interaction in enumerate(interaction_cfg['interactions']):

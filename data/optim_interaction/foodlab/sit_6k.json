@@ -1,0 +1,14 @@
+{
+  "scene_dir": "./data/scenes/foodlab_0312",
+  "scene_file": "foodlab_0312_6000.obj",
+  "floor_height": 0.0,
+  "interaction_name": "foodlab_sit-6000",
+  "interactions": [
+    {
+      "text_prompt": "walk*9,turn right*3,sit on bench*4",
+      "init_joints": [[ 1.0,-2.0, 1.0],[ 0.9,-2.0, 1.0],[ 1.1,-2.0, 1.0]],
+      "goal_joints": [[ 1.1, 1.4, 0.6]]
+    }
+
+  ]
+}

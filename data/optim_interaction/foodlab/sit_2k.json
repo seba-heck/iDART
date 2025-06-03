@@ -2,7 +2,7 @@
   "scene_dir": "./data/scenes/foodlab_0312",
   "scene_file": "foodlab_0312_2000.obj",
   "floor_height": 0.0,
-  "interaction_name": "sit_foodlab-2000",
+  "interaction_name": "foodlab_sit-2000",
   "interactions": [
     {
       "text_prompt": "walk*9,turn right*3,sit on bench*4",
