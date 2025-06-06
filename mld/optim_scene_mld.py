@@ -774,6 +774,23 @@ if __name__ == '__main__':
 
     print(f'[Done] Results are at [{out_path.absolute()}]')
 
+
+    log_file_path = "./bin/output/losses_mld.txt"
+
+    # Prepare the line to append
+    losses_line = (
+        f"{interaction_name}_VolSMPL, "
+        f"{losses['total']:.8f}, "
+        f"{losses['joints']:.8f}, "
+        f"{losses['collision']:.8f}, "
+        f"{losses['jerk']:.8f}, "
+        f"{losses['floor']:.8f}\n"
+    )
+
+    # Append the line to the file
+    with open(log_file_path, "a") as log_file:
+        log_file.write(losses_line)
+
     print(f"""
     ╔════════════════════════════════════════════════════════════════════════════╗
     ║                                Optimization Results                        ║
