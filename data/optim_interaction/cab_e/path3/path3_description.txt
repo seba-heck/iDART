@@ -1,0 +1,2 @@
+Start: in front of right column
+Goal: behind the right column

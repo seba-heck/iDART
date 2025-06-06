@@ -628,7 +628,24 @@ if __name__ == '__main__':
         'floor': 0.0,
     }
 
-    out_path = optim_args.save_dir
+    # Output directory
+    out_base = optim_args.save_dir
+    out_path = out_base / f'learning_rate_{optim_args.optim_lr}' / f'contact_thresh_{optim_args.contact_thresh}'
+
+    # Build the filename with interaction name and various weights
+    filename = (
+        f'{interaction_name}_'
+        f'collision{optim_args.weight_collision}_'
+        f'contact{optim_args.weight_contact}_'
+        f'jerk{optim_args.weight_jerk}_'
+        f'skate{optim_args.weight_skate}'
+    )
+
+    # combine path and filename
+    out_path = out_path / filename
+    out_path.mkdir(parents=True, exist_ok=True)
+
+    """
     filename = f'guidance{optim_args.guidance_param}_seed{optim_args.seed}'
     if optim_args.respacing != '':
         filename = f'{optim_args.respacing}_{filename}'
@@ -642,6 +659,7 @@ if __name__ == '__main__':
     filename = f'{filename}_contact{optim_args.weight_contact}_thresh{optim_args.contact_thresh}_collision{optim_args.weight_collision}_jerk{optim_args.weight_jerk}'
     out_path = out_path / filename
     out_path.mkdir(parents=True, exist_ok=True)
+    """
 
     batch = dataset.get_batch(batch_size=optim_args.batch_size)
     input_motions, model_kwargs = batch[0]['motion_tensor_normalized'], {'y': batch[0]}
@@ -785,3 +803,19 @@ if __name__ == '__main__':
     ║     floor     = {losses['floor']:<15.8f}                                            ║
     ╚════════════════════════════════════════════════════════════════════════════╝
     """)
+
+    # save losses in output file
+    data_file_path = out_path / 'Losses.data'
+    with open(data_file_path, 'a') as f:
+        f.write(
+            f"collision_weight: {optim_args.weight_collision} "
+            f"contact_weight: {optim_args.weight_contact} "
+            f"jerk_weight: {optim_args.weight_jerk} "
+            f"skate_weight: {optim_args.weight_skate} "
+            f"total_loss: {losses['total']} "
+            f"joints_loss: {losses['joints']} "
+            f"collision_loss: {losses['collision']} "
+            f"jerk_loss: {losses['jerk']} "
+            f"floor_loss: {losses['floor']} \n"
+        )
+

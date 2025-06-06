@@ -1,0 +1,17 @@
+{
+  "scene_dir": "./data/scenes/cab_e",
+  "scene_file": "cab_e_4000.obj",
+  "floor_height": 0.0,
+  "interaction_name": "cabE-path3-run3-4000",
+  "interactions": [
+    {
+      "text_prompt": "run*3",
+      "init_joints": [
+        [1.92117, -1.63863, 1.045617], 
+        [1.90117, -1.63863, 1.045617], 
+        [1.94117, -1.63863, 1.045617]],
+      "goal_joints": [[1.7559, 0.190082, 1.190897]]
+    }
+
+  ]
+}

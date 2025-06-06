@@ -2,7 +2,7 @@
   "scene_dir": "./data/scenes/cab_e",
   "scene_file": "cab_e_4000.obj",
   "floor_height": 0.0,
-  "interaction_name": "run6-cabE-4000",
+  "interaction_name": "cabE-path1-run6-4000",
   "interactions": [
     {
       "text_prompt": "run*6",

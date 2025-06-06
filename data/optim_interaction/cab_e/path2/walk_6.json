@@ -2,10 +2,10 @@
   "scene_dir": "./data/scenes/cab_e",
   "scene_file": "cab_e_4000.obj",
   "floor_height": 0.0,
-  "interaction_name": "cabE-path2-walk12-4000",
+  "interaction_name": "cabE-path2-walk6-4000",
   "interactions": [
     {
-      "text_prompt": "walk*12",
+      "text_prompt": "walk*6",
       "init_joints": [
         [-1.66055, 0.401311, 1.045617], 
         [-1.56055, 0.401311, 1.045617], 

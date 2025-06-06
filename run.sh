@@ -4,12 +4,13 @@
 #
 #SBATCH --gpus=1
 #SBATCH --account digital_human
-#SBATCH --time=01:00:00
-#SBATCH --output=cabE_walk12.out
+#SBATCH --time=24:00:00
+#SBATCH --output=cabE_path2_run8_weight_at_lr_0p1_ct_0p2.out
 
 # conda activate DART
 
 # RUN OPTIM
+# source ./demos/leglos.sh
 source ./demos/test_configuration.sh
 
 # VISUALIZE

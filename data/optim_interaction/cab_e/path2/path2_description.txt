@@ -1,0 +1,2 @@
+Start: left bench
+Goal: right bench
