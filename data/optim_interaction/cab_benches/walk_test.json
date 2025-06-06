@@ -6,7 +6,7 @@
   "interaction_name": "benches_walk_test_8000",
   "interactions": [
     {
-      "text_prompt": "walk*12",
+      "text_prompt": "walk*18",
       "init_joints": [
         [
            -1.0,

@@ -6,7 +6,7 @@
   "interaction_name": "seminar_h53_0218_walk_test_8000",
   "interactions": [
     {
-      "text_prompt": "walk*12,stand still*1",
+      "text_prompt": "walk*15,stand still*1",
       "init_joints": [
         [-0.17,-2.19, 1.0],
         [-0.23,-2.09, 1.0],

@@ -6,7 +6,7 @@
   "interaction_name": "cnb_dlab_0215_sit_8000",
   "interactions": [
     {
-      "text_prompt": "walk*13,turn right*3,sit on bench*6",
+      "text_prompt": "walk*13,turn right*2,sit on bench*5",
       "init_joints": [[-1.5, 0.0, 1.1],[-1.5, 0.1, 1.1],[-1.5,-0.1, 1.1]],
       "goal_joints": [[ 0.88, 0.86, 0.5]]
     }
