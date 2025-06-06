@@ -1,35 +1,120 @@
-# TN_Group_7
+# iDART: Synthesizing Interactive Human Behavior
+**Course group project for Digital Humans, ETH Zürich, FS2025.**
 
+## Setup
 
+This section describes the setup and installation for the code of the group project. See the description of DART ([Getting Started](./DART-README.md#getting-started)) for the complete setup.
 
-## Installation
+### Requirements and Environment
 
-The installation section is structured into three subsections: Requirements and Dependencies, Download Poject Repository, and Download OpenNeuro Dataset.
-
-### Requirements and Dependencies
-
-The experimental setup used Matlab (version 24.2) with Statistics and Machine Learning Toolbox (version 24.2 ) Add-on and depends on the external libraries SPM12 (Statistical Parameter Mapping, version 7771) and rDCM toolbox (v1.5.0). The user needs a terminal (command line interface) and GitHub (installed on your system).
-
-### Download Project Repository
-
-Run the following commands in your console. The command will download the project code and the external dependencies. 
+This setup uses a conda environment. We recommend to use miniconda ([Miniconda - ANACONDA](https://www.anaconda.com/docs/getting-started/miniconda/main)).
 
 ```
-git clone https://gitlab.ethz.ch/tn_projects_fs2025/Project_7.git
-cd Project_7
-git submodule update --init --recursive
+conda env create -f environment.yml
+conda activate iDART
 ```
 
-### Download Data Set from OpenNeuro
+The experimental setup used 2 Intel Xeon CPUs and 1 NVIDIA GTX 1080 Ti from the student cluster.
 
-The experiments depends on data sets from OpenNeuro. The description of the data sets are shown below. The project repository provides bash scripts in data/ to download the relevant data sets from OpenNeuro. Run the following command in the project directory. Alternatively, go to Download section in the linked websites.
+### Download Data and Model Checkpoints
 
-```
-cd data
-source download_depression_dataset.sh
-source download_healthy_dataset.sh
-source gunzip_dataset.sh
-```
+The project depends on model checkpoints and data sets from DART and data for the body models. Please follow the links, download the material, unpack and merge it with this repository. 
+- [DART data - Google Drive](https://drive.google.com/drive/folders/1vJg3GFVPT6kr6cA0HrQGmiAEBE2dkaps?usp=drive_link): folders can be copied into the root directory.
+- [SMPL-X body model](https://download.is.tue.mpg.de/download.php?domain=smplx&sfile=smplx_lockedhead_20230207.zip): insert into data folder (exact structure below)
+- [SMPL-H body model](https://download.is.tue.mpg.de/download.php?domain=mano&resume=1&sfile=smplh.tar.xz): insert into smplx folder (exact structure below)
+
+<details>
+  <summary> Root folder structure </summary>
+
+  ```
+  .
+  ├── config_files
+  ├── control
+  ├── data             *new
+  ├── data_loaders
+  ├── data_scripts
+  ├── demos
+  ├── diffusion
+  ├── environment.yml
+  ├── evaluation
+  ├── misc
+  ├── mld
+  ├── mld_denoiser    *new
+  ├── model
+  ├── mvae            *new
+  ├── policy_train    *new
+  ├── README.md
+  ├── scenes
+  ├── utils
+  └── visualize
+  ...
+  ``` 
+</details>
+
+<details>
+  <summary> Data folder structure </summary>
+
+  ```
+  data
+  ├── action_statistics.json
+  ├── fps_dict_all.json
+  ├── fps_dict.json
+  ├── hml3d_smplh
+  │   └── seq_data_zero_male
+  ├── inbetween
+  │   └── pace_in_circles
+  ├── joint_skin_dist.json
+  ├── optim_interaction
+  │   ├── climb_down.json
+  │   └── sit.json
+  ├── scenes
+  │   └── demo
+  ├── seq_data_zero_male
+  │   ├── mean_std_h1_f1.pkl
+  │   ├── mean_std_h2_f16.pkl
+  │   ├── mean_std_h2_f8.pkl
+  │   ├── train_text_embedding_dict.pkl
+  │   └── val_text_embedding_dict.pkl
+  ├── smplx_lockedhead_20230207                        *from other source
+  │   └── models_lockedhead                            *unpack and move models here
+  ├── stand_20fps.pkl
+  ├── stand.pkl
+  ├── test_locomotion
+  │   ├── demo_walk.json
+  │   ├── random.json
+  │   ├── test_hop_long.json
+  │   ├── test_run_long.json
+  │   └── test_walk_long.json
+  └── traj_test
+      ├── dense_frame180_walk_circle
+      ├── dense_frame180_wave_right_hand_circle
+      ├── sparse_frame180_walk_square
+      └── sparse_punch
+  ```
+</details>
+  
+<details>
+  <summary> SMPL-X folder structure </summary>
+
+  ```
+  data/smplx_lockedhead_20230207/
+  └── models_lockedhead
+      ├── smplh                     *from MANO/SMPL-H
+      │   ├── female
+      │   ├── info.txt
+      │   ├── LICENSE.txt
+      │   ├── male
+      │   └── neutral
+      └── smplx                     *from SMPL-X
+          ├── md5sums.txt
+          ├── SMPLX_FEMALE.npz
+          ├── SMPLX_MALE.npz
+          └── SMPLX_NEUTRAL.npz
+  ```
+</details>
+
+#### ⚠️ IMPORTANT
+Use the correct names for the folders, especially for the SMPl-X folder, and be careful with data folder, it already contains some necessary files.
 
 #### **Data Set Description**
 
@@ -44,6 +129,12 @@ https://openneuro.org/datasets/ds003007/versions/1.0.1
 This dataset was used for the resting state network analysis. There are 51 subjects with mild depression and 21 healthy controls. A session consist of 100 dynamic scans with TR = 2.5 s and 25 slices.
 
 https://openneuro.org/datasets/ds002748/versions/1.0.5
+
+### ⚠️ IMPORTANT
+Only download the subjects `sub-51` up to `sub-72` to receive the healthy subjects.
+
+### ⚠️ IMPORTANT
+Only download the subjects `sub-51` up to `sub-72` to receive the healthy subjects.
 
 ### ⚠️ IMPORTANT
 Only download the subjects `sub-51` up to `sub-72` to receive the healthy subjects.
