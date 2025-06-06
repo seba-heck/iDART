@@ -752,7 +752,7 @@ if __name__ == '__main__':
             'future_length': future_length,
         }
         tensor_dict_to_device(sequence, 'cpu')
-        with open(out_path / f'volSPML_sample_{idx}.pkl', 'wb') as f:
+        with open(out_path / f'volSMPL_sample_{idx}.pkl', 'wb') as f:
             pickle.dump(sequence, f)
 
         # export smplx sequences for blender
