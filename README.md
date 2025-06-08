@@ -1,11 +1,40 @@
-# Synthesizing Interactive Human Behavior
-Team 6 of course group project for Digital Humans, ETH Zürich FS2025.
+# iDART: Synthesizing Interactive Human Behavior
 
+## Description 
 
+Course group project for *Digital Humans*, **263-5806-00L**, ETH Zürich, FS2025. This project aims to integrate [VolumetricSMPL](https://github.com/markomih/VolumetricSMPL) into [DartControl](https://zkf1997.github.io/DART/). The human model achieves a volumetric representation and enables 3D scenes and access to collision loss terms.
 
-## Notes
+## Installation
+
+The installation section is structured into three subsections: Requirements and Environment, Download Project Repository, and Download Data and Model Checkpoints.
+
+### Requirements and Environment
+
+The experimental setup operated on a *conda* (v.25.1.1) environment with *Python* (v.3.12.9) on *Ubuntu* (v.22.04.5). We recommend to use *miniconda* ([Miniconda - ANACONDA](https://www.anaconda.com/docs/getting-started/miniconda/main)). The local device used 2 Intel Xeon CPUs and 1 NVIDIA GTX 1080 Ti from the student cluster. 
+
+### Download Project Repository
+
+Run the following commands in your console. The command will download the project code and activate the external dependencies. 
+
+```
+git clone git@github.com:seba-heck/iDART.git
+cd iDART
+conda env create -f environment.yml
+conda activate iDART
+```
+
+#### ⚠️ IMPORTANT
+The user need to connect with GitHub SSH (Secure Shell Protocol). For the guideline, see [Generating a new SSH key and adding it to the ssh-agent](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent).
+
+### Download Data and Model Checkpoints
+
+The project depends on model checkpoints and data sets from DART and data for the body models. Please follow the links, download the material, unpack and merge it with this repository. 
+- [DART data - Google Drive](https://drive.google.com/drive/folders/1vJg3GFVPT6kr6cA0HrQGmiAEBE2dkaps?usp=drive_link): folders can be copied into the root directory.
+- [SMPL-X body model](https://download.is.tue.mpg.de/download.php?domain=smplx&sfile=smplx_lockedhead_20230207.zip): insert into data folder (exact structure below)
+- [SMPL-H body model](https://download.is.tue.mpg.de/download.php?domain=mano&resume=1&sfile=smplh.tar.xz): insert into smplx folder (exact structure below)
+
 <details>
-  <summary> Download file structure </summary>
+  <summary> Root folder structure </summary>
 
   ```
   .
@@ -30,6 +59,10 @@ Team 6 of course group project for Digital Humans, ETH Zürich FS2025.
   └── visualize
   ...
   ``` 
+</details>
+
+<details>
+  <summary> Data folder structure </summary>
 
   ```
   data
@@ -68,7 +101,11 @@ Team 6 of course group project for Digital Humans, ETH Zürich FS2025.
       ├── sparse_frame180_walk_square
       └── sparse_punch
   ```
+</details>
   
+<details>
+  <summary> SMPL-X folder structure </summary>
+
   ```
   data/smplx_lockedhead_20230207/
   └── models_lockedhead
@@ -86,20 +123,21 @@ Team 6 of course group project for Digital Humans, ETH Zürich FS2025.
   ```
 </details>
 
-<details>
-  <summary> Visualisation </summary>
-  Weil X11-forwarding auf dem Cluster(/Windows) nicht so richtig functioniert, hab ich 'visualize/vis_seq.py' copiert und modifiziert.
-  'visualize/vis_video.py' sollte nun offscreen ein Video rendern, z.B.:
-  
-  ```
-  python -m visualize.vis_video --add_floor 0 --seq_path './mld_denoiser/mld_fps_clip_repeat_euler/checkpoint_300000/optim/sit_use_pred_joints_ddim10_guidance5.0_seed0_contact0.1_thresh0.0_collision0.1_jerk0.1/sample_*.pkl' --follow_camera 1
-  ```  
-  
-  '--follow_camer' ist notwendig, damit ich die Kamera zum rendern macht
-</details>
+#### ⚠️ IMPORTANT
+Use the correct names for the folders, especially for the SMPl-X folder, and be careful with data folder, it already contains some necessary files.
 
-## Fragen
-- Ordner 'FlowMDM'? -> nicht notwendig, wurde zum vergleichen / evaluieren verwendet 
-- cluster team6 ordner? -> gefunden /work/courses/digital_human/6/
-- permission denied
-- 
+## Guideline
+
+
+## Authors 
+- Liza Polupanova, *D-MATH*, ipolupanova@student.ethz.ch
+- David Blickenstorfer, *D-MATH*, davidbl@student.ethz.ch 
+- Sebastian Heckers, *D-MATH*, sebastian.heckers@inf.ethz.ch 
+
+## Acknowledgment
+
+The authors thanks Kaifeng Zhao for his supervising during the project.
+
+## License
+The code was developed at ETH Zurich and is part of the course:
+*Digital Humans*, **263-5806-00L**. 
