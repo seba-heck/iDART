@@ -128,6 +128,15 @@ Use the correct names for the folders, especially for the SMPl-X folder, and be 
 
 ## Guideline
 
+#### ⚠️ IMPORTANT
+#### ⚠️ IMPORTANT
+#### ⚠️ IMPORTANT
+#### ⚠️ IMPORTANT
+#### ⚠️ IMPORTANT
+#### ⚠️ IMPORTANT
+#### ⚠️ IMPORTANT
+#### ⚠️ IMPORTANT
+
 
 ## Authors 
 - Liza Polupanova, *D-MATH*, ipolupanova@student.ethz.ch
