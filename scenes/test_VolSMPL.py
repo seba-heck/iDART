@@ -1,3 +1,18 @@
+#!/usr/bin/env python3
+"""
+EXAMPLE VolSMPL
+Course Group Project - Digital Humans, ETH Zürich, Spring 2025
+
+Description: 
+    A simple example of how to use VolumetricSMPL to avoid collisions with static geometries.
+
+Filename: test_VolSMPL.py
+Author:   Sebastian Heckers
+Date:     2025-06-09
+Version:  1.0
+Based on: VolumetricSMPL tutorial (https://github.com/markomih/VolumetricSMPL_applications/blob/main/tutorials/scene_collisions.py)
+"""
+
 import time
 import pickle
 import argparse

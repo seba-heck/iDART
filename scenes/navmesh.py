@@ -1,3 +1,17 @@
+#!/usr/bin/env python3
+"""
+TESTING Navmesh AND Pathfinder
+Course Group Project - Digital Humans, ETH Zürich, Spring 2025
+
+Description: 
+    This script tests the Navmesh baking functionality using the PathFinder library.
+
+Filename: navmesh.py
+Author:   Sebastian Heckers
+Date:     2025-06-09
+Version:  0.0 (in progress)
+"""
+
 from pathfinder import navmesh_baker as nmb
 import trimesh
 import pickle
@@ -39,28 +53,7 @@ def make_navmesh(inp_path,out_path):
     print(vertices)
     print(polygons)
 
-#     # Save the navigation mesh as a pickle file
-#     navmesh_data = {
-#         "vertices": vertices,
-#         "polygons": polygons,
-#     }
-
-#     with open(out_path, "wb") as f:
-#         pickle.dump(navmesh_data, f)
-
-
     # Validate the navigation mesh
     if len(vertices) == 0 or len(polygons) == 0:
         raise ValueError("[ERROR] Loaded navigation mesh is empty. Please check the baking process.")
 
-    # with open(out_path, "rb") as f:
-    #     navmesh_data = pickle.load(f)
-
-# read_from_text(file_path)
-
-# pathfinder = pf.PathFinder(vertices,polygons)
-# pathfinder = pf.PathFinder(navmesh_data['vertices'], navmesh_data['polygons'])
-
-# path = pathfinder.search_path((0,0,0), (1,1,1))
-
-# print(path)

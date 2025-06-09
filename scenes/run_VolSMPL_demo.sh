@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# RUN VolSMPL EXAMPLE
+# This script runs a Python script to visualize VolumetricSMPL and creates a video from the generated images.
+
 # Define variables
 CONDA_ENV="DART"
 OUTPUT_DIR="../bin"
