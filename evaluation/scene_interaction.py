@@ -79,6 +79,7 @@ class OptimArgs:
     init_noise_scale: float = 1.0
 
     interaction_cfg: str = './data/optim_interaction/climb_up_stairs.json'
+    smpl_file: str = './mld_denoiser/mld_fps_clip_repeat_euler/checkpoint_300000/optim/seminar_h53_0218_walk_test_8000_use_pred_joints_ddim10_guidance5.0_seed0_contact0.1_thresh0.0_collision1.0_jerk0.1/msh2sdf_sample_0.pkl'
 
     visualize_sdf: int = 0
 
@@ -203,7 +204,7 @@ def plot_sampled_points_with_sdf(points, sdf_values, smpl_output, T=98, title="S
 
     print(f'[Done] Plotting SDF-Points [bin/imgs/sdf-points-eval-{T}.png]')
 
-def calc_vol_sdf(scene_assets, motion_sequences):
+def calc_vol_sdf(scene_assets, motion_sequences,plot=False):
     """
     Calculate the signed distance function (SDF) values for the scene points.
 
@@ -260,7 +261,6 @@ def calc_vol_sdf(scene_assets, motion_sequences):
     smpl_output_vertices = smpl_output.vertices.reshape(T,-1,3)
     smpl_output_joints = smpl_output.joints.reshape(T,-1,3)
     
-
     # body_model.volume.encode_body(subset_smpl_output)
     # print(body_model.volume.impl_code["bbox_min"].shape)
     # print(body_model.volume.impl_code["bbox_max"].shape)
@@ -285,7 +285,8 @@ def calc_vol_sdf(scene_assets, motion_sequences):
         sdf_values[i_, :] = body_model.volume.query_fast(scene_points, subset_smpl_output)
     print(f"[Done] Query SDF-points [{sdf_values.shape}]")
 
-    plot_sampled_points_with_sdf(scene_points, sdf_values, smpl_output_vertices, T=T)
+    if plot:
+        plot_sampled_points_with_sdf(scene_points, sdf_values, smpl_output_vertices, T=T)
 
     return sdf_values # shape: [B, t_, N]
 
@@ -433,15 +434,18 @@ if __name__ == '__main__':
     # primitive_utility = dataset.primitive_utility
     batch_size = optim_args.batch_size
 
-    pickle_file_path = "./mld_denoiser/mld_fps_clip_repeat_euler/checkpoint_300000/optim/walk-benches-2000_use_pred_joints_ddim10_guidance5.0_seed0_contact0.1_thresh0.0_collision0.1_jerk0.1/sample_0.pkl"
+    pickle_file_path = optim_args.smpl_file
     # pickle_file_path = "./bin/output/sample_0.pkl"
     motion_sequence = load_motion_sequence(pickle_file_path)
+
+    gender = motion_sequence['gender']
+    T, J, _ = motion_sequence['joints'].shape
 
     # ADD VolumetricSMPL
     # make (high-level) SMPLX body model
     vol_body_model_dict = {
-        'male':   smplx.create(model_path=body_model_dir, model_type='smplx', batch_size=98, gender='male',   num_betas=10, ext='npz', num_pca_comps=12),
-        'female': smplx.create(model_path=body_model_dir, model_type='smplx', batch_size=98, gender='female', num_betas=10, ext='npz', num_pca_comps=12)
+        'male':   smplx.create(model_path=body_model_dir, model_type='smplx', batch_size=T, gender='male',   num_betas=10, ext='npz', num_pca_comps=12),
+        'female': smplx.create(model_path=body_model_dir, model_type='smplx', batch_size=T, gender='female', num_betas=10, ext='npz', num_pca_comps=12)
     }
     # attach volumetric representation
     attach_volume(vol_body_model_dict['male'])
@@ -464,8 +468,8 @@ if __name__ == '__main__':
     scene_points = torch.tensor(scene_mesh.vertices, dtype=torch.float32, device=device) # only points/vertices of obj-mesh
     
     # change axis orientation
-    scene_points[:, [0,1,2]] = scene_points[:, [2,0,1]]
-    scene_points[:, 0] = -scene_points[:, 0]
+    scene_points[:, [0,1,2]] = scene_points[:, [0,2,1]]
+    scene_points[:, 1] = -scene_points[:, 1]
 
     # save infos as scene dict
     scene_assets = {
@@ -473,14 +477,6 @@ if __name__ == '__main__':
         'scene_points': scene_points, # only 3D points
         'floor_height': interaction_cfg['floor_height'],
         'nbr_points': scene_points.shape[0],
-    }
-
-    # create dict for time measurements
-    times = {
-        'total': 0.0,
-        'rollout': 0.0,
-        'sdf': 0.0,
-        'nbr_iterations': 0,
     }
 
     # dict to save losses
@@ -507,10 +503,6 @@ if __name__ == '__main__':
     # out_path = out_path / filename
     # out_path.mkdir(parents=True, exist_ok=True)
 
-    print(motion_sequence['global_orient'].shape)
-    gender = motion_sequence['gender']
-    T, J, _ = motion_sequence['joints'].shape
-
     criterion = torch.nn.HuberLoss(reduction='none', delta=1.0)
     joints_mask = torch.zeros(22, dtype=torch.bool)
     joints_mask[0] = 1
@@ -525,15 +517,17 @@ if __name__ == '__main__':
     # }
 
     with torch.no_grad():
-        sdf_values = calc_vol_sdf(scene_assets, motion_sequence)
-        # # FOOT-CONTACT_LOSS, don't how to do this with VolSMPL
+        sdf_values = calc_vol_sdf(scene_assets, motion_sequence, plot=(optim_args.visualize_sdf==1))
+        # FOOT-CONTACT_LOSS, don't how to do this with VolSMPL
         if optim_args.floor_contact_loss == 0: 
             loss_floor_contact = torch.relu(sdf_values - optim_args.contact_thresh).amin(dim=-1).to(device=device)
         elif optim_args.floor_contact_loss == 1:
             loss_floor = ((global_joints[:, :, FOOT_JOINTS_IDX, 2] - joint_skin_dist.reshape(1,1,22)[FOOT_JOINTS_IDX]).amin(dim=-1) - optim_args.contact_thresh).clamp(min=0)
 
-        # # GENERAL COLLISION_LOSS
+        print(sdf_values.shape)
+        # GENERAL COLLISION_LOSS
         loss_collision = torch.relu(-sdf_values).sum(-1)
+        # loss_collision = torch.relu(-sdf_values).sum(dim=(-2,-1)).mean()
 
         # OTHER LOSS VALUES (just leave or?)
         loss_joints = criterion(motion_sequence['joints'][:, joints_mask], goal_joints.unsqueeze(0).repeat(T, 1, 1)).norm(dim=-1)
@@ -546,122 +540,61 @@ if __name__ == '__main__':
 
         # TOTAL LOSS
         # loss = loss_joints + optim_args.weight_collision * loss_collision + optim_args.weight_jerk * loss_jerk
-        loss = loss_joints[-1].mean() + optim_args.weight_collision * loss_collision.mean() + optim_args.weight_jerk * loss_jerk[3:].mean() + optim_args.weight_contact * loss_floor_contact.mean()
+        loss = loss_joints[-1].mean() + optim_args.weight_collision * loss_collision.sum() + optim_args.weight_jerk * loss_jerk[3:].mean() + optim_args.weight_contact * loss_floor_contact.mean()
 
     print(f'[Total] loss: {loss.item()} loss_joints: {loss_joints[-1].mean().item()} loss_collision: {loss_collision.mean().item()} loss_jerk: {loss_jerk[3:].mean().item()} floor_contact: {loss_floor_contact.mean().item()}')
+    losses['total'] = loss.item()
+    losses['joints'] = loss_joints[-1].mean().item()
+    losses['collision'] = loss_collision.sum().item()
+    losses['jerk'] = loss_jerk[3:].mean().item()
+    losses['floor'] = loss_floor_contact.mean().item()
 
+    log_file_path = optim_args.save_dir + "/losses_log.txt"
 
+    # Prepare the line to append
+    losses_line = (
+        f"{interaction_name}_"
+        + ("VolSMPL" if "vol" in optim_args.smpl_file else "Msh2SDF") + ", "
+        f"{losses['total']:.8f}, "
+        f"{losses['joints']:.8f}, "
+        f"{losses['collision']:.8f}, "
+        f"{losses['jerk']:.8f}, "
+        f"{losses['floor']:.8f}\n"
+    )
 
+    # Append the line to the file
+    with open(log_file_path, "a") as log_file:
+        log_file.write(losses_line)
 
-    # batch = dataset.get_batch(batch_size=optim_args.batch_size)
-    # input_motions, model_kwargs = batch[0]['motion_tensor_normalized'], {'y': batch[0]}
-    # del model_kwargs['y']['motion_tensor_normalized']
-    # gender = model_kwargs['y']['gender'][0]
-    # betas = model_kwargs['y']['betas'][:, :primitive_length, :].to(device)  # [> B, H+F, 10]
-    # pelvis_delta = primitive_utility.calc_calibrate_offset({
-    #     'betas': betas[:, 0, :],
-    #     'gender': gender,
-    # })
-    # # print(input_motions, model_kwargs)
-    # input_motions = input_motions.to(device)  # [> B, D, 1, T]
-    # motion_tensor = input_motions.squeeze(2).permute(0, 2, 1)  # [> B, T, D]
-    # init_history_motion = motion_tensor[:, :history_length, :]  # [> B, H, D]
-
-    # all_motion_sequences = None
-    # for interaction_idx, interaction in enumerate(interaction_cfg['interactions']):
-    #     cache_path = out_path / f'cache_{interaction_idx}.pkl'
-    #     if cache_path.exists() and optim_args.load_cache:
-    #         with open(cache_path, 'rb') as f:
-    #             all_motion_sequences, history_motion_tensor, transf_rotmat, transf_transl = pickle.load(f)
-    #         tensor_dict_to_device(all_motion_sequences, device)
-    #         history_motion_tensor = history_motion_tensor.to(device)
-    #         transf_rotmat = transf_rotmat.to(device)
-    #         transf_transl = transf_transl.to(device)
-    #     else:
-    #         text_prompt = interaction['text_prompt']
-    #         goal_joints = torch.zeros(batch_size, 22, 3, device=device, dtype=torch.float32)
-    #         goal_joints[:, 0] = torch.tensor(interaction['goal_joints'][0], device=device, dtype=torch.float32)
-    #         joints_mask = torch.zeros(22, device=device, dtype=torch.bool)
-    #         joints_mask[0] = 1
-
-    #         if interaction_idx == 0:
-    #             history_motion_tensor = init_history_motion
-    #             initial_joints = torch.tensor(interaction['init_joints'], device=device,
-    #                                           dtype=torch.float32)  # [3, 3]
-    #             # initial_joints[:, 2] = -pelvis_feet_height + scene_assets['floor_height']  # snap to floor
-    #             transf_rotmat, transf_transl = get_new_coordinate(initial_joints[None])
-    #             transf_rotmat = transf_rotmat.repeat(batch_size, 1, 1)
-    #             transf_transl = transf_transl.repeat(batch_size, 1, 1)
-    #             # visualize
-    #             # transform = np.eye(4)
-    #             # transform[:3, :3] = transf_rotmat[0].cpu().numpy()
-    #             # transform[:3, 3] = transf_transl[0].cpu().numpy()
-    #             # axis_mesh = trimesh.creation.axis(axis_length=0.1, transform=transform)
-    #             # transform = np.eye(4)
-    #             # transform[:3, 3] = goal_joints[0, 0].cpu().numpy()
-    #             # goal_mesh = trimesh.creation.axis(axis_length=0.1, transform=transform)
-    #             # (axis_mesh + goal_mesh + scene_assets['scene_with_floor_mesh']).show()
-
-    #         print("""# ------------------------ #\n[Start] Optimizing Routine""")
-    #         motion_sequences, history_motion_tensor, transf_rotmat, transf_transl = optimize(
-    #             history_motion_tensor, transf_rotmat, transf_transl, text_prompt, goal_joints, joints_mask)
-
-    #         if all_motion_sequences is None:
-    #             all_motion_sequences = motion_sequences
-    #             all_motion_sequences['goal_location_list'] = [goal_joints[0, 0].cpu()]
-    #             num_frames = all_motion_sequences['joints'].shape[1]
-    #             all_motion_sequences['goal_location_idx'] = [0] * num_frames
-    #         else:
-    #             for key in motion_sequences:
-    #                 if torch.is_tensor(motion_sequences[key]):
-    #                     # print(key, all_motion_sequences[key].shape, motion_sequences[key].shape)
-    #                     all_motion_sequences[key] = torch.cat([all_motion_sequences[key], motion_sequences[key]], dim=1)
-    #             all_motion_sequences['texts'] += motion_sequences['texts']
-    #             all_motion_sequences['goal_location_list'] += [goal_joints[0, 0].cpu()]
-    #             num_goals = len(all_motion_sequences['goal_location_list'])
-    #             num_frames = all_motion_sequences['joints'].shape[1]
-    #             all_motion_sequences['goal_location_idx'] += [num_goals - 1] * num_frames
-    #         with open(cache_path, 'wb') as f:
-    #             pickle.dump([all_motion_sequences, history_motion_tensor, transf_rotmat, transf_transl], f)
-    #         print("[End] Optimizing Routine\n# ------------------------ #")
-
-    # for idx in range(batch_size):
-    #     sequence = {
-    #         'texts': all_motion_sequences['texts'],
-    #         'scene_path': scene_dir / 'scene_with_floor.obj',
-    #         'goal_location_list': all_motion_sequences['goal_location_list'],
-    #         'goal_location_idx': all_motion_sequences['goal_location_idx'],
-    #         'gender': all_motion_sequences['gender'],
-    #         'betas': all_motion_sequences['betas'][idx],
-    #         'transl': all_motion_sequences['transl'][idx],
-    #         'global_orient': all_motion_sequences['global_orient'][idx],
-    #         'body_pose': all_motion_sequences['body_pose'][idx],
-    #         'joints': all_motion_sequences['joints'][idx],
-    #         'history_length': history_length,
-    #         'future_length': future_length,
-    #     }
-    #     tensor_dict_to_device(sequence, 'cpu')
-    #     with open(out_path / f'sample_{idx}.pkl', 'wb') as f:
-    #         pickle.dump(sequence, f)
-
-    #     # export smplx sequences for blender
-    #     if optim_args.export_smpl:
-    #         poses = transforms.matrix_to_axis_angle(
-    #             torch.cat([sequence['global_orient'].reshape(-1, 1, 3, 3), sequence['body_pose']], dim=1)
-    #         ).reshape(-1, 22 * 3)
-    #         poses = torch.cat([poses, torch.zeros(poses.shape[0], 99).to(dtype=poses.dtype, device=poses.device)],
-    #                           dim=1)
-    #         data_dict = {
-    #             'mocap_framerate': dataset.target_fps,  # 30
-    #             'gender': sequence['gender'],
-    #             'betas': sequence['betas'][0, :10].detach().cpu().numpy(),
-    #             'poses': poses.detach().cpu().numpy(),
-    #             'trans': sequence['transl'].detach().cpu().numpy(),
-    #         }
-    #         with open(out_path / f'sample_{idx}_smplx.npz', 'wb') as f:
-    #             np.savez(f, **data_dict)
-
-    # print(f'[Done] Results are at [{out_path.absolute()}]')
-
-
-
+    print(f"[INFO] Losses logged to {log_file_path}")
+    print(f"""
+    ╔════════════════════════════════════════════════════════════════════════════╗
+    ║                          Optimization Results                              ║
+    ╠════════════════════════════════════════════════════════════════════════════╣
+    ║ Interaction Name: {interaction_name:<50}       ║
+    ║ SMPL Path: {optim_args.smpl_file[:60]:<60}... ║
+    ║            {optim_args.smpl_file[60:120]:<60}... ║
+    ║            {optim_args.smpl_file[120:180]:<60}... ║
+    ║            {optim_args.smpl_file[180:210]:<60}    ║
+    ║ Configuration: {optim_args.interaction_cfg:<60}║
+    ╠════════════════════════════════════════════════════════════════════════════╣
+    ║ Optimization Parameters:                                                   ║
+    ║     Guidance Param   = {optim_args.guidance_param:<10.5f}                                          ║
+    ║     Respacing        = {optim_args.respacing:<10}                                          ║
+    ║     Batch Size       = {optim_args.batch_size:<10}                                          ║
+    ║     Optim LR         = {optim_args.optim_lr:<10.5f}                                          ║
+    ║     Optim Steps      = {optim_args.optim_steps:<10}                                          ║
+    ║     Weight Jerk      = {optim_args.weight_jerk:<10.5f}                                          ║
+    ║     Weight Collision = {optim_args.weight_collision:<10.5f}                                          ║
+    ║     Weight Contact   = {optim_args.weight_contact:<10.5f}                                          ║
+    ║     Contact Thresh   = {optim_args.contact_thresh:<10.5f}                                          ║
+    ║     Init Noise Scale = {optim_args.init_noise_scale:<10.5f}                                          ║
+    ╠════════════════════════════════════════════════════════════════════════════╣
+    ║ Losses:                                                                    ║
+    ║     Total Loss      = {losses['total']:<15.8f}                                      ║
+    ║     Joints Loss     = {losses['joints']:<15.8f}                                      ║
+    ║     Collision Loss  = {losses['collision']:<15.8f}                                      ║
+    ║     Jerk Loss       = {losses['jerk']:<15.8f}                                      ║
+    ║     Floor Loss      = {losses['floor']:<15.8f}                                      ║
+    ╚════════════════════════════════════════════════════════════════════════════╝
+    """)

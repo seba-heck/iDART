@@ -1,30 +1,20 @@
 # iDART: Synthesizing Interactive Human Behavior
+**Course group project for Digital Humans, ETH Zürich, FS2025.**
 
-## Description 
+## Setup
 
-Course group project for *Digital Humans*, **263-5806-00L**, ETH Zürich, FS2025. This project aims to integrate [VolumetricSMPL](https://github.com/markomih/VolumetricSMPL) into [DartControl](https://zkf1997.github.io/DART/). The human model achieves a volumetric representation and enables 3D scenes and access to collision loss terms.
-
-## Installation
-
-The installation section is structured into three subsections: Requirements and Environment, Download Project Repository, and Download Data and Model Checkpoints.
+This section describes the setup and installation for the code of the group project. See the description of DART ([Getting Started](./DART-README.md#getting-started)) for the complete setup.
 
 ### Requirements and Environment
 
-The experimental setup operated on a *conda* (v.25.1.1) environment with *Python* (v.3.12.9) on *Ubuntu* (v.22.04.5). We recommend to use *miniconda* ([Miniconda - ANACONDA](https://www.anaconda.com/docs/getting-started/miniconda/main)). The local device used 2 Intel Xeon CPUs and 1 NVIDIA GTX 1080 Ti from the student cluster. 
-
-### Download Project Repository
-
-Run the following commands in your console. The command will download the project code and activate the external dependencies. 
+This setup uses a conda environment. We recommend to use miniconda ([Miniconda - ANACONDA](https://www.anaconda.com/docs/getting-started/miniconda/main)).
 
 ```
-git clone git@github.com:seba-heck/iDART.git
-cd iDART
 conda env create -f environment.yml
 conda activate iDART
 ```
 
-#### ⚠️ IMPORTANT
-The user need to connect with GitHub SSH (Secure Shell Protocol). For the guideline, see [Generating a new SSH key and adding it to the ssh-agent](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent).
+The experimental setup used 2 Intel Xeon CPUs and 1 NVIDIA GTX 1080 Ti from the student cluster.
 
 ### Download Data and Model Checkpoints
 
@@ -126,27 +116,61 @@ The project depends on model checkpoints and data sets from DART and data for th
 #### ⚠️ IMPORTANT
 Use the correct names for the folders, especially for the SMPl-X folder, and be careful with data folder, it already contains some necessary files.
 
+#### **Data Set Description**
+
+**ds002748 (v.1.0.1):** Two sessions of resting state with closed eyes for patients with depression in treatment course (NFB, CBT or No treatment groups)
+
+This dataset was used for the resting state network analysis for patients with mild depression. There are two session of RS with 2-month interval, 3 groups of patients: no treatment, CBT, or fmri-NFB treatment. A session consists of 100 dynamic scans with TR = 2.5 s and 25 slices.
+
+https://openneuro.org/datasets/ds003007/versions/1.0.1
+
+**ds002748 (v.1.0.5):** Resting state with closed eyes for patients with depression and healthy participants
+
+This dataset was used for the resting state network analysis. There are 51 subjects with mild depression and 21 healthy controls. A session consist of 100 dynamic scans with TR = 2.5 s and 25 slices.
+
+https://openneuro.org/datasets/ds002748/versions/1.0.5
+
+### ⚠️ IMPORTANT
+Only download the subjects `sub-51` up to `sub-72` to receive the healthy subjects.
+
+### ⚠️ IMPORTANT
+Only download the subjects `sub-51` up to `sub-72` to receive the healthy subjects.
+
+### ⚠️ IMPORTANT
+Only download the subjects `sub-51` up to `sub-72` to receive the healthy subjects.
+
 ## Guideline
 
-#### ⚠️ IMPORTANT
-#### ⚠️ IMPORTANT
-#### ⚠️ IMPORTANT
-#### ⚠️ IMPORTANT
-#### ⚠️ IMPORTANT
-#### ⚠️ IMPORTANT
-#### ⚠️ IMPORTANT
-#### ⚠️ IMPORTANT
+Open Matlab and go to the project repository. Next, run following command. This will run the pipeline in right order.
 
+```
+for preprocessing:
+run('src/fmri_prepro_depression.m')
+run('src/fmri_prepro_healthy.m')
+
+for statistical analysis:
+run('src/rDCM_healthy_vs_depressed_analysis.m')
+run('src/rDCM_three_group_treatment_analysis.m')
+run('src/rDCM_treatment_pre_post_analysis.m')
+
+for svm modeling:
+run('src/svm_routine.m')
+
+the rest of .m files are helper functions
+```
+### 📝 NOTE  
+- Preprocessing fMRI data can take a **very long time**. On the local machine used, it took approximately **8–12 hours** to preprocess everything
+- appendix folder contains 2 codes that were not used for the final conclusions because they didn't show significant results (hypotheses_overall_results.m, figures in that folder obtained from here) or very slow accuracy predictions (appendix/svm_treat_pred.m). Nevertheless, they are part of the analysis development and/or future research.
 
 ## Authors 
-- Liza Polupanova, *D-MATH*, ipolupanova@student.ethz.ch
-- David Blickenstorfer, *D-MATH*, davidbl@student.ethz.ch 
-- Sebastian Heckers, *D-MATH*, sebastian.heckers@inf.ethz.ch 
+
+Areli Balderas Maza: abalderas@student.ethz.ch 
+David Blickenstorfer: davidbl@student.ethz.ch 
+Zhining Zhang: zhinzhang@student.ethz.ch
 
 ## Acknowledgment
 
-The authors thanks Kaifeng Zhao for his supervising during the project.
+The authors thanks Dr. Heinzle Jakob for his supervising during the project, Computational Psychiatry Lab for providing the rDCM toolbox, and the developers of SPM12 for providing neuroimaging tools.
 
 ## License
-The code was developed at ETH Zurich and is part of the course:
-*Digital Humans*, **263-5806-00L**. 
+The code was developed at University of Zurich and ETH Zurich and is part of the course: **Translational Neuromodeling, 227-0973-00L**. 

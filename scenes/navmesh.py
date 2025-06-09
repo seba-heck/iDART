@@ -64,5 +64,3 @@ def make_navmesh(inp_path,out_path):
 # path = pathfinder.search_path((0,0,0), (1,1,1))
 
 # print(path)
-
-make_navmesh(inp_path,out_path)

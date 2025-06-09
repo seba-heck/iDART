@@ -280,6 +280,9 @@ if __name__ == '__main__':
     diffusion = create_gaussian_diffusion(diffusion_args)
     sample_fn = diffusion.ddim_sample_loop_full_chain
 
+    print(vae_args.data_args.cfg_path)
+    print(vae_args.data_args.data_dir)
+
     # load initial seed dataset
     dataset = SinglePrimitiveDataset(cfg_path=vae_args.data_args.cfg_path,  # cfg path from model checkpoint
                                      dataset_path=vae_args.data_args.data_dir,  # dataset path from model checkpoint
@@ -306,15 +309,15 @@ if __name__ == '__main__':
     interaction_name = interaction_cfg['interaction_name'].replace(' ', '_')
     scene_dir = Path(interaction_cfg['scene_dir'])
     scene_dir = Path(scene_dir)
-    scene_with_floor_mesh = trimesh.load(scene_dir / 'scene_with_floor.obj', process=False, force='mesh')
-    with open(scene_dir / 'scene_sdf.json', 'r') as f:
+    # scene_with_floor_mesh = trimesh.load(scene_dir / 'scene_with_floor.obj', process=False, force='mesh')
+    with open(scene_dir / (interaction_cfg['scene_sdf'] + '.json'), 'r') as f:
         scene_sdf_config = json.load(f)
-    scene_sdf_grid = np.load(scene_dir / 'scene_sdf.npy')
+    scene_sdf_grid = np.load(scene_dir / (interaction_cfg['scene_sdf'] + '.npy'))
     scene_sdf_grid = torch.tensor(scene_sdf_grid, dtype=torch.float32, device=device).unsqueeze(
         0)  # [1, size, size, size]
 
     scene_assets = {
-        'scene_with_floor_mesh': scene_with_floor_mesh,
+        # 'scene_with_floor_mesh': scene_with_floor_mesh,
         'scene_sdf_grid': scene_sdf_grid,
         'scene_sdf_config': scene_sdf_config,
         'floor_height': interaction_cfg['floor_height'],
@@ -438,7 +441,7 @@ if __name__ == '__main__':
             'future_length': future_length,
         }
         tensor_dict_to_device(sequence, 'cpu')
-        with open(out_path / f'sample_{idx}.pkl', 'wb') as f:
+        with open(out_path / f'msh2sdf_sample_{idx}.pkl', 'wb') as f:
             pickle.dump(sequence, f)
 
         # export smplx sequences for blender
@@ -455,7 +458,7 @@ if __name__ == '__main__':
                 'poses': poses.detach().cpu().numpy(),
                 'trans': sequence['transl'].detach().cpu().numpy(),
             }
-            with open(out_path / f'sample_{idx}_smplx.npz', 'wb') as f:
+            with open(out_path / f'msh2sdf_sample_{idx}_smplx.npz', 'wb') as f:
                 np.savez(f, **data_dict)
 
     print(f'[Done] Results are at [{out_path.absolute()}]')

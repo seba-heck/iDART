@@ -1,6 +1,7 @@
 {
   "scene_dir": "./data/scenes/foodlab_0312",
   "scene_file": "foodlab_0312_8000.obj",
+  "scene_sdf": "foodlab_0312_sdf",
   "floor_height": 0.0,
   "interaction_name": "foodlab_walk_test_8000",
   "interactions": [
