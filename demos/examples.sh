@@ -20,22 +20,21 @@ visualize_sdf=1
 
 load_cache=0
 interaction_cfg_list=(
-# './data/optim_interaction/dlab_0215/sit-chair.json'
+'./data/optim_interaction/dlab_0215/sit-chair.json'
+'./data/optim_interaction/seminar_h53/walk_test.json'
+'./data/optim_interaction/foodlab/cartwheel.json'
+# './data/optim_interaction/foodlab/walk_12_2k.json'
+# './data/optim_interaction/foodlab/walk_12_4k.json'
+'./data/optim_interaction/foodlab/walk_12_6k.json'
+# './data/optim_interaction/foodlab/walk_12_8k.json'
+# './data/optim_interaction/foodlab/sit_2k.json'
+# './data/optim_interaction/foodlab/sit_4k.json'
+'./data/optim_interaction/foodlab/sit_6k.json'
+# './data/optim_interaction/foodlab/sit_8k.json'
 # './data/optim_interaction/dlab_0215/walk_12.json'
 # './data/optim_interaction/dlab_0215/walk_col_1k.json'
 # './data/optim_interaction/dlab_0215/walk_col_2k.json'
-# './data/optim_interaction/foodlab/cartwheel.json'
 # './data/optim_interaction/foodlab/walk_col.json'
-# './data/optim_interaction/foodlab/walk_3.json'
-# './data/optim_interaction/foodlab/walk_6.json'
-'./data/optim_interaction/foodlab/walk_12_2k.json'
-'./data/optim_interaction/foodlab/walk_12_4k.json'
-'./data/optim_interaction/foodlab/walk_12_6k.json'
-'./data/optim_interaction/foodlab/walk_12_8k.json'
-'./data/optim_interaction/foodlab/sit_2k.json'
-'./data/optim_interaction/foodlab/sit_4k.json'
-'./data/optim_interaction/foodlab/sit_6k.json'
-'./data/optim_interaction/foodlab/sit_8k.json'
 )
 
 model_list=(
