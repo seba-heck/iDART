@@ -147,18 +147,6 @@ Experiments with Mesh2SDF and VolSMPL.
 source demos/mesh2sdf.sh
 ```
 
-## Guideline
-
-#### ⚠️ IMPORTANT
-#### ⚠️ IMPORTANT
-#### ⚠️ IMPORTANT
-#### ⚠️ IMPORTANT
-#### ⚠️ IMPORTANT
-#### ⚠️ IMPORTANT
-#### ⚠️ IMPORTANT
-#### ⚠️ IMPORTANT
-
-
 ## Authors 
 - Liza Polupanova, *D-MATH*, ipolupanova@student.ethz.ch
 - David Blickenstorfer, *D-MATH*, davidbl@student.ethz.ch 
