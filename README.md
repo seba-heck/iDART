@@ -5,7 +5,7 @@ Course group project for *Digital Humans*, **263-5806-00L**, ETH Zürich, FS2025
 
 This project aims to integrate [VolumetricSMPL](https://github.com/markomih/VolumetricSMPL) into [DartControl](https://zkf1997.github.io/DART/). The human model achieves a volumetric representation and enables 3D scenes and access to collision loss terms.
 
-![Video Compliation](./bin/examples/examples-compilation.mp4)
+![Video Compliation](./bin/examples/examples-compilation.gif)
 
 ## Installation
 This section describes the setup and installation for the code of the group project. See the description of DART ([Getting Started](./DART-README.md#getting-started)) for the complete setup. This section is structured into three subsections: Requirements and Environment, Download Project Repository, and Download Data and Model Checkpoints.
