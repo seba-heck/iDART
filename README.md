@@ -1,16 +1,23 @@
+![Examples from iDART](./bin/examples/iDART-banner.png)
 # iDART: Synthesizing Interactive Human Behavior
 
-## Description 
+Course group project for *Digital Humans*, **263-5806-00L**, ETH Zürich, FS2025.
 
-Course group project for *Digital Humans*, **263-5806-00L**, ETH Zürich, FS2025. This project aims to integrate [VolumetricSMPL](https://github.com/markomih/VolumetricSMPL) into [DartControl](https://zkf1997.github.io/DART/). The human model achieves a volumetric representation and enables 3D scenes and access to collision loss terms.
+This project aims to integrate [VolumetricSMPL](https://github.com/markomih/VolumetricSMPL) into [DartControl](https://zkf1997.github.io/DART/). The human model achieves a volumetric representation and enables 3D scenes and access to collision loss terms.
+
+![Video Compliation](./bin/examples/examples-compilation.mp4)
 
 ## Installation
-
-The installation section is structured into three subsections: Requirements and Environment, Download Project Repository, and Download Data and Model Checkpoints.
+This section describes the setup and installation for the code of the group project. See the description of DART ([Getting Started](./DART-README.md#getting-started)) for the complete setup. This section is structured into three subsections: Requirements and Environment, Download Project Repository, and Download Data and Model Checkpoints.
 
 ### Requirements and Environment
 
 The experimental setup operated on a *conda* (v.25.1.1) environment with *Python* (v.3.12.9) on *Ubuntu* (v.22.04.5). We recommend to use *miniconda* ([Miniconda - ANACONDA](https://www.anaconda.com/docs/getting-started/miniconda/main)). The local device used 2 Intel Xeon CPUs and 1 NVIDIA GTX 1080 Ti from the student cluster. 
+
+```
+conda env create -f environment.yml
+conda activate iDART
+```
 
 ### Download Project Repository
 
@@ -19,8 +26,6 @@ Run the following commands in your console. The command will download the projec
 ```
 git clone git@github.com:seba-heck/iDART.git
 cd iDART
-conda env create -f environment.yml
-conda activate iDART
 ```
 
 #### ⚠️ IMPORTANT
@@ -125,6 +130,19 @@ The project depends on model checkpoints and data sets from DART and data for th
 
 #### ⚠️ IMPORTANT
 Use the correct names for the folders, especially for the SMPl-X folder, and be careful with data folder, it already contains some necessary files.
+
+## Demos
+The folder `demos/` contains several scripts which run some examples and experiments. The output motions are saved in `mld_denoiser/mld_fps_clip_repeat_euler/checkpoint_300000/optim/`. These can be visualised with Blender, see [Visualisation - DART](./DART-README.md#visualization). Some examples create a video of the SDF in `bin/results/`. Following are some instructions for the demos.
+
+Examples of different motions and scenes.
+```
+source demos/examples.sh
+```
+
+Experiments with Mesh2SDF and VolSMPL.
+```
+source demos/mesh2sdf.sh
+```
 
 ## Guideline
 
