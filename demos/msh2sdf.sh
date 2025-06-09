@@ -19,12 +19,12 @@ visualize_sdf=0
 
 load_cache=0
 interaction_cfg_list=(
-# './data/optim_interaction/foodlab/walk_test.json'
-# './data/optim_interaction/foodlab/sit_8k.json'
-# './data/optim_interaction/cab_benches/walk_test.json'
-# './data/optim_interaction/cab_e/walk.json'
-'./data/optim_interaction/dlab_0215/sit-chair.json'
-# './data/optim_interaction/seminar_h53/walk_test.json'
+  './data/optim_interaction/foodlab/walk_test.json'
+  './data/optim_interaction/foodlab/sit_8k.json'
+  './data/optim_interaction/cab_benches/walk_test.json'
+  './data/optim_interaction/cab_e/walk.json'
+  './data/optim_interaction/dlab_0215/sit-chair.json'
+  './data/optim_interaction/seminar_h53/walk_test.json'
 )
 
 model_list=(

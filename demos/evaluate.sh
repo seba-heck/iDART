@@ -33,6 +33,12 @@ interaction_cfg_list=(
   './data/optim_interaction/dlab_0215/sit-chair.json'
   './data/optim_interaction/seminar_h53/walk_test.json'
   './data/optim_interaction/seminar_h53/walk_test.json'
+  # './data/optim_interaction/seminar_h53/walk_test.json'
+  # './data/optim_interaction/seminar_h53/walk_test.json'
+  # './data/optim_interaction/seminar_h53/walk_test.json'
+  # './data/optim_interaction/seminar_h53/walk_test.json'
+  # './data/optim_interaction/seminar_h53/walk_test.json'
+  # './data/optim_interaction/seminar_h53/walk_test.json'
 )
 
 pkl_file_list=(
@@ -48,6 +54,12 @@ pkl_file_list=(
   './mld_denoiser/mld_fps_clip_repeat_euler/checkpoint_300000/optim/cnb_dlab_0215_sit_8000_use_pred_joints_ddim10_guidance5.0_seed0_contact0.1_thresh0.0_collision1.0_jerk0.1/volSMPL_sample_0.pkl'
   './mld_denoiser/mld_fps_clip_repeat_euler/checkpoint_300000/optim/seminar_h53_0218_walk_test_8000_use_pred_joints_ddim10_guidance5.0_seed0_contact0.1_thresh0.0_collision1.0_jerk0.1/volSMPL_sample_0.pkl'
   './mld_denoiser/mld_fps_clip_repeat_euler/checkpoint_300000/optim/seminar_h53_0218_walk_test_8000_use_pred_joints_ddim10_guidance5.0_seed0_contact0.1_thresh0.0_collision1.0_jerk0.1/msh2sdf_sample_0.pkl'
+  # './mld_denoiser/mld_fps_clip_repeat_euler/checkpoint_300000/optim/seminar_h53_0218_walk_test_8000_use_pred_joints_ddim10_guidance5.0_seed0_contact0.1_thresh0.0_collision0.0_jerk0.1/volSMPL_sample_0.pkl'
+  # './mld_denoiser/mld_fps_clip_repeat_euler/checkpoint_300000/optim/seminar_h53_0218_walk_test_8000_use_pred_joints_ddim10_guidance5.0_seed0_contact0.1_thresh0.0_collision0.1_jerk0.1/volSMPL_sample_0.pkl'
+  # './mld_denoiser/mld_fps_clip_repeat_euler/checkpoint_300000/optim/seminar_h53_0218_walk_test_8000_use_pred_joints_ddim10_guidance5.0_seed0_contact0.1_thresh0.0_collision0.5_jerk0.1/volSMPL_sample_0.pkl'
+  # './mld_denoiser/mld_fps_clip_repeat_euler/checkpoint_300000/optim/seminar_h53_0218_walk_test_8000_use_pred_joints_ddim10_guidance5.0_seed0_contact0.1_thresh0.0_collision1.0_jerk0.1/volSMPL_sample_0.pkl'
+  # './mld_denoiser/mld_fps_clip_repeat_euler/checkpoint_300000/optim/seminar_h53_0218_walk_test_8000_use_pred_joints_ddim10_guidance5.0_seed0_contact0.1_thresh0.0_collision2.0_jerk0.1/volSMPL_sample_0.pkl'
+  # './mld_denoiser/mld_fps_clip_repeat_euler/checkpoint_300000/optim/seminar_h53_0218_walk_test_8000_use_pred_joints_ddim10_guidance5.0_seed0_contact0.1_thresh0.0_collision5.0_jerk0.1/volSMPL_sample_0.pkl'
 )
 
 # Ensure both lists have the same length
