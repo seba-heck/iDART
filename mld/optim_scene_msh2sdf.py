@@ -1,3 +1,13 @@
+#!/usr/bin/env python3
+"""
+SCENE INTERACTION OPTIMIZATION from DART with Mesh2SDF
+Course Group Project - Digital Humans, ETH Zürich, Spring 2025
+
+! Disclaimer:
+    This code is from the DART project (mld/optim_scene_mld.py).
+    It used as baseline for the comparison with our implementation.
+"""
+
 from __future__ import annotations
 
 import os
