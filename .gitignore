@@ -193,4 +193,5 @@ data/action_statistics.json
 data/fps_dict.json
 data/fps_dict_all.json
 data/joint_skin_dist.json
-    
+
+*.out

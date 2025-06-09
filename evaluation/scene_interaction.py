@@ -1,3 +1,20 @@
+#!/usr/bin/env python3
+"""
+EVALUATION OF OPTIMIZATION WITH VolumetricSMPL
+Course Group Project - Digital Humans, ETH Zürich, Spring 2025
+
+Description: 
+    This script evaluates the optimization of a scene interaction using the VolumetricSMPL model.
+    It opens the motion sequence from a pickle file, calculates the signed distance function (SDF) values for the scene points,
+    and computes various losses such as joint loss, collision loss, jerk loss, and floor contact loss.
+
+Filename: scene_interaction.py
+Author:   Sebastian Heckers
+Date:     2025-06-09
+Version:  1.0
+Based on: mld/optim_scene_mld.py
+"""
+
 from __future__ import annotations
 
 import os
@@ -83,28 +100,6 @@ class OptimArgs:
 
     visualize_sdf: int = 0
 
-
-# import torch.nn.functional as F
-# def calc_point_sdf(scene_assets, points):
-#     device = points.device
-#     scene_sdf_config = scene_assets['scene_sdf_config']
-#     scene_sdf_grid = scene_assets['scene_sdf_grid']
-#     sdf_size = scene_sdf_config['size']
-#     sdf_scale = scene_sdf_config['scale']
-#     sdf_scale = torch.tensor(sdf_scale, dtype=torch.float32, device=device).reshape(1, 1, 1)  # [1, 1, 1]
-#     sdf_center = scene_sdf_config['center']
-#     sdf_center = torch.tensor(sdf_center, dtype=torch.float32, device=device).reshape(1, 1, 3)  # [1, 1, 3]
-#     batch_size, num_points, _ = points.shape
-#     # convert to [-1, 1], here scale is (1.6/extent) proportional to the inverse of scene size, https://github.com/wang-ps/mesh2sdf/blob/1b54d1f5458d8622c444f78d4477f600a6fe50e1/example/test.py#L22
-#     points = (points - sdf_center) * sdf_scale  # [> B, num_points, 3]
-#     sdf_values = F.grid_sample(scene_sdf_grid.unsqueeze(0),  # [> B, 1, size, size, size]
-#                                points[:, :, [2, 1, 0]].view(batch_size, num_points, 1, 1, 3),
-#                                padding_mode='border',
-#                                align_corners=True
-#                                ).reshape(batch_size, num_points)
-#     # print('sdf_values', sdf_values.shape)
-#     sdf_values = sdf_values / sdf_scale.squeeze(-1)  # [> B, P], scale back to the original scene size
-#     return sdf_values
 
 def sample_scene_points(scene_assets, B=8, T=98, s=4, rand_idxs=False):
     """
@@ -261,16 +256,6 @@ def calc_vol_sdf(scene_assets, motion_sequences,plot=False):
     smpl_output_vertices = smpl_output.vertices.reshape(T,-1,3)
     smpl_output_joints = smpl_output.joints.reshape(T,-1,3)
     
-    # body_model.volume.encode_body(subset_smpl_output)
-    # print(body_model.volume.impl_code["bbox_min"].shape)
-    # print(body_model.volume.impl_code["bbox_max"].shape)
-    # print(body_model.volume.impl_code["bbox_size"].shape)
-    # print(body_model.volume.impl_code["bbox_center"].shape)
-
-    # query sampled points for sdf values
-    # selfpen_loss, _collision_mask = body_model.volume.collision_loss(scene_points, smpl_output, ret_collision_mask=True)
-    # sdf_values = body_model.volume.query_fast(scene_points, subset_smpl_output)
-    
     # query sampled points for each batch
     sdf_values = torch.zeros(T, scene_assets['nbr_points'], device=device)
     print("[Start] Query SDF-points")
@@ -299,81 +284,6 @@ def calc_jerk(joints):
 
     return jerk
 
-# def optimize(history_motion_tensor, transf_rotmat, transf_transl, text_prompt, goal_joints, joints_mask):
-#     texts = []
-#     if ',' in text_prompt:  # contain a time line of multipel actions
-#         num_rollout = 0
-#         for segment in text_prompt.split(','):
-#             action, num_mp = segment.split('*')
-#             action = compose_texts_with_and(action.split(' and '))
-#             texts = texts + [action] * int(num_mp)
-#             num_rollout += int(num_mp)
-#     else:
-#         action, num_rollout = text_prompt.split('*')
-#         action = compose_texts_with_and(action.split(' and '))
-#         num_rollout = int(num_rollout)
-#         for _ in range(num_rollout):
-#             texts.append(action)
-#     all_text_embedding = encode_text(dataset.clip_model, texts, force_empty_zero=True).to(dtype=torch.float32,
-#                                                                                       device=device)
-
-#         global_joints = motion_sequences['joints']  # [> B, T, 22, 3]
-#         B, T, _, _ = global_joints.shape
-        
-#         torch.cuda.empty_cache()
-#         t_sdf_start = time.time()
-#         sdf_values = calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl)
-#         # TODO: implement meaningful loss function
-
-#         # # FOOT-CONTACT_LOSS, don't how to do this with VolSMPL
-#         # foot_joints_sdf = joints_sdf[:, :, FOOT_JOINTS_IDX]  # [> B, T, 2]
-#         # loss_floor_contact = (foot_joints_sdf.amin(dim=-1) - optim_args.contact_thresh).clamp(min=0).mean()
-#         if optim_args.floor_contact_loss == 0: 
-#             loss_floor_contact = torch.relu(sdf_values - optim_args.contact_thresh).min(dim=-1).mean()
-#         elif optim_args.floor_contact_loss == 1:
-#             loss_floor = ((global_joints[:, :, FOOT_JOINTS_IDX, 2] - joint_skin_dist.reshape(1,1,22)[FOOT_JOINTS_IDX]).amin(dim=-1) - optim_args.contact_thresh).clamp(min=0).mean()
-
-#         # # GENERAL COLLISION_LOSS
-#         # negative_sdf_per_frame = (joints_sdf - joint_skin_dist.reshape(1, 1, 22)).clamp(max=0).sum( # i think joint_skin_dist is the distance to the skin (and no more necessary, thanks VolSMPL)
-#         #     dim=-1)  # [> B, T], clip negative sdf, sum over joints
-#         # negative_sdf_mean = negative_sdf_per_frame.mean()
-#         # loss_collision = -negative_sdf_mean
-#         loss_collision = torch.relu(-sdf_values).sum(-1).mean()
-
-#         times['sdf'] += time.time() - t_sdf_start
-
-#         # OTHER LOSS VALUES (just leave or?)
-#         loss_joints = criterion(motion_sequences['joints'][:, -1, joints_mask], goal_joints[:, joints_mask])
-#         loss_jerk = calc_jerk(motion_sequences['joints'])
-#         # print("loss_joints shape", loss_joints.shape)
-#         # print("loss_collision shape", loss_collision.shape)
-
-#         # TOTAL LOSS
-#         loss = loss_joints + optim_args.weight_collision * loss_collision + optim_args.weight_jerk * loss_jerk
-#         # loss = loss_joints + optim_args.weight_collision * loss_collision + optim_args.weight_jerk * loss_jerk + optim_args.weight_contact * loss_floor_contact
-
-#         loss.backward()
-#         if optim_args.optim_unit_grad:
-#             noise.grad.data /= noise.grad.norm(p=2, dim=reduction_dims, keepdim=True).clamp(min=1e-6)
-#         optimizer.step()
-#         # print(f'[{i}/{optim_steps}] loss: {loss.item()} loss_joints: {loss_joints.item()} loss_collision: {loss_collision.item()} loss_jerk: {loss_jerk.item()}')
-#         print(f'[{i}/{optim_steps}] loss: {loss.item()} loss_joints: {loss_joints.item()} loss_collision: {loss_collision.item()} loss_jerk: {loss_jerk.item()} loss_floor_contact: {loss_floor_contact.item()}')
-
-#     times['total'] += time.time() - t_total_start
-#     times['nbr_iteration'] = optim_steps
-
-#     losses['total'] = loss
-#     losses['joints'] = loss_joints
-#     losses['collision'] = loss_collision
-#     losses['jerk'] = loss_jerk
-#     losses['floor'] = loss_floor_contact
-
-#     for key in motion_sequences:
-#         if torch.is_tensor(motion_sequences[key]):
-#             motion_sequences[key] = motion_sequences[key].detach()
-#     motion_sequences['texts'] = texts
-#     return motion_sequences, new_history_motion_tensor.detach(), new_transf_rotmat.detach(), new_transf_transl.detach()
-
 def load_motion_sequence(pickle_file_path):
     """
     Loads and reads a motion sequence from a pickle file.
@@ -397,41 +307,10 @@ def load_motion_sequence(pickle_file_path):
 
 if __name__ == '__main__':
     optim_args = tyro.cli(OptimArgs)
-    # TRY NOT TO MODIFY: seeding
-    # random.seed(optim_args.seed)
-    # np.random.seed(optim_args.seed)
-    # torch.manual_seed(optim_args.seed)
-    # torch.set_default_dtype(torch.float32)
-    # torch.backends.cudnn.deterministic = optim_args.torch_deterministic
+    
     device = torch.device(optim_args.device if torch.cuda.is_available() else "cpu")
     optim_args.device = device
 
-    # denoiser_args, denoiser_model, vae_args, vae_model = load_mld(optim_args.denoiser_checkpoint, device)
-    # denoiser_checkpoint = Path(optim_args.denoiser_checkpoint)
-    # save_dir = denoiser_checkpoint.parent / denoiser_checkpoint.name.split('.')[0] / 'optim'
-    # save_dir.mkdir(parents=True, exist_ok=True)
-    # optim_args.save_dir = save_dir
-
-    # diffusion_args = denoiser_args.diffusion_args
-    # assert 'ddim' in optim_args.respacing
-    # diffusion_args.respacing = optim_args.respacing
-    # print('diffusion_args:', asdict(diffusion_args))
-    # diffusion = create_gaussian_diffusion(diffusion_args)
-    # sample_fn = diffusion.ddim_sample_loop_full_chain
-
-    # # load initial seed dataset
-    # dataset = SinglePrimitiveDataset(cfg_path=vae_args.data_args.cfg_path,  # cfg path from model checkpoint
-    #                                  dataset_path=vae_args.data_args.data_dir,  # dataset path from model checkpoint
-    #                                  sequence_path='./data/stand.pkl',
-    #                                  batch_size=optim_args.batch_size,
-    #                                  device=device,
-    #                                  enforce_gender='male',
-    #                                  enforce_zero_beta=1,
-    #                                  )
-    # future_length = dataset.future_length
-    # history_length = dataset.history_length
-    # primitive_length = history_length + future_length
-    # primitive_utility = dataset.primitive_utility
     batch_size = optim_args.batch_size
 
     pickle_file_path = optim_args.smpl_file
@@ -488,33 +367,10 @@ if __name__ == '__main__':
         'floor': 0.0,
     }
 
-    # out_path = optim_args.save_dir
-    # filename = f'guidance{optim_args.guidance_param}_seed{optim_args.seed}'
-    # if optim_args.respacing != '':
-    #     filename = f'{optim_args.respacing}_{filename}'
-    # # if optim_args.smooth:
-    # #     filename = f'smooth_{filename}'
-    # if optim_args.zero_noise:
-    #     filename = f'zero_noise_{filename}'
-    # if optim_args.use_predicted_joints:
-    #     filename = f'use_pred_joints_{filename}'
-    # filename = f'{interaction_name}_{filename}'
-    # filename = f'{filename}_contact{optim_args.weight_contact}_thresh{optim_args.contact_thresh}_collision{optim_args.weight_collision}_jerk{optim_args.weight_jerk}'
-    # out_path = out_path / filename
-    # out_path.mkdir(parents=True, exist_ok=True)
-
     criterion = torch.nn.HuberLoss(reduction='none', delta=1.0)
     joints_mask = torch.zeros(22, dtype=torch.bool)
     joints_mask[0] = 1
     goal_joints = motion_sequence['goal_location_list'][0]
-
-    # mot_seq_ = {
-    #     'joints': motion_sequence['joints'].reshape(1,T,J, ...),
-    #     'betas': motion_sequence['betas'].reshape(1,T, ...),
-    #     'global_orient': motion_sequence['global_orient'].reshape(1,T, ...),
-    #     'body_pose': motion_sequence['body_pose'].reshape(1,T, ...),
-    #     'transl': motion_sequence['transl'].reshape(1,T, ...),
-    # }
 
     with torch.no_grad():
         sdf_values = calc_vol_sdf(scene_assets, motion_sequence, plot=(optim_args.visualize_sdf==1))
