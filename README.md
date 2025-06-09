@@ -7,6 +7,9 @@ This project aims to integrate [VolumetricSMPL](https://github.com/markomih/Volu
 
 ![Video Compliation](./bin/examples/examples-compilation.gif)
 
+### Abstract
+Text-conditioned human motion generation allows for intuitive control over digital humans via natural language. The recent framework DART enables real-time motion generation through latent diffusion and autoregressive control, also allowing goal-reaching motion. However, this model sometimes results in physically implausible results and collisions with the surrounding scene. To address this limitation, we present an extension of DART, incorporating the volumetric body model VolumetricSMPL. We leverage a signed distance field representation of the body model and incorporate it into the given DART framework. We show that our extension reduces collisions by more than 50% on average while maintaining adherence to high-level textual goals. Ablation studies further analyze the trade-offs introduced by volumetric constraints. Our results demonstrate that incorporating volumetric body geometry significantly improves scene-aware motion generation in complex 3D environments.
+
 ## Installation
 This section describes the setup and installation for the code of the group project. See the description of DART ([Getting Started](./DART-README.md#getting-started)) for the complete setup. This section is structured into three subsections: Requirements and Environment, Download Project Repository, and Download Data and Model Checkpoints.
 
