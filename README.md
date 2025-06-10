@@ -11,7 +11,7 @@ This project aims to integrate [VolumetricSMPL](https://github.com/markomih/Volu
 Text-conditioned human motion generation allows for intuitive control over digital humans via natural language. The recent framework DART enables real-time motion generation through latent diffusion and autoregressive control, also allowing goal-reaching motion. However, this model sometimes results in physically implausible results and collisions with the surrounding scene. To address this limitation, we present an extension of DART, incorporating the volumetric body model VolumetricSMPL. We leverage a signed distance field representation of the body model and incorporate it into the given DART framework. We show that our extension reduces collisions by more than 50% on average while maintaining adherence to high-level textual goals. Ablation studies further analyze the trade-offs introduced by volumetric constraints. Our results demonstrate that incorporating volumetric body geometry significantly improves scene-aware motion generation in complex 3D environments.
 
 ## Installation
-This section describes the setup and installation for the code of the group project. See the description of DART ([Getting Started](./DART-README.md#getting-started)) for the complete setup. This section is structured into three subsections: Requirements and Environment, Download Project Repository, and Download Data and Model Checkpoints.
+This section describes the setup and installation for the code of the group project. See the description of DART ([Getting Started](https://github.com/zkf1997/DART/tree/main?tab=readme-ov-file#getting-started)) for the complete setup. This section is structured into three subsections: Requirements and Environment, Download Project Repository, and Download Data and Model Checkpoints.
 
 ### Requirements and Environment
 
@@ -40,6 +40,7 @@ The project depends on model checkpoints and data sets from DART and data for th
 - [DART data - Google Drive](https://drive.google.com/drive/folders/1vJg3GFVPT6kr6cA0HrQGmiAEBE2dkaps?usp=drive_link): folders can be copied into the root directory.
 - [SMPL-X body model](https://download.is.tue.mpg.de/download.php?domain=smplx&sfile=smplx_lockedhead_20230207.zip): insert into data folder (exact structure below)
 - [SMPL-H body model](https://download.is.tue.mpg.de/download.php?domain=mano&resume=1&sfile=smplh.tar.xz): insert into smplx folder (exact structure below)
+- [EgoBody Dataset](https://egobody.ethz.ch/): download scene dataset here (not necessary, point clouds available in `data/scene/`)
 
 <details>
   <summary> Root folder structure </summary>
@@ -135,7 +136,7 @@ The project depends on model checkpoints and data sets from DART and data for th
 Use the correct names for the folders, especially for the SMPl-X folder, and be careful with data folder, it already contains some necessary files.
 
 ## Demos
-The folder `demos/` contains several scripts which run some examples and experiments. The output motions are saved in `mld_denoiser/mld_fps_clip_repeat_euler/checkpoint_300000/optim/`. These can be visualised with Blender, see [Visualisation - DART](./DART-README.md#visualization). Some examples create a video of the SDF in `bin/results/`. Following are some instructions for the demos.
+The folder `demos/` contains several scripts which run some examples and experiments. The output motions are saved in `mld_denoiser/mld_fps_clip_repeat_euler/checkpoint_300000/optim/`. These can be visualised with Blender, see [Visualisation - DART](https://github.com/zkf1997/DART/tree/main?tab=readme-ov-file#visualization). Some examples create a video of the SDF in `bin/results/`. Following are some instructions for the demos.
 
 Examples of different motions and scenes.
 ```
@@ -146,18 +147,6 @@ Experiments with Mesh2SDF and VolSMPL.
 ```
 source demos/mesh2sdf.sh
 ```
-
-## Guideline
-
-#### ⚠️ IMPORTANT
-#### ⚠️ IMPORTANT
-#### ⚠️ IMPORTANT
-#### ⚠️ IMPORTANT
-#### ⚠️ IMPORTANT
-#### ⚠️ IMPORTANT
-#### ⚠️ IMPORTANT
-#### ⚠️ IMPORTANT
-
 
 ## Authors 
 - Liza Polupanova, *D-MATH*, ipolupanova@student.ethz.ch
