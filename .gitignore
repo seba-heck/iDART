@@ -185,6 +185,7 @@ data/traj_test/
 bin/*.mp4
 bin/result/*.mp4
 bin/imgs/*.png
+bin/output/*.txt
 
 data/*.npz
 data/*.pkl

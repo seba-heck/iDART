@@ -1,3 +1,18 @@
+#!/usr/bin/env python3
+"""
+SCENE INTERACTION OPTIMIZATION WITH VolumetricSMPL
+Course Group Project - Digital Humans, ETH Zürich, Spring 2025
+
+Description:
+    This script uses a VolumetricSMPL model to interact with a scene defined by a set of points.
+
+Filename: optim_scene_mld.py
+Author:   Sebastian Heckers, Liza Polupanova, David Blickenstorfer
+Date:     2025-06-09
+Version:  1.0
+Based on: DART project scene interaction demo (mld/optim_scene_mld.py)
+"""
+
 from __future__ import annotations
 
 import os
@@ -84,26 +99,6 @@ class OptimArgs:
 
 
 import torch.nn.functional as F
-def calc_point_sdf(scene_assets, points):
-    device = points.device
-    scene_sdf_config = scene_assets['scene_sdf_config']
-    scene_sdf_grid = scene_assets['scene_sdf_grid']
-    sdf_size = scene_sdf_config['size']
-    sdf_scale = scene_sdf_config['scale']
-    sdf_scale = torch.tensor(sdf_scale, dtype=torch.float32, device=device).reshape(1, 1, 1)  # [1, 1, 1]
-    sdf_center = scene_sdf_config['center']
-    sdf_center = torch.tensor(sdf_center, dtype=torch.float32, device=device).reshape(1, 1, 3)  # [1, 1, 3]
-    batch_size, num_points, _ = points.shape
-    # convert to [-1, 1], here scale is (1.6/extent) proportional to the inverse of scene size, https://github.com/wang-ps/mesh2sdf/blob/1b54d1f5458d8622c444f78d4477f600a6fe50e1/example/test.py#L22
-    points = (points - sdf_center) * sdf_scale  # [> B, num_points, 3]
-    sdf_values = F.grid_sample(scene_sdf_grid.unsqueeze(0),  # [> B, 1, size, size, size]
-                               points[:, :, [2, 1, 0]].view(batch_size, num_points, 1, 1, 3),
-                               padding_mode='border',
-                               align_corners=True
-                               ).reshape(batch_size, num_points)
-    # print('sdf_values', sdf_values.shape)
-    sdf_values = sdf_values / sdf_scale.squeeze(-1)  # [> B, P], scale back to the original scene size
-    return sdf_values
 
 def sample_scene_points(scene_assets, B=8, T=98, s=4, rand_idxs=False):
     """
@@ -118,22 +113,7 @@ def sample_scene_points(scene_assets, B=8, T=98, s=4, rand_idxs=False):
         A tensor of shape [B, T, 3].
     """
     all_points = scene_assets["scene_points"]  # Shape: [N, 3]
-    # print("all_points shape", all_points.shape)
-
-    # get scene points
-    # bb_min = smpl_output.vertices.min(1).values.reshape(1, 3)
-    # bb_max = smpl_output.vertices.max(1).values.reshape(1, 3)
-
-    # inds = (scene_vertices >= bb_min).all(-1) & (scene_vertices <= bb_max).all(-1)
-    # if not inds.any():
-    #     return None
-    # points = scene_vertices[inds]
-    # points = points.float().reshape(1, -1, 3)  # add batch dimension
-    # return points
-    # Ensure the number of points matches B * T
-    # Ensure the number of points matches B * T
-
-    # repeat points for each time step
+    
     stacked_pointspoints = all_points.unsqueeze(0).repeat(B, T, 1, 1)  # Shape: [T, N, 3]
 
     # Generate subset time frames indices
@@ -155,7 +135,6 @@ def sample_scene_points(scene_assets, B=8, T=98, s=4, rand_idxs=False):
     # points = points.permute(2,0,1,3)
     points = points.reshape(B*t_, -1, 3)  # Shape: [B * T//s, N, 3]
 
-    # print("Transformed points shape:", points.shape)
     return points, indices
 
 def plot_sampled_points_with_sdf(points, sdf_values, smpl_output, B=8, T=98, title="Sampled Points with SDF Values"):
@@ -241,13 +220,9 @@ def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl, p
         t_: Number of time frames selected from the scene points evaluation.
     """
     B, T, J, _ = motion_sequences['joints'].shape
-    # print('B, T, J:', B, T, J)
-    # print('Device:', transf_rotmat.device)
 
     transf_rotmat = transf_rotmat.to(device)
     transf_transl = transf_transl.to(device)
-    # print("transf_rotmat", transf_rotmat.shape)
-    # print("transf_transl", transf_transl.shape)
 
     # get body pose parameterscon
     betas = motion_sequences['betas'].reshape(B * T, 10).to(device=device) #body shape coeffs, don't rotate! 
@@ -258,11 +233,6 @@ def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl, p
     # (B, T, 3) -> (B, 3)
     transl = motion_sequences['transl'].to(device=device) #global translation of the root
     
-    # print("betas shape", betas.shape)
-    # print("global_orient shape", global_orient.shape)
-    # print("body_pose shape", body_pose.shape)
-    # print("transl shape", transl.shape)
-
     #Rotation Transformations
     # transf_rotmat.permute(0,2,1)
     #transform (multiply with transf_rotmat)
@@ -288,24 +258,15 @@ def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl, p
     # get smplx model
     body_model = vol_body_model_dict[gender].to(device=device)
 
-    # Debugging: Check devices of all tensors
-    # print(f"Device check:\n betas={betas.device},\n global_orient={global_orient.device},\n body_pose={body_pose.device},\n transl={transl.device}")
-    # print("global_orient final shape", global_orient.shape)
-    # print("body_pose final shape", body_pose.shape)
-    # print("nbr joints body model", body_model.NUM_BODY_JOINTS)
-
     # get "current" smpl body model
     smpl_output = body_model(betas=betas,
                              global_orient=global_orient,
                              body_pose=body_pose,
                              transl=transl,
                              return_verts=True, return_full_pose=True)
-    # print("smpl_output shape", smpl_output.joints.shape)
-    # print("smpl_output", type(smpl_output))
 
     # get scene points
     scene_points, idxs = sample_scene_points(scene_assets,1,T,s=6)
-    # scene_points = scene_points.to(device=device)  # shape: [t, N, 3]
 
     # get nbr of (random) selected time frames
     t_ = len(idxs)
@@ -314,17 +275,6 @@ def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl, p
     smpl_output_full_pose = smpl_output.full_pose.reshape(B,T,-1,3)
     smpl_output_vertices = smpl_output.vertices.reshape(B,T,-1,3)
     smpl_output_joints = smpl_output.joints.reshape(B,T,-1,3)
-    
-
-    # body_model.volume.encode_body(subset_smpl_output)
-    # print(body_model.volume.impl_code["bbox_min"].shape)
-    # print(body_model.volume.impl_code["bbox_max"].shape)
-    # print(body_model.volume.impl_code["bbox_size"].shape)
-    # print(body_model.volume.impl_code["bbox_center"].shape)
-
-    # query sampled points for sdf values
-    # selfpen_loss, _collision_mask = body_model.volume.collision_loss(scene_points, smpl_output, ret_collision_mask=True)
-    # sdf_values = body_model.volume.query_fast(scene_points, subset_smpl_output)
 
     # query sampled points for each batch
     sdf_values = torch.zeros(B, t_, scene_assets['nbr_points'], device=device)
@@ -343,8 +293,6 @@ def calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl, p
 
         # query sampled points for sdf values
         sdf_values[i_,...] = body_model.volume.query_fast(scene_points, subset_smpl_output)
-
-    # print(sdf_values.shape)
 
     if plot==True:
         plot_sampled_points_with_sdf(scene_points, sdf_values, smpl_output_vertices[:, idxs, ...], B=1, T=t_)
@@ -487,23 +435,14 @@ def optimize(history_motion_tensor, transf_rotmat, transf_transl, text_prompt, g
         torch.cuda.empty_cache()
         t_sdf_start = time.time()
         sdf_values = calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl, plot=(optim_args.visualize_sdf==1 and (i % 10 == 0)))
-        # sdf_values = calc_vol_sdf(scene_assets, motion_sequences, transf_rotmat, transf_transl, plot=(optim_args.visualize_sdf==1 and (i+1 >= optim_steps or i < 1)))
-        # TODO: implement meaningful loss function
 
-        # # FOOT-CONTACT_LOSS, don't how to do this with VolSMPL
-        # foot_joints_sdf = joints_sdf[:, :, FOOT_JOINTS_IDX]  # [> B, T, 2]
-        # loss_floor_contact = (foot_joints_sdf.amin(dim=-1) - optim_args.contact_thresh).clamp(min=0).mean()
-        
+        # FOOT-CONTACT_LOSS
         if optim_args.floor_contact_loss == 0: #penalize sdf vals if not within threshold from floor
             loss_floor_contact = torch.relu(sdf_values - optim_args.contact_thresh).amin(dim=-1).mean()
         elif optim_args.floor_contact_loss == 1:
             loss_floor_contact = ((global_joints[:, :, FOOT_JOINTS_IDX, 2] - joint_skin_dist.reshape(1,1,22)[:,:,FOOT_JOINTS_IDX]).amin(dim=-1) - scene_assets['floor_height'] - optim_args.contact_thresh).clamp(min=0).mean()
 
-        # # GENERAL COLLISION_LOSS
-        # negative_sdf_per_frame = (joints_sdf - joint_skin_dist.reshape(1, 1, 22)).clamp(max=0).sum( # i think joint_skin_dist is the distance to the skin (and no more necessary, thanks VolSMPL)
-        #     dim=-1)  # [> B, T], clip negative sdf, sum over joints
-        # negative_sdf_mean = negative_sdf_per_frame.mean()
-        # loss_collision = -negative_sdf_mean
+        # GENERAL COLLISION_LOSS
         loss_collision = torch.relu(-sdf_values).sum(dim=(-2,-1)).mean()
 
         times['sdf'] += time.time() - t_sdf_start
@@ -511,19 +450,15 @@ def optimize(history_motion_tensor, transf_rotmat, transf_transl, text_prompt, g
         # OTHER LOSS VALUES (just leave or?)
         loss_joints = criterion(motion_sequences['joints'][:, -1, joints_mask], goal_joints[:, joints_mask])
         loss_jerk = calc_jerk(motion_sequences['joints'])
-        # print("loss_joints shape", loss_joints.shape)
-        # print("loss_collision shape", loss_collision.shape)
 
         # TOTAL LOSS
-        # loss = loss_joints + optim_args.weight_collision * loss_collision + optim_args.weight_jerk * loss_jerk
-        # loss = loss_joints + optim_args.weight_collision * loss_collision + optim_args.weight_jerk * loss_jerk + optim_args.weight_contact * loss_floor_contact
         loss = loss_joints + (i/optim_steps) * optim_args.weight_collision * loss_collision + optim_args.weight_jerk * loss_jerk + optim_args.weight_contact * loss_floor_contact
 
         loss.backward()
         if optim_args.optim_unit_grad:
             noise.grad.data /= noise.grad.norm(p=2, dim=reduction_dims, keepdim=True).clamp(min=1e-6)
         optimizer.step()
-        # print(f'[{i}/{optim_steps}] loss: {loss.item()} loss_joints: {loss_joints.item()} loss_collision: {loss_collision.item()} loss_jerk: {loss_jerk.item()}')
+        
         print(f'[{i}/{optim_steps}] loss: {loss.item()} loss_joints: {loss_joints.item()} loss_collision: {loss_collision.item()} loss_jerk: {loss_jerk.item()} loss_floor_contact: {loss_floor_contact.item()}')
 
     times['total'] += time.time() - t_total_start

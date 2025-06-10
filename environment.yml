@@ -275,7 +275,7 @@ dependencies:
       - cffi==1.16.0
       - chumpy==0.70
       - click==8.1.7
-      - clip==1.0
+      - git+https://github.com/openai/CLIP.git
       - comm==0.2.1
       - cryptography==43.0.3
       - cymem==2.0.8
